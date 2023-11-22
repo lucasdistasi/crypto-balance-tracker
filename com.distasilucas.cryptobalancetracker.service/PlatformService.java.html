@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PlatformService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service</a> &gt; <span class="el_source">PlatformService.java</span></div><h1>PlatformService.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service;
+
+import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
+import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+
+<span class="fc" id="L17">@Slf4j</span>
+@Service
+<span class="fc" id="L19">@RequiredArgsConstructor</span>
+public class PlatformService {
+
+    private final PlatformRepository platformRepository;
+
+    public List&lt;Platform&gt; retrieveAllPlatforms() {
+<span class="fc" id="L25">        log.info(&quot;Retrieving all platforms&quot;);</span>
+
+<span class="fc" id="L27">        return platformRepository.findAll();</span>
+    }
+
+    public Platform retrievePlatformById(String platformId) {
+<span class="fc" id="L31">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
+
+<span class="fc" id="L33">        return platformRepository.findById(platformId)</span>
+<span class="fc" id="L34">                .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L35">                    var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
+
+<span class="fc" id="L37">                    return new PlatformNotFoundException(message);</span>
+                });
+    }
+
+    public Platform savePlatform(PlatformRequest platformRequest) {
+<span class="fc" id="L42">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L43">        var platformEntity = platformRequest.toEntity();</span>
+<span class="fc" id="L44">        platformRepository.save(platformEntity);</span>
+<span class="fc" id="L45">        log.info(&quot;Saved platform {}&quot;, platformEntity);</span>
+
+<span class="fc" id="L47">        return platformEntity;</span>
+    }
+
+    public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
+<span class="fc" id="L51">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L52">        var platform = retrievePlatformById(platformId);</span>
+<span class="fc" id="L53">        var updatedPlatform = new Platform(platform.id(), platformRequest.name().toUpperCase());</span>
+<span class="fc" id="L54">        platformRepository.save(updatedPlatform);</span>
+
+<span class="fc" id="L56">        log.info(&quot;Updated platform. Before: {}. After: {}&quot;, platform, updatedPlatform);</span>
+
+<span class="fc" id="L58">        return updatedPlatform;</span>
+    }
+
+    public void deletePlatform(String platformId) {
+<span class="fc" id="L62">        var platform = retrievePlatformById(platformId);</span>
+<span class="fc" id="L63">        platformRepository.delete(platform);</span>
+<span class="fc" id="L64">        log.info(&quot;Deleted platform {}&quot;, platform);</span>
+<span class="fc" id="L65">    }</span>
+
+    private void validatePlatformDoesNotExist(String platformName) {
+<span class="fc" id="L68">        var platform = platformRepository.findByName(platformName.toUpperCase());</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (platform.isPresent()) {</span>
+<span class="fc" id="L71">            var message = DUPLICATED_PLATFORM.formatted(platformName.toUpperCase());</span>
+
+<span class="fc" id="L73">            throw new DuplicatedPlatformException(message);</span>
+        }
+<span class="fc" id="L75">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

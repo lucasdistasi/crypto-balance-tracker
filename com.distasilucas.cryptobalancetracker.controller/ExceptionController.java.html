@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ExceptionController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.controller</a> &gt; <span class="el_source">ExceptionController.java</span></div><h1>ExceptionController.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
+import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import jakarta.validation.ConstraintViolationException;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.context.request.WebRequest;
+
+import java.net.URI;
+import java.util.List;
+
+import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
+
+<span class="fc" id="L22">@Slf4j</span>
+@RestControllerAdvice
+<span class="fc" id="L24">public class ExceptionController {</span>
+
+<span class="fc" id="L26">    private static final HttpStatus NOT_FOUND_STATUS = HttpStatus.NOT_FOUND;</span>
+<span class="fc" id="L27">    private static final HttpStatus BAD_REQUEST_STATUS = HttpStatus.BAD_REQUEST;</span>
+
+    @ExceptionHandler(PlatformNotFoundException.class)
+    public ResponseEntity&lt;List&lt;ProblemDetail&gt;&gt; handlePlatformNotFoundException(
+            PlatformNotFoundException exception,
+            WebRequest webRequest
+    ) {
+<span class="fc" id="L34">        log.info(&quot;A PlatformNotFoundException has occurred&quot;, exception);</span>
+
+<span class="fc" id="L36">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L37">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L38">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+
+<span class="fc" id="L40">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+    }
+
+    @ExceptionHandler(DuplicatedPlatformException.class)
+    public ResponseEntity&lt;List&lt;ProblemDetail&gt;&gt; handleDuplicatedPlatformException(
+            DuplicatedPlatformException exception,
+            WebRequest webRequest
+    ) {
+<span class="fc" id="L48">        log.info(&quot;A DuplicatedPlatformException has occurred&quot;, exception);</span>
+
+<span class="fc" id="L50">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L51">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
+<span class="fc" id="L52">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+
+<span class="fc" id="L54">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity&lt;List&lt;ProblemDetail&gt;&gt; handleConstraintViolationException(
+            ConstraintViolationException exception,
+            WebRequest webRequest
+    ) {
+<span class="fc" id="L62">        log.info(&quot;A ConstraintViolationException has occurred&quot;, exception);</span>
+
+<span class="fc" id="L64">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L65">        var constraintViolations = exception.getConstraintViolations().stream().toList();</span>
+<span class="fc" id="L66">        var problemDetails = constraintViolations.stream()</span>
+<span class="fc" id="L67">                .map(constraintViolation -&gt; {</span>
+<span class="fc" id="L68">                    var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, constraintViolation.getMessage());</span>
+<span class="fc" id="L69">                    problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+
+<span class="fc" id="L71">                    return problemDetail;</span>
+                })
+<span class="fc" id="L73">                .toList();</span>
+
+<span class="fc" id="L75">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(problemDetails);</span>
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;List&lt;ProblemDetail&gt;&gt; handleMethodArgumentNotValidException(
+            MethodArgumentNotValidException exception,
+            WebRequest webRequest
+    ) {
+<span class="fc" id="L83">        log.info(&quot;A MethodArgumentNotValidException has occurred&quot;, exception);</span>
+
+<span class="fc" id="L85">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L86">        var allErrors = exception.getAllErrors()</span>
+<span class="fc" id="L87">                .stream()</span>
+<span class="fc" id="L88">                .map(error -&gt; {</span>
+<span class="fc bfc" id="L89" title="All 2 branches covered.">                    var errorMessage = StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : UNKNOWN_ERROR;</span>
+<span class="fc" id="L90">                    var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, errorMessage);</span>
+<span class="fc" id="L91">                    problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+
+<span class="fc" id="L93">                    return problemDetail;</span>
+                })
+<span class="fc" id="L95">                .toList();</span>
+
+<span class="fc" id="L97">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
