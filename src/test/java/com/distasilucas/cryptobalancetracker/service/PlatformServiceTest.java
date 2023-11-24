@@ -92,10 +92,9 @@ class PlatformServiceTest {
     @Test
     void shouldSavePlatformSuccessfully() {
         var platformRequest = new PlatformRequest("binance");
-        var platformEntity = platformRequest.toEntity();
         var platformArgumentCaptor = ArgumentCaptor.forClass(Platform.class);
 
-        when(platformRepositoryMock.save(platformArgumentCaptor.capture())).thenReturn(platformEntity);
+        when(platformRepositoryMock.save(platformArgumentCaptor.capture())).thenAnswer(answer -> platformArgumentCaptor.getValue());
 
         var platform = platformService.savePlatform(platformRequest);
 

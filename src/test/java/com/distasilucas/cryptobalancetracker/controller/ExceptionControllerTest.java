@@ -1,8 +1,11 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.junit.jupiter.api.Test;
@@ -23,8 +26,11 @@ import java.util.List;
 import java.util.Set;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ExceptionControllerTest {
@@ -59,6 +65,48 @@ class ExceptionControllerTest {
         assertThat(responseEntity)
                 .usingRecursiveComparison()
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleCoingeckoCryptoNotFoundException() {
+        var message = COINGECKO_CRYPTO_NOT_FOUND.formatted("meme");
+        var exception = new CoingeckoCryptoNotFoundException(message);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleCoingeckoCryptoNotFoundException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleDuplicatedCryptoPlatFormException() {
+        var message = DUPLICATED_CRYPTO_PLATFORM.formatted("bitcoin", "binance");
+        var exception = new DuplicatedCryptoPlatFormException(message);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleDuplicatedCryptoPlatFormException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleUserCryptoNotFoundException() {
+        var message = USER_CRYPTO_ID_NOT_FOUND.formatted("meme");
+        var exception = new UserCryptoNotFoundException(message);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleUserCryptoNotFoundException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -117,6 +165,19 @@ class ExceptionControllerTest {
 
         assertThat(responseEntity)
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleException() {
+        var exception = new Exception("Some exception has occurred");
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail(UNKNOWN_ERROR);
+
+        var responseEntity = exceptionController.handleException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
     }
 
     private MethodParameter createMethodParameter(

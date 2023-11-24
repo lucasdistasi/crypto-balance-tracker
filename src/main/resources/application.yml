@@ -6,6 +6,12 @@ spring:
     group:
       default: local
 
+coingecko:
+  api-key: ${COINGECKO_API_KEY}
+  url: "https://api.coingecko.com/api/v3"
+  pro:
+    url: "https://pro-api.coingecko.com/api/v3"
+
 springdoc:
   swagger-ui:
     defaultModelsExpandDepth: -1

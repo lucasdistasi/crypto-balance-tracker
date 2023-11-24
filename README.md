@@ -41,13 +41,12 @@ Do your own research before investing money you are not willing to loss.
 ## Technologies and stuff used :sparkles:
 
 - Java 21
-- Spring 6 & Spring Boot 3.1.5
-    - Spring WebFlux
+- Spring 6 & Spring Boot 3.2.0
     - Spring Security
     - Hibernate
     - OpenAPI
-- Lombok
 - Gradle 8.4
+- Lombok
 - Ehcache
 - MongoDB
 - JUnit 5 - Mockito

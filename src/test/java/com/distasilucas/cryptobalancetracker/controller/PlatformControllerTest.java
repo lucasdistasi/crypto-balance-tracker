@@ -30,7 +30,7 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldReturnStatus200WhenRetrievingAllPlatforms() {
+    void shouldRetrieveAllPlatformsWithStatus200() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
         var platformResponse = platformEntity.toPlatformResponse();
 
@@ -44,7 +44,7 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldReturnStatus204WhenRetrievingAllPlatforms() {
+    void shouldRetrieveAllPlatformsWithStatus204() {
         when(platformServiceMock.retrieveAllPlatforms()).thenReturn(Collections.emptyList());
 
         var responseEntity = platformController.retrieveAllPlatforms();
@@ -55,7 +55,7 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldReturnStatus200WhenRetrievingPlatformById() {
+    void shouldRetrievePlatformByIdWithStatus200() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
         var platformResponse = platformEntity.toPlatformResponse();
 
@@ -70,7 +70,7 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldReturnStatus200WhenSavingPlatform() {
+    void shouldRetrieveSavedPlatformWithStatus200() {
         var platformRequest = new PlatformRequest("binance");
         var platformEntity = platformRequest.toEntity();
         var platformResponse = platformEntity.toPlatformResponse();
@@ -85,7 +85,7 @@ class PlatformControllerTest {
     }
 
     @Test
-    void shouldReturnStatus200WhenUpdatingPlatform() {
+    void shouldRetrieveUpdatedPlatformWithStatus200() {
         var platformRequest = new PlatformRequest("bybit");
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BYBIT");
         var platformResponse = platformEntity.toPlatformResponse();

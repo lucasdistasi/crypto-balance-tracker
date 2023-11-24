@@ -1,0 +1,100 @@
+package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.controller.swagger.UserCryptoControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
+
+@Validated
+@RestController
+@RequestMapping(USER_CRYPTOS_ENDPOINT)
+@RequiredArgsConstructor
+public class UserCryptoController implements UserCryptoControllerAPI {
+
+    private final UserCryptoService userCryptoService;
+
+    @Override
+    @GetMapping("/{userCryptoId}")
+    public ResponseEntity<UserCryptoResponse> retrieveUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId
+    ) {
+        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);
+
+        return ResponseEntity.ok(userCrypto);
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity<PageUserCryptoResponse> retrieveUserCryptosForPage(
+            @Min(value = 0, message = INVALID_PAGE_NUMBER)
+            @RequestParam
+            int page
+    ) {
+        var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);
+
+        return userCryptos.cryptos().isEmpty() ?
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build() :
+                ResponseEntity.ok(userCryptos);
+    }
+
+    @Override
+    @PostMapping
+    public ResponseEntity<UserCryptoResponse> saveUserCrypto(@Valid @RequestBody UserCryptoRequest userCryptoRequest) {
+        var userCrypto = userCryptoService.saveUserCrypto(userCryptoRequest);
+
+        return ResponseEntity.ok(userCrypto);
+    }
+
+    @Override
+    @PutMapping("/{userCryptoId}")
+    public ResponseEntity<UserCryptoResponse> updateUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId,
+            @Valid
+            @RequestBody
+            UserCryptoRequest userCryptoRequest
+    ) {
+        var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);
+
+        return ResponseEntity.ok(userCrypto);
+    }
+
+    @Override
+    @DeleteMapping("/{userCryptoId}")
+    public ResponseEntity<UserCryptoResponse> deleteUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId
+    ) {
+        userCryptoService.deleteUserCrypto(userCryptoId);
+
+        return ResponseEntity.ok().build();
+    }
+
+}
