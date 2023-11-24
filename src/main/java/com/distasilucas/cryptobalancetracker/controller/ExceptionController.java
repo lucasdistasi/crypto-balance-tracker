@@ -1,7 +1,10 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -52,6 +55,48 @@ public class ExceptionController {
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(CoingeckoCryptoNotFoundException.class)
+    public ResponseEntity<List<ProblemDetail>> handleCoingeckoCryptoNotFoundException(
+            CoingeckoCryptoNotFoundException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A CoingeckoCryptoNotFoundException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(DuplicatedCryptoPlatFormException.class)
+    public ResponseEntity<List<ProblemDetail>> handleDuplicatedCryptoPlatFormException(
+            DuplicatedCryptoPlatFormException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A DuplicatedCryptoPlatFormException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(UserCryptoNotFoundException.class)
+    public ResponseEntity<List<ProblemDetail>> handleUserCryptoNotFoundException(
+            UserCryptoNotFoundException exception,
+            WebRequest webRequest
+    ) {
+        log.info("An UserCryptoNotFoundException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
