@@ -6,15 +6,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientResponseException;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CoingeckoServiceTest {
@@ -39,42 +37,35 @@ class CoingeckoServiceTest {
     void shouldRetrieveAllCryptos() {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
-
-        var webClient = WebClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", webClient);
+        var restClient = RestClient.create(COINGECKO_API_URL);
+        coingeckoService = new CoingeckoService("", restClient);
 
         var cryptos = coingeckoService.retrieveAllCryptos();
 
-        StepVerifier.create(Flux.just(cryptos))
-                .expectNextMatches(coingeckoCryptos -> !coingeckoCryptos.isEmpty())
-                .verifyComplete();
+        assertFalse(cryptos.isEmpty());
     }
 
     @Test
     void shouldRetrieveCoingeckoCryptoInfo() {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
-
-        var webClient = WebClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", webClient);
+        var restClient = RestClient.create(COINGECKO_API_URL);
+        coingeckoService = new CoingeckoService("", restClient);
 
         var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo("bitcoin");
 
-        StepVerifier.create(Mono.just(coingeckoCryptoInfo))
-                .expectNextMatches(coingeckoCrypto -> coingeckoCrypto.id().equalsIgnoreCase("bitcoin"))
-                .verifyComplete();
+        assertEquals("bitcoin", coingeckoCryptoInfo.id());
     }
 
     @Test
-    void shouldThrowWebClientResponseExceptionWithNotFoundCodeWhenSearchingForNonExistentCrypto() {
+    void shouldThrowRestClientResponseExceptionWithNotFoundCodeWhenSearchingForNonExistentCrypto() {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
-
-        var webClient = WebClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", webClient);
+        var restClient = RestClient.create(COINGECKO_API_URL);
+        coingeckoService = new CoingeckoService("", restClient);
 
         var exception = assertThrows(
-                WebClientResponseException.class,
+                RestClientResponseException.class,
                 () -> coingeckoService.retrieveCryptoInfo("pipicoin")
         );
 
@@ -82,15 +73,14 @@ class CoingeckoServiceTest {
     }
 
     @Test
-    void shouldThrowWebClientResponseExceptionWithBadRequestWhenUsingInvalidApiKeyForCryptoInfo() {
+    void shouldThrowRestClientResponseExceptionWithBadRequestWhenUsingInvalidApiKeyForCryptoInfo() {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
-
-        var webClient = WebClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("TEST123", webClient);
+        var restClient = RestClient.create(COINGECKO_API_URL);
+        coingeckoService = new CoingeckoService("TEST123", restClient);
 
         var exception = assertThrows(
-                WebClientResponseException.class,
+                RestClientResponseException.class,
                 () -> coingeckoService.retrieveCryptoInfo("bitcoin")
         );
 
@@ -98,15 +88,14 @@ class CoingeckoServiceTest {
     }
 
     @Test
-    void shouldThrowWebClientResponseExceptionWithBadRequestWhenUsingInvalidApiKeyForAllCryptos() {
+    void shouldThrowRestClientResponseExceptionWithBadRequestWhenUsingInvalidApiKeyForAllCryptos() {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
-
-        var webClient = WebClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("TEST123", webClient);
+        var restClient = RestClient.create(COINGECKO_API_URL);
+        coingeckoService = new CoingeckoService("TEST123", restClient);
 
         var exception = assertThrows(
-                WebClientResponseException.class,
+                RestClientResponseException.class,
                 () -> coingeckoService.retrieveAllCryptos()
         );
 

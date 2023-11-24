@@ -4,14 +4,15 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoC
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientException;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriBuilder;
 
 import java.net.URI;
@@ -26,35 +27,32 @@ public class CoingeckoService {
     private static final String COINS_URI = COIN_URI + "/list";
 
     private final String coingeckoApiKey;
-    private final WebClient coingeckoWebClient;
+    private final RestClient coingeckoRestClient;
 
-    public CoingeckoService(@Value("${coingecko.api-key}") String coingeckoApiKey, WebClient coingeckoWebClient) {
+    public CoingeckoService(@Value("${coingecko.api-key}") String coingeckoApiKey, RestClient coingeckoRestClient) {
         this.coingeckoApiKey = coingeckoApiKey;
-        this.coingeckoWebClient = coingeckoWebClient;
+        this.coingeckoRestClient = coingeckoRestClient;
     }
 
-    @Retryable(retryFor = WebClientException.class, backoff = @Backoff(delay = 1500))
+    @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public List<CoingeckoCrypto> retrieveAllCryptos() {
         log.info("Hitting Coingecko API... Retrieving all cryptos...");
 
-        return coingeckoWebClient.get()
+        return coingeckoRestClient.get()
                 .uri(getCryptosURI())
                 .retrieve()
-                .bodyToFlux(CoingeckoCrypto.class)
-                .collectList()
-                .block();
+                .body(new ParameterizedTypeReference<>() {});
     }
 
-    @Retryable(retryFor = WebClientException.class, backoff = @Backoff(delay = 1500))
+    @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public CoingeckoCryptoInfo retrieveCryptoInfo(String coingeckoCryptoId) {
         log.info("Hitting Coingecko API... Retrieving information for {}...", coingeckoCryptoId);
         var coinURI = COIN_URI.concat(coingeckoCryptoId);
 
-        return coingeckoWebClient.get()
+        return coingeckoRestClient.get()
                 .uri(getCoingeckoCryptoInfoURI(coinURI))
                 .retrieve()
-                .bodyToMono(CoingeckoCryptoInfo.class)
-                .block();
+                .body(CoingeckoCryptoInfo.class);
     }
 
     private Function<UriBuilder, URI> getCryptosURI() {

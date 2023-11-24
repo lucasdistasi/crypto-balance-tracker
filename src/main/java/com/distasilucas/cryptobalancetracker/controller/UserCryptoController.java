@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -56,7 +57,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     ) {
         var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);
 
-        return ResponseEntity.ok(userCryptos);
+        return userCryptos.cryptos().isEmpty() ?
+                ResponseEntity.status(HttpStatus.NO_CONTENT).build() :
+                ResponseEntity.ok(userCryptos);
     }
 
     @Override

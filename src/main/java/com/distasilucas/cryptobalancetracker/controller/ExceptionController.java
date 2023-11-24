@@ -141,4 +141,18 @@ public class ExceptionController {
 
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<List<ProblemDetail>> handleException(
+            Exception exception,
+            WebRequest webRequest
+    ) {
+        log.warn("An unhandled Exception has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail));
+    }
 }

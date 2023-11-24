@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CurrentPrice;
@@ -19,6 +20,7 @@ import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 
 public class TestDataSource {
 
@@ -50,6 +52,41 @@ public class TestDataSource {
 
     public static MockHttpServletRequestBuilder deletePlatform(String platformId) {
         var url = PLATFORMS_ENDPOINT.concat("/%s".formatted(platformId));
+
+        return MockMvcRequestBuilders.delete(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptoById(String userCryptoById) {
+        var url = USER_CRYPTOS_ENDPOINT.concat("/%s".formatted(userCryptoById));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptosForPage(int page) {
+        var url = USER_CRYPTOS_ENDPOINT.concat("?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder saveUserCrypto(String content) {
+        return MockMvcRequestBuilders.post(USER_CRYPTOS_ENDPOINT)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder updateUserCrypto(String userCryptoById, String content) {
+        var url = USER_CRYPTOS_ENDPOINT.concat("/%s".formatted(userCryptoById));
+
+        return MockMvcRequestBuilders.put(url)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder deleteUserCrypto(String userCryptoById) {
+        var url = USER_CRYPTOS_ENDPOINT.concat("/%s".formatted(userCryptoById));
 
         return MockMvcRequestBuilders.delete(url)
                 .contentType(MediaType.APPLICATION_JSON);
@@ -90,6 +127,14 @@ public class TestDataSource {
     public static UserCrypto getUserCrypto() {
         return new UserCrypto(
                 "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                "bitcoin",
+                new BigDecimal("0.25"),
+                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+        );
+    }
+
+    public static UserCryptoRequest getUserCryptoRequest() {
+        return new UserCryptoRequest(
                 "bitcoin",
                 new BigDecimal("0.25"),
                 "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"

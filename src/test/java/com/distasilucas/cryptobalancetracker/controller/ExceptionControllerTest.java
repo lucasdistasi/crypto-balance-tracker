@@ -167,6 +167,19 @@ class ExceptionControllerTest {
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
+    @Test
+    void shouldHandleException() {
+        var exception = new Exception("Some exception has occurred");
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail(UNKNOWN_ERROR);
+
+        var responseEntity = exceptionController.handleException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
+    }
+
     private MethodParameter createMethodParameter(
             Class<?> clazz,
             String methodName,
