@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Crypto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.entity</a> &gt; <span class="el_source">Crypto.java</span></div><h1>Crypto.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.entity;
+
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Document(&quot;Cryptos&quot;)
+<span class="fc" id="L11">public record Crypto(</span>
+        @Id
+        String id,
+        String name,
+        String ticker,
+        String image,
+
+        @Field(&quot;last_known_price&quot;)
+        BigDecimal lastKnownPrice,
+
+        @Field(&quot;last_known_price_in_eur&quot;)
+        BigDecimal lastKnownPriceInEUR,
+
+        @Field(&quot;last_known_price_in_btc&quot;)
+        BigDecimal lastKnownPriceInBTC,
+
+        @Field(&quot;circulating_supply&quot;)
+        BigDecimal circulatingSupply,
+
+        @Field(&quot;max_supply&quot;)
+        BigDecimal maxSupply,
+
+        @Field(&quot;last_updated_at&quot;)
+        LocalDateTime lastUpdatedAt
+) {
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

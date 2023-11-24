@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserCryptoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service</a> &gt; <span class="el_source">UserCryptoService.java</span></div><h1>UserCryptoService.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service;
+
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
+import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
+
+import java.util.Objects;
+
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
+
+<span class="fc" id="L20">@Slf4j</span>
+@Service
+<span class="fc" id="L22">@RequiredArgsConstructor</span>
+public class UserCryptoService {
+
+    private final UserCryptoRepository userCryptoRepository;
+    private final PlatformService platformService;
+    private final CryptoService cryptoService;
+
+    public UserCrypto findUserCryptoById(String userCryptoId) {
+<span class="fc" id="L30">        return userCryptoRepository.findById(userCryptoId)</span>
+<span class="fc" id="L31">                .orElseThrow(() -&gt; new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));</span>
+    }
+
+    public UserCryptoResponse retrieveUserCryptoById(String userCryptoId) {
+<span class="fc" id="L35">        log.info(&quot;Retrieving user crypto with id {}&quot;, userCryptoId);</span>
+
+<span class="fc" id="L37">        var userCrypto = findUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L38">        var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());</span>
+<span class="fc" id="L39">        var platform = platformService.retrievePlatformById(userCrypto.platformId());</span>
+
+<span class="fc" id="L41">        return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());</span>
+    }
+
+    public PageUserCryptoResponse retrieveUserCryptosByPage(int page) {
+<span class="fc" id="L45">        log.info(&quot;Retrieving user cryptos for page {}&quot;, page);</span>
+
+<span class="fc" id="L47">        var pageRequest = PageRequest.of(page, 10);</span>
+<span class="fc" id="L48">        var entityUserCryptosPage = userCryptoRepository.findAll(pageRequest);</span>
+
+<span class="fc" id="L50">        var userCryptosPage = entityUserCryptosPage.getContent()</span>
+<span class="fc" id="L51">                .stream()</span>
+<span class="fc" id="L52">                .map(userCrypto -&gt; {</span>
+<span class="fc" id="L53">                    var platform = platformService.retrievePlatformById(userCrypto.platformId());</span>
+<span class="fc" id="L54">                    var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());</span>
+
+<span class="fc" id="L56">                    return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());</span>
+                })
+<span class="fc" id="L58">                .toList();</span>
+
+<span class="fc" id="L60">        return new PageUserCryptoResponse(page, entityUserCryptosPage.getTotalPages(), userCryptosPage);</span>
+    }
+
+    public UserCryptoResponse saveUserCrypto(UserCryptoRequest userCryptoRequest) {
+<span class="fc" id="L64">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());</span>
+<span class="fc" id="L65">        var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
+
+<span class="fc" id="L67">        userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
+<span class="fc" id="L68">                coingeckoCrypto.id(),</span>
+<span class="fc" id="L69">                userCryptoRequest.platformId()</span>
+<span class="fc" id="L70">        ).ifPresent(userCrypto -&gt;  {</span>
+<span class="fc" id="L71">            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.name());</span>
+<span class="fc" id="L72">            throw new DuplicatedCryptoPlatFormException(message);</span>
+        });
+
+<span class="fc" id="L75">        var userCrypto = userCryptoRequest.toEntity(coingeckoCrypto.id());</span>
+
+<span class="fc" id="L77">        userCryptoRepository.save(userCrypto);</span>
+<span class="fc" id="L78">        log.info(&quot;Saved user crypto {}&quot;, userCrypto);</span>
+<span class="fc" id="L79">        cryptoService.saveCryptoIfNotExists(coingeckoCrypto.id());</span>
+
+<span class="fc" id="L81">        return userCrypto.toUserCryptoResponse(coingeckoCrypto.name(), platform.name());</span>
+    }
+
+    public UserCryptoResponse updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
+<span class="fc" id="L85">        var userCrypto = findUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L86">        var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
+<span class="fc" id="L87">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {</span>
+<span class="fc" id="L90">            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
+<span class="fc" id="L91">                    coingeckoCrypto.id(),</span>
+<span class="fc" id="L92">                    userCryptoRequest.platformId()</span>
+<span class="fc" id="L93">            ).ifPresent(uc -&gt;  {</span>
+<span class="fc" id="L94">                String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.name());</span>
+<span class="fc" id="L95">                throw new DuplicatedCryptoPlatFormException(message);</span>
+            });
+        }
+
+<span class="fc" id="L99">        var updatedUserCrypto = userCryptoRequest.toEntity(userCrypto.id(), userCrypto.coingeckoCryptoId());</span>
+
+<span class="fc" id="L101">        userCryptoRepository.save(updatedUserCrypto);</span>
+<span class="fc" id="L102">        log.info(&quot;Updated user crypto. Before: {} | After: {}&quot;, userCrypto, updatedUserCrypto);</span>
+
+<span class="fc" id="L104">        return updatedUserCrypto.toUserCryptoResponse(coingeckoCrypto.name(), requestPlatform.name());</span>
+    }
+
+    public void deleteUserCrypto(String userCryptoId) {
+<span class="fc" id="L108">        var userCrypto = findUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L109">        userCryptoRepository.deleteById(userCryptoId);</span>
+<span class="fc" id="L110">        cryptoService.deleteCryptoIfNotUsed(userCrypto.coingeckoCryptoId());</span>
+
+<span class="fc" id="L112">        log.info(&quot;Deleted user crypto {}&quot;, userCryptoId);</span>
+<span class="fc" id="L113">    }</span>
+
+    private boolean didChangePlatform(String newPlatform, String originalPlatform) {
+<span class="fc bfc" id="L116" title="All 2 branches covered.">        return !newPlatform.equalsIgnoreCase(originalPlatform);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

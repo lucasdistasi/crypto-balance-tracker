@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserCryptoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.controller</a> &gt; <span class="el_source">UserCryptoController.java</span></div><h1>UserCryptoController.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.controller.swagger.UserCryptoControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
+
+@Validated
+@RestController
+@RequestMapping(USER_CRYPTOS_ENDPOINT)
+<span class="nc" id="L33">@RequiredArgsConstructor</span>
+public class UserCryptoController implements UserCryptoControllerAPI {
+
+    private final UserCryptoService userCryptoService;
+
+    @Override
+    @GetMapping(&quot;/{userCryptoId}&quot;)
+    public ResponseEntity&lt;UserCryptoResponse&gt; retrieveUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId
+    ) {
+<span class="nc" id="L45">        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);</span>
+
+<span class="nc" id="L47">        return ResponseEntity.ok(userCrypto);</span>
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity&lt;PageUserCryptoResponse&gt; retrieveUserCryptosForPage(
+            @Min(value = 0, message = INVALID_PAGE_NUMBER)
+            @RequestParam
+            int page
+    ) {
+<span class="nc" id="L57">        var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);</span>
+
+<span class="nc" id="L59">        return ResponseEntity.ok(userCryptos);</span>
+    }
+
+    @Override
+    @PostMapping
+    public ResponseEntity&lt;UserCryptoResponse&gt; saveUserCrypto(@Valid @RequestBody UserCryptoRequest userCryptoRequest) {
+<span class="nc" id="L65">        var userCrypto = userCryptoService.saveUserCrypto(userCryptoRequest);</span>
+
+<span class="nc" id="L67">        return ResponseEntity.ok(userCrypto);</span>
+    }
+
+    @Override
+    @PutMapping(&quot;/{userCryptoId}&quot;)
+    public ResponseEntity&lt;UserCryptoResponse&gt; updateUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId,
+            @Valid
+            @RequestBody
+            UserCryptoRequest userCryptoRequest
+    ) {
+<span class="nc" id="L80">        var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);</span>
+
+<span class="nc" id="L82">        return ResponseEntity.ok(userCrypto);</span>
+    }
+
+    @Override
+    @DeleteMapping(&quot;/{userCryptoId}&quot;)
+    public ResponseEntity&lt;UserCryptoResponse&gt; deleteUserCrypto(
+            @UUID(message = USER_CRYPTO_ID_UUID)
+            @PathVariable
+            String userCryptoId
+    ) {
+<span class="nc" id="L92">        userCryptoService.deleteUserCrypto(userCryptoId);</span>
+
+<span class="nc" id="L94">        return ResponseEntity.ok().build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
