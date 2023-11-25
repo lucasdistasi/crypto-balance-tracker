@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.service;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
@@ -19,7 +18,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -361,6 +359,26 @@ class UserCryptoServiceTest {
         verify(userCryptoRepositoryMock, never()).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
 
         assertEquals(USER_CRYPTO_ID_NOT_FOUND.formatted("af827ac7-d642-4461-a73c-b31ca6f6d13d"), exception.getMessage());
+    }
+
+    @Test
+    void shouldFindAllByCoingeckoCryptoId() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
+
+        var userCryptos = userCryptoService.findAllByCoingeckoCryptoId("bitcoin");
+
+        assertThat(userCryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new UserCrypto(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "bitcoin",
+                                new BigDecimal("0.25"),
+                                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                        )
+                ));
     }
 
     private Platform getPlatformEntity() {

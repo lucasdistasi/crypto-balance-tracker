@@ -1,13 +1,18 @@
 package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
+import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
+import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -18,7 +23,9 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
+import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 
@@ -92,6 +99,41 @@ public class TestDataSource {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
+    public static MockHttpServletRequestBuilder retrieveGoalById(String goalId) {
+        var url = GOALS_ENDPOINT.concat("/%s".formatted(goalId));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveGoalsForPage(int page) {
+        var url = GOALS_ENDPOINT.concat("?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder saveGoal(String content) {
+        return MockMvcRequestBuilders.post(GOALS_ENDPOINT)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder updateGoal(String goalId, String content) {
+        var url = GOALS_ENDPOINT.concat("/%s".formatted(goalId));
+
+        return MockMvcRequestBuilders.put(url)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder deleteGoal(String goalId) {
+        var url = GOALS_ENDPOINT.concat("/%s".formatted(goalId));
+
+        return MockMvcRequestBuilders.delete(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
     public static String getFileContent(String path) throws IOException {
         var classPathResource = new ClassPathResource(path);
         return StreamUtils.copyToString(classPathResource.getInputStream(), Charset.defaultCharset());
@@ -139,5 +181,21 @@ public class TestDataSource {
                 new BigDecimal("0.25"),
                 "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
         );
+    }
+
+    public static GoalResponse getGoalResponse() {
+        return new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0");
+    }
+
+    public static PageGoalResponse getPageGoalResponse() {
+        return new PageGoalResponse(1, 1, false, List.of(getGoalResponse()));
+    }
+
+    public static GoalRequest getGoalRequest() {
+        return new GoalRequest("bitcoin", new BigDecimal("1"));
+    }
+
+    public static Goal getGoalEntity() {
+        return new Goal("bitcoin", new BigDecimal("1"));
     }
 }

@@ -1,8 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
-import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
+import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,20 +16,20 @@ import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_GOAL_UUID;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
-import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
 
-@Tag(name = "UserCrypto Controller", description = "API endpoints for user cryptos management")
-public interface UserCryptoControllerAPI {
+@Tag(name = "Goal Controller", description = "API endpoints for goal management")
+public interface GoalControllerAPI {
 
-    @Operation(summary = "Retrieve information for the given user crypto id")
+    @Operation(summary = "Retrieve information for the given goal")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User crypto information",
+                    description = "Goal information",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserCryptoResponse.class)
+                            schema = @Schema(implementation = GoalResponse.class)
                     )
             ),
             @ApiResponse(
@@ -37,55 +37,51 @@ public interface UserCryptoControllerAPI {
                     description = "Bad request",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            ))
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
+                    )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User crypto not found",
+                    description = "Goal not found",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            ))
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
+                    )
             ),
             @ApiResponse(
                     responseCode = "500",
                     description = "Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            ))
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
+                    )
             )
     })
-    ResponseEntity<UserCryptoResponse> retrieveUserCrypto(@UUID(message = USER_CRYPTO_ID_UUID) String userCryptoId);
+    ResponseEntity<GoalResponse> retrieveGoalById(@UUID(message = INVALID_GOAL_UUID) String goalId);
 
-
-    @Operation(summary = "Retrieves user cryptos by page")
+    @Operation(summary = "Retrieve goals by page")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User cryptos by page",
+                    description = "Goals by page",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserCryptoResponse.class)
+                            schema = @Schema(implementation = PageGoalResponse.class)
                     )
             ),
             @ApiResponse(
                     responseCode = "204",
-                    description = "No user cryptos found",
-                    content = @Content(mediaType = "application/json")
+                    description = "No goals found",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
             ),
             @ApiResponse(
                     responseCode = "400",
                     description = "Bad request",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
@@ -93,23 +89,20 @@ public interface UserCryptoControllerAPI {
                     description = "Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             )
     })
-    ResponseEntity<PageUserCryptoResponse> retrieveUserCryptosForPage(@Min(value = 0, message = INVALID_PAGE_NUMBER) int page);
+    ResponseEntity<PageGoalResponse> retrieveGoalsForPage(@Min(value = 0, message = INVALID_PAGE_NUMBER) int page);
 
-
-    @Operation(summary = "Save user crypto")
+    @Operation(summary = "Save goal")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User crypto saved",
+                    description = "Goal saved",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserCryptoResponse.class)
+                            schema = @Schema(implementation = GoalResponse.class)
                     )
             ),
             @ApiResponse(
@@ -117,9 +110,7 @@ public interface UserCryptoControllerAPI {
                     description = "Bad request",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
@@ -127,22 +118,20 @@ public interface UserCryptoControllerAPI {
                     description = "Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class))
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             )
     })
-    ResponseEntity<UserCryptoResponse> saveUserCrypto(@Valid UserCryptoRequest userCryptoRequest);
+    ResponseEntity<GoalResponse> saveGoal(@Valid GoalRequest goalRequest);
 
-
-    @Operation(summary = "Update user crypto")
+    @Operation(summary = "Update goal")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User crypto updated",
+                    description = "Goal updated",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserCryptoResponse.class)
+                            schema = @Schema(implementation = GoalResponse.class)
                     )
             ),
             @ApiResponse(
@@ -150,19 +139,15 @@ public interface UserCryptoControllerAPI {
                     description = "Bad request",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User crypto not found",
+                    description = "Goal not found",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
@@ -170,26 +155,23 @@ public interface UserCryptoControllerAPI {
                     description = "Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             )
     })
-    ResponseEntity<UserCryptoResponse> updateUserCrypto(
-            @UUID(message = USER_CRYPTO_ID_UUID) String userCryptoId,
-            @Valid UserCryptoRequest userCryptoRequest
+    ResponseEntity<GoalResponse> updateGoal(
+            @UUID(message = INVALID_GOAL_UUID) String goalId,
+            @Valid GoalRequest goalRequest
     );
 
-
-    @Operation(summary = "Delete user crypto")
-    @ApiResponses(value = {
+    @Operation(summary = "Delete goal")
+    @ApiResponses( value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "User crypto deleted",
+                    description = "Goal deleted",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = UserCryptoResponse.class)
+                            schema = @Schema(implementation = GoalResponse.class)
                     )
             ),
             @ApiResponse(
@@ -197,19 +179,15 @@ public interface UserCryptoControllerAPI {
                     description = "Bad request",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
                     responseCode = "404",
-                    description = "User crypto or platform not found",
+                    description = "Goal not found",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             ),
             @ApiResponse(
@@ -217,12 +195,9 @@ public interface UserCryptoControllerAPI {
                     description = "Internal Server Error",
                     content = @Content(
                             mediaType = "application/json",
-                            array = @ArraySchema(
-                                    schema = @Schema(implementation = ProblemDetail.class)
-                            )
+                            array = @ArraySchema(schema = @Schema(implementation = ProblemDetail.class))
                     )
             )
     })
-    ResponseEntity<UserCryptoResponse> deleteUserCrypto(@UUID(message = USER_CRYPTO_ID_UUID) String userCryptoId);
-
+    ResponseEntity<Void> deleteGoal(@UUID(message = INVALID_GOAL_UUID) String goalId);
 }

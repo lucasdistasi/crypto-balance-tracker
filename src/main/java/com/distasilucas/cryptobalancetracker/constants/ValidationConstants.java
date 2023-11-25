@@ -20,4 +20,5 @@ public class ValidationConstants {
     public static final String PLATFORM_ID_NOT_BLANK = "Platform id can not be null or blank";
     public static final String INVALID_PAGE_NUMBER = "Page must be greater than or equal to 0";
     public static final String USER_CRYPTO_ID_UUID = "User crypto id must be a valid UUID";
+    public static final String INVALID_GOAL_UUID = "Goal id must be a valid UUID";
 }

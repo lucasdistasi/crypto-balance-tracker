@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Objects;
+import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -27,6 +27,8 @@ public class UserCryptoService {
     private final CryptoService cryptoService;
 
     public UserCrypto findUserCryptoById(String userCryptoId) {
+        log.info("Retrieving user crypto with id {}", userCryptoId);
+
         return userCryptoRepository.findById(userCryptoId)
                 .orElseThrow(() -> new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));
     }
@@ -110,6 +112,12 @@ public class UserCryptoService {
         cryptoService.deleteCryptoIfNotUsed(userCrypto.coingeckoCryptoId());
 
         log.info("Deleted user crypto {}", userCryptoId);
+    }
+
+    public List<UserCrypto> findAllByCoingeckoCryptoId(String coingeckoCryptoId) {
+        log.info("Retrieving all user cryptos matching coingecko crypto id {}", coingeckoCryptoId);
+
+        return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {
