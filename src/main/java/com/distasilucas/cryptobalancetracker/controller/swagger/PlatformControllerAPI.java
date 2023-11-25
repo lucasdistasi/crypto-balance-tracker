@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ProblemDetail;
@@ -17,6 +18,7 @@ import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.PLATFORM_ID_UUID;
 
+@Tag(name = "Platform Controller", description = "API endpoints for platform management")
 public interface PlatformControllerAPI {
 
     @Operation(summary = "Retrieve all platforms")

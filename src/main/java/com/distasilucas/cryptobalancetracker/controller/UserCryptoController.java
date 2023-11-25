@@ -9,7 +9,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
@@ -58,7 +55,7 @@ public class UserCryptoController implements UserCryptoControllerAPI {
         var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);
 
         return userCryptos.cryptos().isEmpty() ?
-                ResponseEntity.status(HttpStatus.NO_CONTENT).build() :
+                ResponseEntity.noContent().build() :
                 ResponseEntity.ok(userCryptos);
     }
 

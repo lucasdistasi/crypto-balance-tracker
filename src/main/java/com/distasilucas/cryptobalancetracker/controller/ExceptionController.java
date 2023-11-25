@@ -2,7 +2,9 @@ package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
+import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
+import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import jakarta.validation.ConstraintViolationException;
@@ -49,6 +51,34 @@ public class ExceptionController {
             WebRequest webRequest
     ) {
         log.info("A DuplicatedPlatformException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(GoalNotFoundException.class)
+    public ResponseEntity<List<ProblemDetail>> handleGoalNotFoundException(
+            GoalNotFoundException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A GoalNotFoundException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(DuplicatedGoalException.class)
+    public ResponseEntity<List<ProblemDetail>> handleDuplicatedGoalException(
+            DuplicatedGoalException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A DuplicatedGoalException has occurred", exception);
 
         var request = (ServletWebRequest) webRequest;
         var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());
