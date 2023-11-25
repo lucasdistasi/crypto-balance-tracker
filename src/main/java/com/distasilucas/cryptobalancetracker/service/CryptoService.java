@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 
@@ -101,5 +102,20 @@ public class CryptoService {
             cryptoRepository.deleteById(coingeckoCryptoId);
             log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
         }
+    }
+
+    public List<Crypto> findOldestNCryptosByLastPriceUpdate(LocalDateTime localDateTime, int limit) {
+        log.info("Retrieving {} cryptos with date filter {}", limit, localDateTime);
+
+        return cryptoRepository.findOldestNCryptosByLastPriceUpdate(localDateTime, limit);
+    }
+
+    public void updateCryptos(List<Crypto> cryptosToUpdate) {
+        cryptoRepository.saveAll(cryptosToUpdate);
+        var cryptosNames = cryptosToUpdate.stream()
+                .map(Crypto::name)
+                .toList();
+
+        log.info("Updated cryptos: {}", cryptosNames);
     }
 }

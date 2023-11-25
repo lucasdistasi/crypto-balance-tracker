@@ -7,6 +7,7 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
@@ -34,6 +35,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -139,6 +141,19 @@ class ExceptionControllerTest {
         assertThat(responseEntity)
                 .usingRecursiveComparison()
                 .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleTooManyRequestsException() {
+        var exception = new TooManyRequestsException();
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, REQUEST_LIMIT_REACHED);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleTooManyRequestsException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail)));
     }
 
     @Test

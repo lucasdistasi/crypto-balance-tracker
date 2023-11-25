@@ -287,4 +287,40 @@ class CryptoServiceTest {
         verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
     }
 
+    @Test
+    void shouldFindTopCryptosByLastPriceUpdate() {
+        var localDateTime = LocalDateTime.now();
+        var cryptosEntity = new Crypto(
+                "bitcoin",
+                "Bitcoin",
+                "btc",
+                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                new BigDecimal("30000"),
+                new BigDecimal("27000"),
+                new BigDecimal("1"),
+                new BigDecimal("19000000"),
+                new BigDecimal("21000000"),
+                localDateTime
+        );
+
+        when(cryptoRepositoryMock.findOldestNCryptosByLastPriceUpdate(localDateTime, 5)).thenReturn(List.of(cryptosEntity));
+
+        var cryptos = cryptoService.findOldestNCryptosByLastPriceUpdate(localDateTime, 5);
+
+        assertThat(cryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(cryptosEntity));
+    }
+
+    @Test
+    void shouldUpdateCryptos() {
+        var cryptosEntities = getCryptoEntity();
+
+        when(cryptoRepositoryMock.saveAll(List.of(cryptosEntities))).thenReturn(List.of(cryptosEntities));
+
+        cryptoService.updateCryptos(List.of(cryptosEntities));
+
+        verify(cryptoRepositoryMock, times(1)).saveAll(List.of(cryptosEntities));
+    }
+
 }

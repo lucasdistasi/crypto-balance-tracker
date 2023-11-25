@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
@@ -127,6 +128,20 @@ public class ExceptionController {
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
         return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(TooManyRequestsException.class)
+    public ResponseEntity<List<ProblemDetail>> handleTooManyRequestsException(
+            TooManyRequestsException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A TooManyRequestsException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

@@ -13,4 +13,5 @@ public class ExceptionConstants {
     public static final String DUPLICATED_CRYPTO_PLATFORM = "You already have %s in %s";
     public static final String GOAL_ID_NOT_FOUND = "Goal with id %s not found";
     public static final String DUPLICATED_GOAL = "You already have a goal for %s";
+    public static final String REQUEST_LIMIT_REACHED = "Request limit reached";
 }

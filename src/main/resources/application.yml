@@ -23,3 +23,5 @@ logging:
     root: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %cyan([ %thread ]) %green(%logger) - %boldCyan(%msg%n)"
+
+max-limit-crypto: 9

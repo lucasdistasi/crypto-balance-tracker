@@ -12,7 +12,6 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
-import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
