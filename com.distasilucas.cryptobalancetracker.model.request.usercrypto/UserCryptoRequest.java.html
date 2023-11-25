@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import org.apache.catalina.User;
 import org.hibernate.validator.constraints.UUID;
 
 import java.math.BigDecimal;
@@ -22,7 +21,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.PLATFORM_ID_NOT_BLANK;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.PLATFORM_ID_UUID;
 
-<span class="fc" id="L25">public record UserCryptoRequest(</span>
+<span class="fc" id="L24">public record UserCryptoRequest(</span>
         @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
         @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
         @ValidCryptoName
@@ -40,11 +39,11 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 ) {
 
     public UserCrypto toEntity(String coingeckoCryptoId) {
-<span class="fc" id="L43">        return new UserCrypto(coingeckoCryptoId, quantity, platformId);</span>
+<span class="fc" id="L42">        return new UserCrypto(coingeckoCryptoId, quantity, platformId);</span>
     }
 
     public UserCrypto toEntity(String userCryptoId, String coingeckoCryptoId) {
-<span class="fc" id="L47">        return new UserCrypto(userCryptoId, coingeckoCryptoId, quantity, platformId);</span>
+<span class="fc" id="L46">        return new UserCrypto(userCryptoId, coingeckoCryptoId, quantity, platformId);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
