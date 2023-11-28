@@ -28,5 +28,9 @@ import java.util.UUID;
     public UserCryptoResponse toUserCryptoResponse(String cryptoName, String platformName) {
 <span class="fc" id="L29">        return new UserCryptoResponse(id, cryptoName, quantity.toPlainString(), platformName);</span>
     }
+
+    public UserCrypto copy(BigDecimal updatedQuantity) {
+<span class="fc" id="L33">        return new UserCrypto(id, coingeckoCryptoId, updatedQuantity, platformId);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

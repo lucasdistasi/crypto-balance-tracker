@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>TransferCryptoRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.model.request.usercrypto</a> &gt; <span class="el_source">TransferCryptoRequest.java</span></div><h1>TransferCryptoRequest.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.model.request.usercrypto;
+
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.FromPlatform;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.ToPlatform;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.TransferCryptoResponse;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import org.hibernate.validator.constraints.UUID;
+
+import java.math.BigDecimal;
+
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.NETWORK_FEE_DIGITS;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.NETWORK_FEE_MIN;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.NETWORK_FEE_NOT_NULL;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.QUANTITY_TO_TRANSFER_DECIMAL_MAX;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.QUANTITY_TO_TRANSFER_DIGITS;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.QUANTITY_TO_TRANSFER_NOT_NULL;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.QUANTITY_TO_TRANSFER_POSITIVE;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.TO_PLATFORM_ID_NOT_BLANK;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.TO_PLATFORM_ID_UUID;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_NOT_BLANK;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
+
+<span class="fc" id="L28">public record TransferCryptoRequest(</span>
+        @NotBlank(message = USER_CRYPTO_ID_NOT_BLANK)
+        @UUID(message = USER_CRYPTO_ID_UUID)
+        String userCryptoId,
+
+        @NotNull(message = QUANTITY_TO_TRANSFER_NOT_NULL)
+        @Digits(integer = 16, fraction = 12, message = QUANTITY_TO_TRANSFER_DIGITS)
+        @DecimalMax(value = &quot;9999999999999999.999999999999&quot;, message = QUANTITY_TO_TRANSFER_DECIMAL_MAX)
+        @Positive(message = QUANTITY_TO_TRANSFER_POSITIVE)
+        BigDecimal quantityToTransfer,
+
+        @NotNull(message = NETWORK_FEE_NOT_NULL)
+        @Digits(integer = 16, fraction = 12, message = NETWORK_FEE_DIGITS)
+        @Min(value = 0, message = NETWORK_FEE_MIN)
+        BigDecimal networkFee,
+        Boolean sendFullQuantity,
+
+        @NotBlank(message = TO_PLATFORM_ID_NOT_BLANK)
+        @UUID(message = TO_PLATFORM_ID_UUID)
+        String toPlatformId
+) {
+
+    public TransferCryptoResponse toTransferCryptoResponse(
+            BigDecimal remainingCryptoQuantity,
+            BigDecimal newQuantity,
+            BigDecimal quantityToSendReceive
+    ) {
+<span class="fc" id="L55">        var fromPlatform = new FromPlatform(</span>
+                userCryptoId,
+<span class="fc" id="L57">                networkFee.toPlainString(),</span>
+<span class="fc" id="L58">                quantityToTransfer.toPlainString(),</span>
+<span class="fc" id="L59">                calculateTotalToSubtract(remainingCryptoQuantity).toPlainString(),</span>
+<span class="fc" id="L60">                quantityToSendReceive.toPlainString(),</span>
+<span class="fc" id="L61">                remainingCryptoQuantity.toPlainString(),</span>
+<span class="fc" id="L62">                sendFullQuantity</span>
+        );
+<span class="fc" id="L64">        var toPlatform = new ToPlatform(toPlatformId, newQuantity.toPlainString());</span>
+
+<span class="fc" id="L66">        return new TransferCryptoResponse(fromPlatform, toPlatform);</span>
+    }
+
+    public BigDecimal calculateTotalToSubtract(BigDecimal remainingCryptoQuantity) {
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (Boolean.TRUE.equals(sendFullQuantity)) {</span>
+<span class="fc bfc" id="L71" title="All 2 branches covered.">            return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) &gt; 0 ?</span>
+<span class="fc" id="L72">                    networkFee.add(quantityToTransfer) : quantityToTransfer;</span>
+        } else {
+<span class="fc" id="L74">            return quantityToTransfer;</span>
+        }
+    }
+
+    public BigDecimal calculateQuantityToSendReceive(BigDecimal remainingCryptoQuantity, BigDecimal availableQuantity) {
+        BigDecimal quantityToSendReceive;
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (Boolean.TRUE.equals(sendFullQuantity)) {</span>
+<span class="fc bfc" id="L82" title="All 2 branches covered.">            quantityToSendReceive = remainingCryptoQuantity.equals(BigDecimal.ZERO) ? availableQuantity.subtract(networkFee) : quantityToTransfer;</span>
+        } else {
+<span class="fc" id="L84">            quantityToSendReceive = quantityToTransfer.subtract(networkFee);</span>
+        }
+
+<span class="fc" id="L87">        return quantityToSendReceive.stripTrailingZeros();</span>
+    }
+
+    public BigDecimal calculateRemainingCryptoQuantity(BigDecimal availableQuantity) {
+        BigDecimal remaining;
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (Boolean.TRUE.equals(sendFullQuantity)) {</span>
+<span class="fc" id="L93">            remaining = availableQuantity.subtract(quantityToTransfer.add(networkFee));</span>
+        } else {
+<span class="fc" id="L95">            remaining = availableQuantity.subtract(quantityToTransfer);</span>
+        }
+
+<span class="fc bfc" id="L98" title="All 2 branches covered.">        return remaining.compareTo(BigDecimal.ZERO) &lt; 0 ? BigDecimal.ZERO : remaining.stripTrailingZeros();</span>
+    }
+
+    public boolean hasInsufficientBalance(BigDecimal availableQuantity) {
+<span class="fc bfc" id="L102" title="All 4 branches covered.">        return availableQuantity.compareTo(quantityToTransfer) &lt; 0 || networkFee.compareTo(availableQuantity) &gt; 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
