@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -118,6 +119,14 @@ public class UserCryptoService {
         log.info("Retrieving all user cryptos matching coingecko crypto id {}", coingeckoCryptoId);
 
         return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);
+    }
+
+    public Optional<UserCrypto> findByCoingeckoCryptoIdAndPlatformId(String cryptoId, String platformId) {
+        return userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(cryptoId, platformId);
+    }
+
+    public void saveOrUpdateAll(List<UserCrypto> userCryptos) {
+        userCryptoRepository.saveAll(userCryptos);
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {

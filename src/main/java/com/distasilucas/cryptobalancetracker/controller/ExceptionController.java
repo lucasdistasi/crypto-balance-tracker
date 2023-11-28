@@ -1,10 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
@@ -142,6 +144,34 @@ public class ExceptionController {
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(InsufficientBalanceException.class)
+    public ResponseEntity<List<ProblemDetail>> handleInsufficientBalanceException(
+            InsufficientBalanceException exception,
+            WebRequest webRequest
+    ) {
+        log.info("An InsufficientBalanceException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(ApiValidationException.class)
+    public ResponseEntity<List<ProblemDetail>> handleApiValidationException(
+            ApiValidationException exception,
+            WebRequest webRequest
+    ) {
+        log.info("An ApiValidationException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

@@ -1,11 +1,13 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
@@ -34,6 +36,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -154,6 +157,32 @@ class ExceptionControllerTest {
         assertThat(responseEntity)
                 .usingRecursiveComparison()
                 .isEqualTo(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleInsufficientBalanceException() {
+        var exception = new InsufficientBalanceException();
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, NOT_ENOUGH_BALANCE);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleInsufficientBalanceException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleApiValidationException() {
+        var exception = new ApiValidationException(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleApiValidationException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
     }
 
     @Test

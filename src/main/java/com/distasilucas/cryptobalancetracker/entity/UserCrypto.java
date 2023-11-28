@@ -28,4 +28,8 @@ public record UserCrypto(
     public UserCryptoResponse toUserCryptoResponse(String cryptoName, String platformName) {
         return new UserCryptoResponse(id, cryptoName, quantity.toPlainString(), platformName);
     }
+
+    public UserCrypto copy(BigDecimal updatedQuantity) {
+        return new UserCrypto(id, coingeckoCryptoId, updatedQuantity, platformId);
+    }
 }

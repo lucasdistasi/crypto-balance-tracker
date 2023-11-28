@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ public class CryptoService {
     private final CoingeckoService coingeckoService;
     private final CryptoRepository cryptoRepository;
     private final UserCryptoRepository userCryptoRepository;
+    private final GoalRepository goalRepository;
     private final Clock clock;
 
     public Crypto retrieveCryptoInfoById(String coingeckoCryptoId) {
@@ -99,8 +101,12 @@ public class CryptoService {
         var userCryptos = userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);
 
         if (userCryptos.isEmpty()) {
-            cryptoRepository.deleteById(coingeckoCryptoId);
-            log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
+            var goal = goalRepository.findByCoingeckoCryptoId(coingeckoCryptoId);
+
+            if (goal.isEmpty()) {
+                cryptoRepository.deleteById(coingeckoCryptoId);
+                log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
+            }
         }
     }
 

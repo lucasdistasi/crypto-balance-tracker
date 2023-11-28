@@ -29,6 +29,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
@@ -379,6 +380,34 @@ class UserCryptoServiceTest {
                                 "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
                         )
                 ));
+    }
+
+    @Test
+    void shouldFindByCoingeckoCryptoIdAndPlatformId() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "123e4567-e89b-12d3-a456-426614174111"))
+                .thenReturn(Optional.of(userCrypto));
+
+        var response =
+                userCryptoService.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "123e4567-e89b-12d3-a456-426614174111");
+
+        assertTrue(response.isPresent());
+        assertThat(response.get())
+                .usingRecursiveComparison()
+                .isEqualTo(userCrypto);
+    }
+
+
+    @Test
+    void shouldSaveOrUpdateAll() {
+        var userCryptos = List.of(getUserCrypto());
+
+        when(userCryptoRepositoryMock.saveAll(userCryptos)).thenReturn(userCryptos);
+
+        userCryptoService.saveOrUpdateAll(userCryptos);
+
+        verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
     }
 
     private Platform getPlatformEntity() {
