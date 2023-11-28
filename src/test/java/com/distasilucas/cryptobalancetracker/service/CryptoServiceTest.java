@@ -8,6 +8,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.CurrentPri
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,6 +28,7 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -52,6 +54,9 @@ class CryptoServiceTest {
     UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
+    GoalRepository goalRepositoryMock;
+
+    @Mock
     Clock clockMock;
 
     private CryptoService cryptoService;
@@ -59,7 +64,8 @@ class CryptoServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, userCryptoRepositoryMock, clockMock);
+        cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, userCryptoRepositoryMock,
+                goalRepositoryMock, clockMock);
     }
 
     @Test
@@ -281,6 +287,17 @@ class CryptoServiceTest {
         var userCrypto = getUserCrypto();
 
         when(userCryptoRepositoryMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
+
+        cryptoService.deleteCryptoIfNotUsed("bitcoin");
+
+        verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
+    }
+
+    @Test
+    void shouldNotDeleteCryptoIfItsBeingUsedByGoalsTable() {
+        var goalEntity = getGoalEntity();
+
+        when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(goalEntity));
 
         cryptoService.deleteCryptoIfNotUsed("bitcoin");
 

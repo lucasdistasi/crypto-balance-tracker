@@ -14,4 +14,6 @@ public class ExceptionConstants {
     public static final String GOAL_ID_NOT_FOUND = "Goal with id %s not found";
     public static final String DUPLICATED_GOAL = "You already have a goal for %s";
     public static final String REQUEST_LIMIT_REACHED = "Request limit reached";
+    public static final String NOT_ENOUGH_BALANCE = "You don't have enough balance to perform this action";
+    public static final String SAME_FROM_TO_PLATFORM = "From platform and to platform cannot be the same";
 }

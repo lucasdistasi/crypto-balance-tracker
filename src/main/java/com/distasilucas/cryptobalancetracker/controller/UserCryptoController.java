@@ -1,9 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.UserCryptoControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.TransferCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
+import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -32,6 +35,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 public class UserCryptoController implements UserCryptoControllerAPI {
 
     private final UserCryptoService userCryptoService;
+    private final TransferCryptoService transferCryptoService;
 
     @Override
     @GetMapping("/{userCryptoId}")
@@ -92,6 +96,18 @@ public class UserCryptoController implements UserCryptoControllerAPI {
         userCryptoService.deleteUserCrypto(userCryptoId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @Override
+    @PostMapping("/transfer")
+    public ResponseEntity<TransferCryptoResponse> transferUserCrypto(
+            @Valid
+            @RequestBody
+            TransferCryptoRequest transferCryptoRequest
+    ) {
+        var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
+
+        return ResponseEntity.ok(transferCryptoResponse);
     }
 
 }

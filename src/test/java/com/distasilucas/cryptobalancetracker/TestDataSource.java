@@ -133,6 +133,14 @@ public class TestDataSource {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
+    public static MockHttpServletRequestBuilder transferUserCrypto(String content) {
+        var url = USER_CRYPTOS_ENDPOINT.concat("/transfer");
+
+        return MockMvcRequestBuilders.post(url)
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
     public static String getFileContent(String path) throws IOException {
         var classPathResource = new ClassPathResource(path);
         return StreamUtils.copyToString(classPathResource.getInputStream(), Charset.defaultCharset());
