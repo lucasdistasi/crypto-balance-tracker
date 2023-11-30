@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>InsightsService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service</a> &gt; <span class="el_source">InsightsService.java</span></div><h1>InsightsService.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service;
+
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
+import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PlatformInsight;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
+import kotlin.Pair;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.lang.Math.ceil;
+
+<span class="fc" id="L36">@Slf4j</span>
+@Service
+<span class="fc" id="L38">@RequiredArgsConstructor</span>
+public class InsightsService {
+
+<span class="fc" id="L41">    private static final Double ELEMENTS_PER_PAGE = 10.0;</span>
+<span class="fc" id="L42">    private static final int INT_ELEMENTS_PER_PAGE = ELEMENTS_PER_PAGE.intValue();</span>
+
+    private final PlatformService platformService;
+    private final UserCryptoService userCryptoService;
+    private final CryptoService cryptoService;
+
+    public Optional&lt;BalancesResponse&gt; retrieveTotalBalancesInsights() {
+<span class="fc" id="L49">        log.info(&quot;Retrieving total balances&quot;);</span>
+
+<span class="fc" id="L51">        var userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L54">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L57">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L58">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
+<span class="fc" id="L59">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L60">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
+
+<span class="fc" id="L62">        return Optional.of(totalBalances);</span>
+    }
+
+    public Optional&lt;PlatformInsightsResponse&gt; retrievePlatformInsights(String platformId) {
+<span class="fc" id="L66">        log.info(&quot;Retrieving insights for platform with id {}&quot;, platformId);</span>
+
+<span class="fc" id="L68">        var userCryptos = userCryptoService.findAllByPlatformId(platformId);</span>
+
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L71">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L74">        var platformResponse = platformService.retrievePlatformById(platformId);</span>
+<span class="fc" id="L75">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).toList();</span>
+<span class="fc" id="L76">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L77">        var userCryptosQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L78">        var totalBalances = getTotalBalances(cryptos, userCryptosQuantity);</span>
+
+<span class="fc" id="L80">        var cryptosInsights = cryptos.stream()</span>
+<span class="fc" id="L81">                .map(crypto -&gt; {</span>
+<span class="fc" id="L82">                    var quantity = userCryptosQuantity.get(crypto.id());</span>
+<span class="fc" id="L83">                    var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);</span>
+
+<span class="fc" id="L85">                    return new CryptoInsights(</span>
+<span class="fc" id="L86">                            crypto.name(),</span>
+<span class="fc" id="L87">                            crypto.id(),</span>
+<span class="fc" id="L88">                            quantity.toPlainString(),</span>
+                            cryptoTotalBalances,
+<span class="fc" id="L90">                            calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance())</span>
+                    );
+                })
+<span class="fc" id="L93">                .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L94">                .toList();</span>
+
+<span class="fc" id="L96">        return Optional.of(new PlatformInsightsResponse(platformResponse.name(), totalBalances, cryptosInsights));</span>
+    }
+
+    public Optional&lt;CryptoInsightResponse&gt; retrieveCryptoInsights(String coingeckoCryptoId) {
+<span class="fc" id="L100">        log.info(&quot;Retrieving insights for crypto with coingeckoCryptoId {}&quot;, coingeckoCryptoId);</span>
+
+<span class="fc" id="L102">        var userCryptos = userCryptoService.findAllByCoingeckoCryptoId(coingeckoCryptoId);</span>
+
+<span class="fc bfc" id="L104" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L105">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L108">        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).toList();</span>
+<span class="fc" id="L109">        var platforms = platformService.findAllByIds(platformsIds);</span>
+<span class="fc" id="L110">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCryptoId);</span>
+
+<span class="fc" id="L112">        var platformUserCryptoQuantity = userCryptos.stream().collect(Collectors.toMap(UserCrypto::platformId, UserCrypto::quantity));</span>
+<span class="fc" id="L113">        var totalCryptoQuantity = userCryptos.stream()</span>
+<span class="fc" id="L114">                .map(UserCrypto::quantity)</span>
+<span class="fc" id="L115">                .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L116">        var totalBalances = getTotalBalances(List.of(crypto), Map.of(coingeckoCryptoId, totalCryptoQuantity));</span>
+
+<span class="fc" id="L118">        var platformInsights = platforms.stream()</span>
+<span class="fc" id="L119">                .map(platform -&gt; {</span>
+<span class="fc" id="L120">                    var quantity = platformUserCryptoQuantity.get(platform.id());</span>
+<span class="fc" id="L121">                    var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);</span>
+
+<span class="fc" id="L123">                    return new PlatformInsight(</span>
+<span class="fc" id="L124">                            quantity.toPlainString(),</span>
+                            cryptoTotalBalances,
+<span class="fc" id="L126">                            calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),</span>
+<span class="fc" id="L127">                            platform.name()</span>
+                    );
+                })
+<span class="fc" id="L130">                .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L131">                .toList();</span>
+
+<span class="fc" id="L133">        return Optional.of(new CryptoInsightResponse(crypto.name(), totalBalances, platformInsights));</span>
+    }
+
+    public Optional&lt;PlatformsBalancesInsightsResponse&gt; retrievePlatformsBalancesInsights() {
+<span class="fc" id="L137">        log.info(&quot;Retrieving all platforms balances insights&quot;);</span>
+
+<span class="fc" id="L139">        var userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L141" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L142">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L145">        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());</span>
+<span class="fc" id="L146">        var platforms = platformService.findAllByIds(platformsIds);</span>
+<span class="fc" id="L147">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L148">        var platformsUserCryptos = getPlatformsUserCryptos(userCryptos, platforms);</span>
+<span class="fc" id="L149">        var cryptosIds = platformsUserCryptos.values()</span>
+<span class="fc" id="L150">                .stream()</span>
+<span class="fc" id="L151">                .flatMap(cryptos -&gt; cryptos.stream().map(UserCrypto::coingeckoCryptoId))</span>
+<span class="fc" id="L152">                .collect(Collectors.toSet());</span>
+<span class="fc" id="L153">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L154">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
+
+<span class="fc" id="L156">        var platformsInsights = platformsUserCryptos.entrySet()</span>
+<span class="fc" id="L157">                .stream()</span>
+<span class="fc" id="L158">                .map(entry -&gt; {</span>
+<span class="fc" id="L159">                    var platformName = entry.getKey();</span>
+<span class="fc" id="L160">                    var cryptosUser = entry.getValue();</span>
+
+<span class="fc" id="L162">                    var totalUSDBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L163">                    var totalBTCBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L164">                    var totalEURBalance = BigDecimal.ZERO;</span>
+
+<span class="fc bfc" id="L166" title="All 2 branches covered.">                    for (var userCrypto : cryptosUser) {</span>
+<span class="fc" id="L167">                        var crypto = cryptos.stream()</span>
+<span class="fc" id="L168">                                .filter(c -&gt; c.id().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))</span>
+<span class="fc" id="L169">                                .findFirst()</span>
+<span class="fc" id="L170">                                .orElseThrow();</span>
+<span class="fc" id="L171">                        var balance = getCryptoTotalBalances(crypto, userCrypto.quantity());</span>
+
+<span class="fc" id="L173">                        totalUSDBalance = totalUSDBalance.add(new BigDecimal(balance.totalUSDBalance()));</span>
+<span class="fc" id="L174">                        totalBTCBalance = totalBTCBalance.add(new BigDecimal(balance.totalBTCBalance()));</span>
+<span class="fc" id="L175">                        totalEURBalance = totalEURBalance.add(new BigDecimal(balance.totalEURBalance()));</span>
+<span class="fc" id="L176">                    }</span>
+
+<span class="fc" id="L178">                    var balances = new BalancesResponse(</span>
+<span class="fc" id="L179">                            totalUSDBalance.toPlainString(),</span>
+<span class="fc" id="L180">                            totalEURBalance.toPlainString(),</span>
+<span class="fc" id="L181">                            totalBTCBalance.toPlainString()</span>
+                    );
+<span class="fc" id="L183">                    var percentage = calculatePercentage(totalBalances.totalUSDBalance(), totalUSDBalance.toPlainString());</span>
+
+<span class="fc" id="L185">                    return new PlatformsInsights(platformName, balances, percentage);</span>
+                })
+<span class="fc" id="L187">                .sorted(Comparator.comparing(PlatformsInsights::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L188">                .toList();</span>
+
+<span class="fc" id="L190">        return Optional.of(new PlatformsBalancesInsightsResponse(totalBalances, platformsInsights));</span>
+    }
+
+    public Optional&lt;CryptosBalancesInsightsResponse&gt; retrieveCryptosBalancesInsights() {
+<span class="fc" id="L194">        log.info(&quot;Retrieving all cryptos balances insights&quot;);</span>
+
+<span class="fc" id="L196">        var userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L198" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L199">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L202">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L203">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
+<span class="fc" id="L204">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L205">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
+
+<span class="fc" id="L207">        var cryptosInsights = userCryptoQuantity.entrySet()</span>
+<span class="fc" id="L208">                .stream()</span>
+<span class="fc" id="L209">                .map(entry -&gt; {</span>
+<span class="fc" id="L210">                    var coingeckoCryptoId = entry.getKey();</span>
+<span class="fc" id="L211">                    var quantity = entry.getValue();</span>
+<span class="fc" id="L212">                    var crypto = cryptos.stream()</span>
+<span class="fc" id="L213">                            .filter(c -&gt; c.id().equalsIgnoreCase(coingeckoCryptoId))</span>
+<span class="fc" id="L214">                            .findFirst()</span>
+<span class="fc" id="L215">                            .orElseThrow();</span>
+<span class="fc" id="L216">                    var cryptoBalances = getCryptoTotalBalances(crypto, quantity);</span>
+
+<span class="fc" id="L218">                    return new CryptoInsights(</span>
+<span class="fc" id="L219">                            crypto.name(),</span>
+                            coingeckoCryptoId,
+<span class="fc" id="L221">                            quantity.toPlainString(),</span>
+                            cryptoBalances,
+<span class="fc" id="L223">                            calculatePercentage(totalBalances.totalUSDBalance(), cryptoBalances.totalUSDBalance())</span>
+                    );
+                })
+<span class="fc" id="L226">                .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L227">                .toList();</span>
+
+<span class="fc bfc" id="L229" title="All 2 branches covered.">        var cryptosToReturn = cryptosInsights.size() &gt; 12 ? getCryptoInsightsWithOthers(totalBalances, cryptosInsights) : cryptosInsights;</span>
+
+<span class="fc" id="L231">        return Optional.of(new CryptosBalancesInsightsResponse(totalBalances, cryptosToReturn));</span>
+    }
+
+    public Optional&lt;PageUserCryptosInsightsResponse&gt; retrieveUserCryptosInsights(int page) {
+<span class="fc" id="L235">        log.info(&quot;Retrieving user cryptos insights for page {}&quot;, page);</span>
+
+        // Not the best because I'm paginating, but I need total balances to calculate individual percentages
+<span class="fc" id="L238">        var userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L240" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L241">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L244">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
+<span class="fc" id="L245">        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());</span>
+<span class="fc" id="L246">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L247">        var platforms = platformService.findAllByIds(platformsIds);</span>
+<span class="fc" id="L248">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L249">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
+
+<span class="fc" id="L251">        List&lt;UserCryptosInsights&gt; userCryptosInsights = new ArrayList&lt;&gt;();</span>
+
+<span class="fc bfc" id="L253" title="All 2 branches covered.">        for (var userCrypto : userCryptos) {</span>
+<span class="fc" id="L254">            var crypto = cryptos.stream()</span>
+<span class="fc" id="L255">                    .filter(c -&gt; c.id().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))</span>
+<span class="fc" id="L256">                    .findFirst()</span>
+<span class="fc" id="L257">                    .orElseThrow();</span>
+<span class="fc" id="L258">            var platform = platforms.stream()</span>
+<span class="fc" id="L259">                    .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platformId()))</span>
+<span class="fc" id="L260">                    .findFirst()</span>
+<span class="fc" id="L261">                    .orElseThrow();</span>
+<span class="fc" id="L262">            var balances = getCryptoTotalBalances(crypto, userCrypto.quantity());</span>
+
+<span class="fc" id="L264">            var userCryptosInsight = new UserCryptosInsights(</span>
+                    new CryptoInfo(
+<span class="fc" id="L266">                            userCrypto.id(),</span>
+<span class="fc" id="L267">                            crypto.name(),</span>
+<span class="fc" id="L268">                            crypto.id(),</span>
+<span class="fc" id="L269">                            crypto.ticker(),</span>
+<span class="fc" id="L270">                            crypto.image()</span>
+                    ),
+<span class="fc" id="L272">                    userCrypto.quantity().toPlainString(),</span>
+<span class="fc" id="L273">                    calculatePercentage(totalBalances.totalUSDBalance(), balances.totalUSDBalance()),</span>
+                    balances,
+                    new MarketData(
+<span class="fc" id="L276">                            crypto.circulatingSupply().toPlainString(),</span>
+<span class="fc" id="L277">                            crypto.maxSupply().toPlainString(),</span>
+                            new CurrentPrice(
+<span class="fc" id="L279">                                    crypto.lastKnownPrice().toPlainString(),</span>
+<span class="fc" id="L280">                                    crypto.lastKnownPriceInEUR().toPlainString(),</span>
+<span class="fc" id="L281">                                    crypto.lastKnownPriceInBTC().toPlainString()</span>
+                            )
+                    ),
+<span class="fc" id="L284">                    List.of(platform.name())</span>
+            );
+
+<span class="fc" id="L287">            userCryptosInsights.add(userCryptosInsight);</span>
+<span class="fc" id="L288">        }</span>
+
+<span class="fc" id="L290">        userCryptosInsights = userCryptosInsights.stream()</span>
+<span class="fc" id="L291">                .sorted(Comparator.comparing(UserCryptosInsights::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L292">                .toList();</span>
+
+<span class="fc" id="L294">        var startIndex = page * INT_ELEMENTS_PER_PAGE;</span>
+
+<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (startIndex &gt; userCryptosInsights.size()) {</span>
+<span class="nc" id="L297">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L300">        var totalPages = (int)ceil(userCryptos.size() / ELEMENTS_PER_PAGE);</span>
+<span class="pc bpc" id="L301" title="1 of 2 branches missed.">        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : INT_ELEMENTS_PER_PAGE;</span>
+<span class="fc" id="L302">        var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);</span>
+
+<span class="fc" id="L304">        return Optional.of(new PageUserCryptosInsightsResponse(page, totalPages, totalBalances, cryptosInsights));</span>
+    }
+
+    public Optional&lt;PageUserCryptosInsightsResponse&gt; retrieveUserCryptosPlatformsInsights(int page) {
+<span class="fc" id="L308">        log.info(&quot;Retrieving user cryptos in platforms insights for page {}&quot;, page);</span>
+
+        // If one of the user cryptos happens to be at the end, and another of the same (i.e: bitcoin), at the start
+        // using findAllByPage() will display the same crypto twice (in this example), and the idea of this insight
+        // it's to display total balances and percentage for each individual crypto.
+        // So I need to calculate everything from all the user cryptos.
+        // Maybe create a query that returns the coingeckoCryptoId summing all balances for that crypto and
+        // returning an array of the platforms for that crypto and then paginate the results
+        // would be a better approach so I don't need to retrieve all.
+<span class="fc" id="L317">        var userCryptos = userCryptoService.findAll();</span>
+
+<span class="fc bfc" id="L319" title="All 2 branches covered.">        if (userCryptos.isEmpty()) {</span>
+<span class="fc" id="L320">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L323">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
+<span class="fc" id="L324">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
+<span class="fc" id="L325">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
+<span class="fc" id="L326">        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());</span>
+<span class="fc" id="L327">        var platforms = platformService.findAllByIds(platformsIds);</span>
+<span class="fc" id="L328">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
+<span class="fc" id="L329">        var userCryptosQuantityPlatforms = getUserCryptosQuantityPlatforms(userCryptos, platforms);</span>
+
+<span class="fc" id="L331">        var userCryptosInsights = userCryptosQuantityPlatforms.entrySet()</span>
+<span class="fc" id="L332">                .stream()</span>
+<span class="fc" id="L333">                .map(entry -&gt; {</span>
+<span class="fc" id="L334">                    var cryptoTotalQuantity = entry.getValue().component1();</span>
+<span class="fc" id="L335">                    var cryptoPlatforms = entry.getValue().component2();</span>
+<span class="fc" id="L336">                    var crypto = cryptos.stream()</span>
+<span class="fc" id="L337">                            .filter(c -&gt; c.id().equalsIgnoreCase(entry.getKey()))</span>
+<span class="fc" id="L338">                            .findFirst()</span>
+<span class="fc" id="L339">                            .orElseThrow();</span>
+<span class="fc" id="L340">                    var cryptoTotalBalances = getCryptoTotalBalances(crypto, cryptoTotalQuantity);</span>
+
+<span class="fc" id="L342">                    return new UserCryptosInsights(</span>
+<span class="fc" id="L343">                            new CryptoInfo(crypto.name(), crypto.id(), crypto.ticker(), crypto.image()),</span>
+<span class="fc" id="L344">                            cryptoTotalQuantity.toPlainString(),</span>
+<span class="fc" id="L345">                            calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),</span>
+                            cryptoTotalBalances,
+                            new MarketData(
+<span class="fc" id="L348">                                    crypto.circulatingSupply().toPlainString(),</span>
+<span class="fc" id="L349">                                    crypto.maxSupply().toPlainString(),</span>
+                                    new CurrentPrice(
+<span class="fc" id="L351">                                            crypto.lastKnownPrice().toPlainString(),</span>
+<span class="fc" id="L352">                                            crypto.lastKnownPriceInEUR().toPlainString(),</span>
+<span class="fc" id="L353">                                            crypto.lastKnownPriceInBTC().toPlainString()</span>
+                                    )
+                            ),
+                            cryptoPlatforms
+                    );
+                })
+<span class="fc" id="L359">                .sorted(Comparator.comparing(UserCryptosInsights::percentage, Comparator.reverseOrder()))</span>
+<span class="fc" id="L360">                .toList();</span>
+
+<span class="fc" id="L362">        var startIndex = page * INT_ELEMENTS_PER_PAGE;</span>
+
+<span class="fc bfc" id="L364" title="All 2 branches covered.">        if (startIndex &gt; userCryptosInsights.size()) {</span>
+<span class="fc" id="L365">            return Optional.empty();</span>
+        }
+
+<span class="fc" id="L368">        var totalPages = (int)ceil(userCryptosInsights.size() / ELEMENTS_PER_PAGE);</span>
+<span class="fc bfc" id="L369" title="All 2 branches covered.">        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : startIndex + INT_ELEMENTS_PER_PAGE;</span>
+<span class="fc" id="L370">        var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);</span>
+
+<span class="fc" id="L372">        return Optional.of(new PageUserCryptosInsightsResponse(page, totalPages, totalBalances, cryptosInsights));</span>
+    }
+
+    private Map&lt;String, BigDecimal&gt; getUserCryptoQuantity(List&lt;UserCrypto&gt; userCryptos) {
+<span class="fc" id="L376">        var userCryptoQuantity = new HashMap&lt;String, BigDecimal&gt;();</span>
+
+<span class="fc" id="L378">        userCryptos.forEach(userCrypto -&gt; {</span>
+<span class="fc bfc" id="L379" title="All 2 branches covered.">            if (userCryptoQuantity.containsKey(userCrypto.coingeckoCryptoId())) {</span>
+<span class="fc" id="L380">                var quantity = userCryptoQuantity.get(userCrypto.coingeckoCryptoId());</span>
+<span class="fc" id="L381">                userCryptoQuantity.put(userCrypto.coingeckoCryptoId(), quantity.add(userCrypto.quantity()));</span>
+<span class="fc" id="L382">            } else {</span>
+<span class="fc" id="L383">                userCryptoQuantity.put(userCrypto.coingeckoCryptoId(), userCrypto.quantity());</span>
+            }
+<span class="fc" id="L385">        });</span>
+
+<span class="fc" id="L387">        return userCryptoQuantity;</span>
+    }
+
+    private BalancesResponse getTotalBalances(List&lt;Crypto&gt; cryptos, Map&lt;String, BigDecimal&gt; userCryptoQuantity) {
+<span class="fc" id="L391">        var totalUSDBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L392">        var totalBTCBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L393">        var totalEURBalance = BigDecimal.ZERO;</span>
+
+<span class="fc" id="L395">        var entries = userCryptoQuantity.entrySet();</span>
+<span class="fc bfc" id="L396" title="All 2 branches covered.">        for (Map.Entry&lt;String, BigDecimal&gt; entry : entries) {</span>
+<span class="fc" id="L397">            var coingeckoCryptoId = entry.getKey();</span>
+<span class="fc" id="L398">            var quantity = entry.getValue();</span>
+
+<span class="fc" id="L400">            var crypto = cryptos.stream()</span>
+<span class="fc" id="L401">                    .filter(c -&gt; c.id().equalsIgnoreCase(coingeckoCryptoId))</span>
+<span class="fc" id="L402">                    .findFirst()</span>
+<span class="fc" id="L403">                    .orElseThrow();</span>
+<span class="fc" id="L404">            var lastKnownPrice = crypto.lastKnownPrice();</span>
+<span class="fc" id="L405">            var lastKnownPriceInBTC = crypto.lastKnownPriceInBTC();</span>
+<span class="fc" id="L406">            var lastKnownPriceInEUR = crypto.lastKnownPriceInEUR();</span>
+
+<span class="fc" id="L408">            totalUSDBalance = totalUSDBalance.add(lastKnownPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP));</span>
+<span class="fc" id="L409">            totalBTCBalance = totalBTCBalance.add(lastKnownPriceInBTC.multiply(quantity)).stripTrailingZeros();</span>
+<span class="fc" id="L410">            totalEURBalance = totalEURBalance.add(lastKnownPriceInEUR.multiply(quantity).setScale(2, RoundingMode.HALF_UP));</span>
+<span class="fc" id="L411">        }</span>
+
+<span class="fc" id="L413">        return new BalancesResponse(</span>
+<span class="fc" id="L414">                totalUSDBalance.toPlainString(),</span>
+<span class="fc" id="L415">                totalEURBalance.toPlainString(),</span>
+<span class="fc" id="L416">                totalBTCBalance.setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()</span>
+        );
+    }
+
+    private BalancesResponse getCryptoTotalBalances(Crypto crypto, BigDecimal quantity) {
+<span class="fc" id="L421">        return new BalancesResponse(</span>
+<span class="fc" id="L422">                crypto.lastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
+<span class="fc" id="L423">                crypto.lastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
+<span class="fc" id="L424">                crypto.lastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()</span>
+        );
+    }
+
+    private float calculatePercentage(String totalUSDBalance, String cryptoBalance) {
+<span class="fc" id="L429">        return new BigDecimal(cryptoBalance)</span>
+<span class="fc" id="L430">                .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L431">                .divide(new BigDecimal(totalUSDBalance), 2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L432">                .floatValue();</span>
+    }
+
+    private Map&lt;String, List&lt;UserCrypto&gt;&gt; getPlatformsUserCryptos(List&lt;UserCrypto&gt; userCryptos, List&lt;Platform&gt; platforms) {
+<span class="fc" id="L436">        var platformsUserCryptos = new HashMap&lt;String, List&lt;UserCrypto&gt;&gt;();</span>
+
+<span class="fc" id="L438">        userCryptos.forEach(userCrypto -&gt; {</span>
+<span class="fc" id="L439">            var platform = platforms.stream()</span>
+<span class="fc" id="L440">                    .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platformId()))</span>
+<span class="fc" id="L441">                    .findFirst()</span>
+<span class="fc" id="L442">                    .orElseThrow();</span>
+
+<span class="fc bfc" id="L444" title="All 2 branches covered.">            if (platformsUserCryptos.containsKey(platform.name())) {</span>
+<span class="fc" id="L445">                var cryptos = new ArrayList&lt;&gt;(platformsUserCryptos.get(platform.name()));</span>
+<span class="fc" id="L446">                cryptos.add(userCrypto);</span>
+<span class="fc" id="L447">                platformsUserCryptos.put(platform.name(), cryptos);</span>
+<span class="fc" id="L448">            } else {</span>
+<span class="fc" id="L449">                platformsUserCryptos.put(platform.name(), List.of(userCrypto));</span>
+            }
+<span class="fc" id="L451">        });</span>
+
+<span class="fc" id="L453">        return platformsUserCryptos;</span>
+    }
+
+    private List&lt;CryptoInsights&gt; getCryptoInsightsWithOthers(BalancesResponse totalBalances, List&lt;CryptoInsights&gt; cryptosInsights) {
+<span class="fc" id="L457">        var topCryptos = cryptosInsights.subList(0, 12);</span>
+<span class="fc" id="L458">        var others = cryptosInsights.subList(12, cryptosInsights.size());</span>
+
+<span class="fc" id="L460">        var totalUSDBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L461">        var totalBTCBalance = BigDecimal.ZERO;</span>
+<span class="fc" id="L462">        var totalEURBalance = BigDecimal.ZERO;</span>
+
+<span class="fc bfc" id="L464" title="All 2 branches covered.">        for (var cryptoInsights : others) {</span>
+<span class="fc" id="L465">            totalUSDBalance = totalUSDBalance.add(new BigDecimal(cryptoInsights.balances().totalUSDBalance()));</span>
+<span class="fc" id="L466">            totalBTCBalance = totalBTCBalance.add(new BigDecimal(cryptoInsights.balances().totalBTCBalance()));</span>
+<span class="fc" id="L467">            totalEURBalance = totalEURBalance.add(new BigDecimal(cryptoInsights.balances().totalEURBalance()));</span>
+<span class="fc" id="L468">        }</span>
+
+<span class="fc" id="L470">        var othersTotalPercentage = calculatePercentage(totalBalances.totalUSDBalance(), totalUSDBalance.toPlainString());</span>
+<span class="fc" id="L471">        var balancesResponse = new BalancesResponse(</span>
+<span class="fc" id="L472">                totalUSDBalance.toPlainString(),</span>
+<span class="fc" id="L473">                totalEURBalance.toPlainString(),</span>
+<span class="fc" id="L474">                totalBTCBalance.toPlainString()</span>
+        );
+<span class="fc" id="L476">        var othersCryptoInsights = new CryptoInsights(&quot;Others&quot;, balancesResponse, othersTotalPercentage);</span>
+
+<span class="fc" id="L478">        List&lt;CryptoInsights&gt; cryptosInsightsWithOthers = new ArrayList&lt;&gt;(topCryptos);</span>
+<span class="fc" id="L479">        cryptosInsightsWithOthers.add(othersCryptoInsights);</span>
+
+<span class="fc" id="L481">        return cryptosInsightsWithOthers;</span>
+    }
+
+    private Map&lt;String, Pair&lt;BigDecimal, List&lt;String&gt;&gt;&gt; getUserCryptosQuantityPlatforms(
+            List&lt;UserCrypto&gt; userCryptos,
+            List&lt;Platform&gt; platforms
+    ) {
+<span class="fc" id="L488">        var map = new HashMap&lt;String, Pair&lt;BigDecimal, List&lt;String&gt;&gt;&gt;();</span>
+
+<span class="fc" id="L490">        userCryptos.forEach(userCrypto -&gt; {</span>
+<span class="fc" id="L491">            var platformName = platforms.stream()</span>
+<span class="fc" id="L492">                    .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platformId()))</span>
+<span class="fc" id="L493">                    .findFirst()</span>
+<span class="fc" id="L494">                    .orElseThrow()</span>
+<span class="fc" id="L495">                    .name();</span>
+
+<span class="fc bfc" id="L497" title="All 2 branches covered.">            if (map.containsKey(userCrypto.coingeckoCryptoId())) {</span>
+<span class="fc" id="L498">                var crypto = map.get(userCrypto.coingeckoCryptoId());</span>
+<span class="fc" id="L499">                var actualQuantity = crypto.component1();</span>
+<span class="fc" id="L500">                var actualPlatforms = new ArrayList&lt;&gt;(crypto.component2());</span>
+
+<span class="fc" id="L502">                var newQuantity = actualQuantity.add(userCrypto.quantity());</span>
+<span class="fc" id="L503">                actualPlatforms.add(platformName);</span>
+
+<span class="fc" id="L505">                map.put(userCrypto.coingeckoCryptoId(), new Pair&lt;&gt;(newQuantity, actualPlatforms));</span>
+<span class="fc" id="L506">            } else {</span>
+<span class="fc" id="L507">                map.put(userCrypto.coingeckoCryptoId(), new Pair&lt;&gt;(userCrypto.quantity(), List.of(platformName)));</span>
+            }
+<span class="fc" id="L509">        });</span>
+
+<span class="fc" id="L511">        return map;</span>
+    }
+
+    private boolean isLastPage(int page, int totalPages) {
+<span class="fc bfc" id="L515" title="All 2 branches covered.">        return page + 1 &gt;= totalPages;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

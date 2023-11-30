@@ -9,69 +9,76 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
 
-<span class="fc" id="L17">@Slf4j</span>
+<span class="fc" id="L18">@Slf4j</span>
 @Service
-<span class="fc" id="L19">@RequiredArgsConstructor</span>
+<span class="fc" id="L20">@RequiredArgsConstructor</span>
 public class PlatformService {
 
     private final PlatformRepository platformRepository;
 
     public List&lt;Platform&gt; retrieveAllPlatforms() {
-<span class="fc" id="L25">        log.info(&quot;Retrieving all platforms&quot;);</span>
+<span class="fc" id="L26">        log.info(&quot;Retrieving all platforms&quot;);</span>
 
-<span class="fc" id="L27">        return platformRepository.findAll();</span>
+<span class="fc" id="L28">        return platformRepository.findAll();</span>
     }
 
     public Platform retrievePlatformById(String platformId) {
-<span class="fc" id="L31">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
+<span class="fc" id="L32">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
 
-<span class="fc" id="L33">        return platformRepository.findById(platformId)</span>
-<span class="fc" id="L34">                .orElseThrow(() -&gt; {</span>
-<span class="fc" id="L35">                    var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
+<span class="fc" id="L34">        return platformRepository.findById(platformId)</span>
+<span class="fc" id="L35">                .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L36">                    var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
 
-<span class="fc" id="L37">                    return new PlatformNotFoundException(message);</span>
+<span class="fc" id="L38">                    return new PlatformNotFoundException(message);</span>
                 });
     }
 
     public Platform savePlatform(PlatformRequest platformRequest) {
-<span class="fc" id="L42">        validatePlatformDoesNotExist(platformRequest.name());</span>
-<span class="fc" id="L43">        var platformEntity = platformRequest.toEntity();</span>
-<span class="fc" id="L44">        platformRepository.save(platformEntity);</span>
-<span class="fc" id="L45">        log.info(&quot;Saved platform {}&quot;, platformEntity);</span>
+<span class="fc" id="L43">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L44">        var platformEntity = platformRequest.toEntity();</span>
+<span class="fc" id="L45">        platformRepository.save(platformEntity);</span>
+<span class="fc" id="L46">        log.info(&quot;Saved platform {}&quot;, platformEntity);</span>
 
-<span class="fc" id="L47">        return platformEntity;</span>
+<span class="fc" id="L48">        return platformEntity;</span>
     }
 
     public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
-<span class="fc" id="L51">        validatePlatformDoesNotExist(platformRequest.name());</span>
-<span class="fc" id="L52">        var platform = retrievePlatformById(platformId);</span>
-<span class="fc" id="L53">        var updatedPlatform = new Platform(platform.id(), platformRequest.name().toUpperCase());</span>
-<span class="fc" id="L54">        platformRepository.save(updatedPlatform);</span>
+<span class="fc" id="L52">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L53">        var platform = retrievePlatformById(platformId);</span>
+<span class="fc" id="L54">        var updatedPlatform = new Platform(platform.id(), platformRequest.name().toUpperCase());</span>
+<span class="fc" id="L55">        platformRepository.save(updatedPlatform);</span>
 
-<span class="fc" id="L56">        log.info(&quot;Updated platform. Before: {}. After: {}&quot;, platform, updatedPlatform);</span>
+<span class="fc" id="L57">        log.info(&quot;Updated platform. Before: {}. After: {}&quot;, platform, updatedPlatform);</span>
 
-<span class="fc" id="L58">        return updatedPlatform;</span>
+<span class="fc" id="L59">        return updatedPlatform;</span>
     }
 
     public void deletePlatform(String platformId) {
-<span class="fc" id="L62">        var platform = retrievePlatformById(platformId);</span>
-<span class="fc" id="L63">        platformRepository.delete(platform);</span>
-<span class="fc" id="L64">        log.info(&quot;Deleted platform {}&quot;, platform);</span>
-<span class="fc" id="L65">    }</span>
+<span class="fc" id="L63">        var platform = retrievePlatformById(platformId);</span>
+<span class="fc" id="L64">        platformRepository.delete(platform);</span>
+<span class="fc" id="L65">        log.info(&quot;Deleted platform {}&quot;, platform);</span>
+<span class="fc" id="L66">    }</span>
+
+    public List&lt;Platform&gt; findAllByIds(Collection&lt;String&gt; ids) {
+<span class="nc" id="L69">        log.info(&quot;Retrieving platforms for ids {}&quot;, ids);</span>
+
+<span class="nc" id="L71">        return platformRepository.findAllByIdIn(ids);</span>
+    }
 
     private void validatePlatformDoesNotExist(String platformName) {
-<span class="fc" id="L68">        var platform = platformRepository.findByName(platformName.toUpperCase());</span>
+<span class="fc" id="L75">        var platform = platformRepository.findByName(platformName.toUpperCase());</span>
 
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (platform.isPresent()) {</span>
-<span class="fc" id="L71">            var message = DUPLICATED_PLATFORM.formatted(platformName.toUpperCase());</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (platform.isPresent()) {</span>
+<span class="fc" id="L78">            var message = DUPLICATED_PLATFORM.formatted(platformName.toUpperCase());</span>
 
-<span class="fc" id="L73">            throw new DuplicatedPlatformException(message);</span>
+<span class="fc" id="L80">            throw new DuplicatedPlatformException(message);</span>
         }
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L82">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
