@@ -7,7 +7,7 @@ public record UserCryptosInsights(
         String quantity,
         float percentage,
         BalancesResponse balances,
-        MarketData marketDat,
+        MarketData marketData,
         List<String> platforms
 ) {
 }

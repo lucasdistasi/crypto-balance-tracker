@@ -17,6 +17,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
@@ -30,8 +31,6 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_
 @Slf4j
 @RestControllerAdvice
 public class ExceptionController {
-
-    // TODO - add MissingServletRequestParameterException (when i dont send page on the url)
 
     private static final HttpStatus NOT_FOUND_STATUS = HttpStatus.NOT_FOUND;
     private static final HttpStatus BAD_REQUEST_STATUS = HttpStatus.BAD_REQUEST;
@@ -217,6 +216,22 @@ public class ExceptionController {
                 .toList();
 
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<List<ProblemDetail>> handleMissingServletRequestParameterException(
+            MissingServletRequestParameterException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A MissingServletRequestParameterException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var bodyDetail = exception.getBody().getDetail();
+        var detail = StringUtils.hasText(bodyDetail) ? bodyDetail : exception.getMessage();
+        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, detail);
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
     }
 
     @ExceptionHandler(Exception.class)

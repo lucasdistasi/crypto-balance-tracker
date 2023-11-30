@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 
@@ -140,6 +141,55 @@ public class TestDataSource {
 
         return MockMvcRequestBuilders.post(url)
                 .content(content)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveTotalBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptosInsights(int page) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptosPlatformsInsights(int page) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/platforms?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveCryptosBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePlatformsBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/platforms/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveCryptoInsights(String coingeckoCryptoId) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/%s".formatted(coingeckoCryptoId));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePlatformInsights(String platformId) {
+        var url = INSIGHTS_ENDPOINT.concat("/platforms/%s".formatted(platformId));
+
+        return MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
