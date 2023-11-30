@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
@@ -12,6 +13,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -204,5 +206,16 @@ public class TestDataSource {
 
     public static Goal getGoalEntity() {
         return new Goal("bitcoin", new BigDecimal("1"));
+    }
+
+    public static BalancesResponse getBalances() {
+        return new BalancesResponse("100", "70", "0.1");
+    }
+
+    public static Platform getPlatformEntity() {
+        return new Platform(
+                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
+                "BINANCE"
+        );
     }
 }

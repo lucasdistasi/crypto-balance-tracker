@@ -31,6 +31,8 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_
 @RestControllerAdvice
 public class ExceptionController {
 
+    // TODO - add MissingServletRequestParameterException (when i dont send page on the url)
+
     private static final HttpStatus NOT_FOUND_STATUS = HttpStatus.NOT_FOUND;
     private static final HttpStatus BAD_REQUEST_STATUS = HttpStatus.BAD_REQUEST;
 

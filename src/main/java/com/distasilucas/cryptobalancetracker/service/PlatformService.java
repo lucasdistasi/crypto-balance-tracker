@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
@@ -62,6 +63,12 @@ public class PlatformService {
         var platform = retrievePlatformById(platformId);
         platformRepository.delete(platform);
         log.info("Deleted platform {}", platform);
+    }
+
+    public List<Platform> findAllByIds(Collection<String> ids) {
+        log.info("Retrieving platforms for ids {}", ids);
+
+        return platformRepository.findAllByIdIn(ids);
     }
 
     private void validatePlatformDoesNotExist(String platformName) {

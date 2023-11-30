@@ -5,6 +5,7 @@ import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 public interface CryptoRepository extends MongoRepository<Crypto, String> {
@@ -15,5 +16,7 @@ public interface CryptoRepository extends MongoRepository<Crypto, String> {
             "{ $limit: ?1 }"
     })
     List<Crypto> findOldestNCryptosByLastPriceUpdate(LocalDateTime dateFilter, int limit);
+
+    List<Crypto> findAllByIdIn(Collection<String> ids);
 
 }

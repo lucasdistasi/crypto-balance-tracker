@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -408,13 +409,6 @@ class UserCryptoServiceTest {
         userCryptoService.saveOrUpdateAll(userCryptos);
 
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
-    }
-
-    private Platform getPlatformEntity() {
-        return new Platform(
-                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
-                "BINANCE"
-        );
     }
 
     private UserCryptoRequest getUserCryptoRequest() {
