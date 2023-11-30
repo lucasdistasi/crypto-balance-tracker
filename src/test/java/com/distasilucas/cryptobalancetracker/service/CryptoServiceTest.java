@@ -340,4 +340,17 @@ class CryptoServiceTest {
         verify(cryptoRepositoryMock, times(1)).saveAll(List.of(cryptosEntities));
     }
 
+    @Test
+    void shouldFindAllCryptosById() {
+        var crypto = getCryptoEntity();
+
+        when(cryptoRepositoryMock.findAllByIdIn(List.of("bitcoin"))).thenReturn(List.of(crypto));
+
+        var cryptos = cryptoService.findAllByIds(List.of("bitcoin"));
+
+        assertThat(cryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(crypto));
+    }
+
 }

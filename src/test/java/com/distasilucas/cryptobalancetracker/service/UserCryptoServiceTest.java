@@ -411,6 +411,46 @@ class UserCryptoServiceTest {
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
     }
 
+    @Test
+    void shouldFindAllUserCryptos() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findAll()).thenReturn(List.of(userCrypto));
+
+        var userCryptos = userCryptoService.findAll();
+
+        assertThat(userCryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new UserCrypto(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "bitcoin",
+                                new BigDecimal("0.25"),
+                                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                        )
+                ));
+    }
+
+    @Test
+    void shouldFindAllUserCryptosByPlatformId() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(List.of(userCrypto));
+
+        var userCryptos = userCryptoService.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
+
+        assertThat(userCryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new UserCrypto(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "bitcoin",
+                                new BigDecimal("0.25"),
+                                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                        )
+                ));
+    }
+
     private UserCryptoRequest getUserCryptoRequest() {
         return new UserCryptoRequest("bitcoin", new BigDecimal("1"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
     }
