@@ -186,4 +186,28 @@ class PlatformServiceTest {
         assertEquals(expectedMessage, exception.getMessage());
     }
 
+    @Test
+    void shouldRetrieveAllPlatformsById() {
+        var platformsIds = List.of("e86b1068-8635-4606-83fb-a056040d6c9e", "d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8");
+        var platforms = List.of(
+                new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
+                new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
+        );
+
+        when(platformRepositoryMock.findAllByIdIn(platformsIds)).thenReturn(platforms);
+
+        var platformsList = platformService.findAllByIds(
+                List.of("e86b1068-8635-4606-83fb-a056040d6c9e", "d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8")
+        );
+
+        assertThat(platformsList)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        List.of(
+                                new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
+                                new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
+                        )
+                );
+    }
+
 }

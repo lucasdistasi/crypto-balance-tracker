@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
@@ -12,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -127,6 +129,18 @@ public class UserCryptoService {
 
     public void saveOrUpdateAll(List<UserCrypto> userCryptos) {
         userCryptoRepository.saveAll(userCryptos);
+    }
+
+    public List<UserCrypto> findAll() {
+        log.info("Retrieving all user cryptos");
+
+        return userCryptoRepository.findAll();
+    }
+
+    public List<UserCrypto> findAllByPlatformId(String platformId) {
+        log.info("Retrieving all user cryptos for platformId {}", platformId);
+
+        return userCryptoRepository.findAllByPlatformId(platformId);
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {

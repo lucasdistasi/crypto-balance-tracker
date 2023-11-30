@@ -1,0 +1,107 @@
+package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.controller.swagger.InsightsControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.service.InsightsService;
+import jakarta.validation.constraints.Min;
+import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.UUID;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Optional;
+
+import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.PLATFORM_ID_UUID;
+
+@Validated
+@RestController
+@RequestMapping(INSIGHTS_ENDPOINT)
+@RequiredArgsConstructor
+public class InsightsController implements InsightsControllerAPI {
+
+    private final InsightsService insightsService;
+
+    @Override
+    @GetMapping("/balances")
+    public ResponseEntity<BalancesResponse> retrieveTotalBalancesInsights() {
+        var totalBalances = insightsService.retrieveTotalBalancesInsights();
+
+        return totalBalances.map(ResponseEntity::ok)
+                .orElse(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+    }
+
+    @Override
+    @GetMapping("/cryptos")
+    public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(
+            @RequestParam
+            @Min(value = 0, message = "Page must be greater than or equal to 0")
+            int page
+    ) {
+        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page);
+
+        return okOrNoContent(userCryptosInsights);
+    }
+
+    @Override
+    @GetMapping("/cryptos/platforms")
+    public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(
+            @RequestParam
+            @Min(value = 0, message = "Page must be greater than or equal to 0")
+            int page
+    ) {
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page);
+
+        return okOrNoContent(userCryptosPlatformsInsights);
+    }
+
+    @Override
+    @GetMapping("/cryptos/balances")
+    public ResponseEntity<CryptosBalancesInsightsResponse> retrieveCryptosBalancesInsights() {
+        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();
+
+        return okOrNoContent(cryptosBalancesInsights);
+    }
+
+    @Override
+    @GetMapping("/platforms/balances")
+    public ResponseEntity<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
+        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();
+
+        return okOrNoContent(platformsBalancesInsights);
+    }
+
+    @Override
+    @GetMapping("/cryptos/{coingeckoCryptoId}")
+    public ResponseEntity<CryptoInsightResponse> retrieveCryptoInsights(@PathVariable String coingeckoCryptoId) {
+        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);
+
+        return okOrNoContent(cryptoInsights);
+    }
+
+    @Override
+    @GetMapping("/platforms/{platformId}")
+    public ResponseEntity<PlatformInsightsResponse> retrievePlatformInsights(
+            @PathVariable
+            @UUID(message = PLATFORM_ID_UUID)
+            String platformId
+    ) {
+        var platformsInsights = insightsService.retrievePlatformInsights(platformId);
+
+        return okOrNoContent(platformsInsights);
+    }
+
+    private <T> ResponseEntity<T> okOrNoContent(Optional<T> body) {
+        return body.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.noContent().build());
+    }
+}

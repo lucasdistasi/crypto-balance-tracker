@@ -22,6 +22,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.validation.BindException;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.context.request.ServletWebRequest;
 
 import java.lang.reflect.Method;
@@ -238,6 +239,19 @@ class ExceptionControllerTest {
         problemDetail.setDetail(UNKNOWN_ERROR);
 
         var responseEntity = exceptionController.handleMethodArgumentNotValidException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleMissingServletRequestParameterException() {
+        var exception = new MissingServletRequestParameterException("parameterName", "parameterType");
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail("Required parameter 'parameterName' is not present.");
+
+        var responseEntity = exceptionController.handleMissingServletRequestParameterException(exception, servletRequest);
 
         assertThat(responseEntity)
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));

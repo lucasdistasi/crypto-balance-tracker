@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
@@ -123,5 +124,11 @@ public class CryptoService {
                 .toList();
 
         log.info("Updated cryptos: {}", cryptosNames);
+    }
+
+    public List<Crypto> findAllByIds(Collection<String> ids) {
+        log.info("Retrieving cryptos with ids {}", ids);
+
+        return cryptoRepository.findAllByIdIn(ids);
     }
 }

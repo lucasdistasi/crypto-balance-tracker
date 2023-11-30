@@ -11,5 +11,6 @@ public class Constants {
     public static final String PLATFORMS_ENDPOINT = API_V1 + "/platforms";
     public static final String USER_CRYPTOS_ENDPOINT = API_V1 + "/cryptos";
     public static final String GOALS_ENDPOINT = API_V1 + "/goals";
+    public static final String INSIGHTS_ENDPOINT = API_V1 + "/insights";
 
 }

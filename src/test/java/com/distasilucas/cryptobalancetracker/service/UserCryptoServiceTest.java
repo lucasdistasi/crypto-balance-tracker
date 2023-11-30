@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -410,11 +411,44 @@ class UserCryptoServiceTest {
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
     }
 
-    private Platform getPlatformEntity() {
-        return new Platform(
-                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
-                "BINANCE"
-        );
+    @Test
+    void shouldFindAllUserCryptos() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findAll()).thenReturn(List.of(userCrypto));
+
+        var userCryptos = userCryptoService.findAll();
+
+        assertThat(userCryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new UserCrypto(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "bitcoin",
+                                new BigDecimal("0.25"),
+                                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                        )
+                ));
+    }
+
+    @Test
+    void shouldFindAllUserCryptosByPlatformId() {
+        var userCrypto = getUserCrypto();
+
+        when(userCryptoRepositoryMock.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(List.of(userCrypto));
+
+        var userCryptos = userCryptoService.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
+
+        assertThat(userCryptos)
+                .usingRecursiveComparison()
+                .isEqualTo(List.of(
+                        new UserCrypto(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "bitcoin",
+                                new BigDecimal("0.25"),
+                                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                        )
+                ));
     }
 
     private UserCryptoRequest getUserCryptoRequest() {

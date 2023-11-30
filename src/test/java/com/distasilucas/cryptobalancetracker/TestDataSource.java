@@ -2,6 +2,7 @@ package com.distasilucas.cryptobalancetracker;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
@@ -12,6 +13,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 
@@ -141,6 +144,55 @@ public class TestDataSource {
                 .contentType(MediaType.APPLICATION_JSON);
     }
 
+    public static MockHttpServletRequestBuilder retrieveTotalBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptosInsights(int page) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveUserCryptosPlatformsInsights(int page) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/platforms?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveCryptosBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePlatformsBalancesInsights() {
+        var url = INSIGHTS_ENDPOINT.concat("/platforms/balances");
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrieveCryptoInsights(String coingeckoCryptoId) {
+        var url = INSIGHTS_ENDPOINT.concat("/cryptos/%s".formatted(coingeckoCryptoId));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePlatformInsights(String platformId) {
+        var url = INSIGHTS_ENDPOINT.concat("/platforms/%s".formatted(platformId));
+
+        return MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
+    }
+
     public static String getFileContent(String path) throws IOException {
         var classPathResource = new ClassPathResource(path);
         return StreamUtils.copyToString(classPathResource.getInputStream(), Charset.defaultCharset());
@@ -204,5 +256,16 @@ public class TestDataSource {
 
     public static Goal getGoalEntity() {
         return new Goal("bitcoin", new BigDecimal("1"));
+    }
+
+    public static BalancesResponse getBalances() {
+        return new BalancesResponse("100", "70", "0.1");
+    }
+
+    public static Platform getPlatformEntity() {
+        return new Platform(
+                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
+                "BINANCE"
+        );
     }
 }
