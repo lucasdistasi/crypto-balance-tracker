@@ -293,12 +293,12 @@ public class InsightsService {
 
 <span class="fc" id="L294">        var startIndex = page * INT_ELEMENTS_PER_PAGE;</span>
 
-<span class="pc bpc" id="L296" title="1 of 2 branches missed.">        if (startIndex &gt; userCryptosInsights.size()) {</span>
-<span class="nc" id="L297">            return Optional.empty();</span>
+<span class="fc bfc" id="L296" title="All 2 branches covered.">        if (startIndex &gt; userCryptosInsights.size()) {</span>
+<span class="fc" id="L297">            return Optional.empty();</span>
         }
 
 <span class="fc" id="L300">        var totalPages = (int)ceil(userCryptos.size() / ELEMENTS_PER_PAGE);</span>
-<span class="pc bpc" id="L301" title="1 of 2 branches missed.">        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : INT_ELEMENTS_PER_PAGE;</span>
+<span class="fc bfc" id="L301" title="All 2 branches covered.">        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : INT_ELEMENTS_PER_PAGE;</span>
 <span class="fc" id="L302">        var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);</span>
 
 <span class="fc" id="L304">        return Optional.of(new PageUserCryptosInsightsResponse(page, totalPages, totalBalances, cryptosInsights));</span>

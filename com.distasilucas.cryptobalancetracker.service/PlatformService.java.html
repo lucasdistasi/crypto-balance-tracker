@@ -66,9 +66,9 @@ public class PlatformService {
 <span class="fc" id="L66">    }</span>
 
     public List&lt;Platform&gt; findAllByIds(Collection&lt;String&gt; ids) {
-<span class="nc" id="L69">        log.info(&quot;Retrieving platforms for ids {}&quot;, ids);</span>
+<span class="fc" id="L69">        log.info(&quot;Retrieving platforms for ids {}&quot;, ids);</span>
 
-<span class="nc" id="L71">        return platformRepository.findAllByIdIn(ids);</span>
+<span class="fc" id="L71">        return platformRepository.findAllByIdIn(ids);</span>
     }
 
     private void validatePlatformDoesNotExist(String platformName) {

@@ -132,15 +132,15 @@ public class UserCryptoService {
 <span class="fc" id="L132">    }</span>
 
     public List&lt;UserCrypto&gt; findAll() {
-<span class="nc" id="L135">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
+<span class="fc" id="L135">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
 
-<span class="nc" id="L137">        return userCryptoRepository.findAll();</span>
+<span class="fc" id="L137">        return userCryptoRepository.findAll();</span>
     }
 
     public List&lt;UserCrypto&gt; findAllByPlatformId(String platformId) {
-<span class="nc" id="L141">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
+<span class="fc" id="L141">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
 
-<span class="nc" id="L143">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
+<span class="fc" id="L143">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {
