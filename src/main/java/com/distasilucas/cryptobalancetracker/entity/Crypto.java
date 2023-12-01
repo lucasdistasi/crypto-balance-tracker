@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -32,5 +33,5 @@ public record Crypto(
 
         @Field("last_updated_at")
         LocalDateTime lastUpdatedAt
-) {
+) implements Serializable {
 }

@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformExcepti
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
+import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -29,12 +30,18 @@ class PlatformServiceTest {
     @Mock
     private PlatformRepository platformRepositoryMock;
 
+    @Mock
+    private UserCryptoRepository userCryptoRepositoryMock;
+
+    @Mock
+    private CacheService cacheServiceMock;
+
     private PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        platformService = new PlatformService(platformRepositoryMock);
+        platformService = new PlatformService(platformRepositoryMock, userCryptoRepositoryMock, cacheServiceMock);
     }
 
     @Test
@@ -99,6 +106,7 @@ class PlatformServiceTest {
         var platform = platformService.savePlatform(platformRequest);
 
         verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
+        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
                 .usingRecursiveComparison()
                 .isEqualTo(new Platform(platformArgumentCaptor.getValue().id(), "BINANCE"));
@@ -128,6 +136,7 @@ class PlatformServiceTest {
         var platform = platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
 
         verify(platformRepositoryMock, times(1)).save(platformEntity);
+        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
                 .usingRecursiveComparison()
                 .isEqualTo(platformEntity);
@@ -171,6 +180,8 @@ class PlatformServiceTest {
         platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         verify(platformRepositoryMock, times(1)).delete(platformEntity);
+        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
     }
 
     @Test

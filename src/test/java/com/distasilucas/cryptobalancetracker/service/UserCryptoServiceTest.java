@@ -42,20 +42,23 @@ import static org.mockito.MockitoAnnotations.openMocks;
 class UserCryptoServiceTest {
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    private UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
-    PlatformService platformServiceMock;
+    private PlatformService platformServiceMock;
 
     @Mock
-    CryptoService cryptoServiceMock;
+    private CryptoService cryptoServiceMock;
+
+    @Mock
+    private CacheService cacheServiceMock;
 
     private UserCryptoService userCryptoService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        userCryptoService = new UserCryptoService(userCryptoRepositoryMock, platformServiceMock, cryptoServiceMock);
+        userCryptoService = new UserCryptoService(userCryptoRepositoryMock, platformServiceMock, cryptoServiceMock, cacheServiceMock);
     }
 
     @Test
@@ -208,7 +211,7 @@ class UserCryptoServiceTest {
         var userCryptoResponse = userCryptoService.saveUserCrypto(userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
         assertThat(userCryptoResponse)
                 .usingRecursiveComparison()
                 .isEqualTo(new UserCryptoResponse(
@@ -270,7 +273,7 @@ class UserCryptoServiceTest {
                 userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(updatedUserCrypto);
-
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
         assertThat(userCryptoResponse)
                 .usingRecursiveComparison()
                 .isEqualTo(expected);
@@ -303,7 +306,7 @@ class UserCryptoServiceTest {
                 userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(updatedUserCrypto);
-
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
         assertThat(userCryptoResponse)
                 .usingRecursiveComparison()
                 .isEqualTo(expected);
@@ -347,6 +350,7 @@ class UserCryptoServiceTest {
 
         verify(userCryptoRepositoryMock, times(1)).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
     }
 
     @Test
@@ -409,6 +413,7 @@ class UserCryptoServiceTest {
         userCryptoService.saveOrUpdateAll(userCryptos);
 
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
     }
 
     @Test

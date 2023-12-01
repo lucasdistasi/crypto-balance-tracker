@@ -8,6 +8,7 @@ import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -16,6 +17,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 
 @Slf4j
@@ -27,8 +30,10 @@ public class CryptoService {
     private final CryptoRepository cryptoRepository;
     private final UserCryptoRepository userCryptoRepository;
     private final GoalRepository goalRepository;
+    private final CacheService cacheService;
     private final Clock clock;
 
+    @Cacheable(cacheNames = CRYPTO_COINGECKO_CRYPTO_ID_CACHE, key = "#coingeckoCryptoId")
     public Crypto retrieveCryptoInfoById(String coingeckoCryptoId) {
         log.info("Retrieving crypto info for id {}", coingeckoCryptoId);
 
@@ -94,6 +99,7 @@ public class CryptoService {
             );
 
             cryptoRepository.save(crypto);
+            cacheService.invalidateCryptosCache();
             log.info("Saved crypto {}", crypto);
         }
     }
@@ -106,6 +112,7 @@ public class CryptoService {
 
             if (goal.isEmpty()) {
                 cryptoRepository.deleteById(coingeckoCryptoId);
+                cacheService.invalidateCryptosCache();
                 log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
             }
         }
@@ -126,6 +133,7 @@ public class CryptoService {
         log.info("Updated cryptos: {}", cryptosNames);
     }
 
+    @Cacheable(cacheNames = CRYPTOS_CRYPTOS_IDS_CACHE, key = "#ids")
     public List<Crypto> findAllByIds(Collection<String> ids) {
         log.info("Retrieving cryptos with ids {}", ids);
 

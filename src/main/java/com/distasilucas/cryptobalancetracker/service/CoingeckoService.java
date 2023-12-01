@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoC
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.retry.annotation.Backoff;
@@ -18,6 +19,9 @@ import org.springframework.web.util.UriBuilder;
 import java.net.URI;
 import java.util.List;
 import java.util.function.Function;
+
+import static com.distasilucas.cryptobalancetracker.constants.Constants.COINGECKO_CRYPTOS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_INFO_CACHE;
 
 @Slf4j
 @Service
@@ -34,6 +38,7 @@ public class CoingeckoService {
         this.coingeckoRestClient = coingeckoRestClient;
     }
 
+    @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
     @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public List<CoingeckoCrypto> retrieveAllCryptos() {
         log.info("Hitting Coingecko API... Retrieving all cryptos...");
@@ -44,6 +49,7 @@ public class CoingeckoService {
                 .body(new ParameterizedTypeReference<>() {});
     }
 
+    @Cacheable(cacheNames = CRYPTO_INFO_CACHE, key = "#coingeckoCryptoId")
     @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public CoingeckoCryptoInfo retrieveCryptoInfo(String coingeckoCryptoId) {
         log.info("Hitting Coingecko API... Retrieving information for {}...", coingeckoCryptoId);
