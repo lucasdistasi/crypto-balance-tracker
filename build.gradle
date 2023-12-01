@@ -18,6 +18,10 @@ ext {
 	jacocoVersion = "0.8.9"
 	jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
 	javaxCacheVersion = "1.1.1"
+	aspectjweaverVersion = "1.9.20.1"
+	jacocoVersion = "0.8.9"
+	jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
+	jsonWebTokenVersion = "0.12.3"
 	lombokVersion = "1.18.30"
 	okHttp3Version = "4.12.0"
 	springDocVersion = "2.2.0"
@@ -44,17 +48,25 @@ dependencies {
 	implementation "org.springframework.boot:spring-boot-starter-cache"
 	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springDocVersion}"
 	implementation "org.springframework.boot:spring-boot-starter-data-mongodb"
+	implementation "org.springframework.boot:spring-boot-starter-security"
+	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocVersion"
 	implementation "org.springframework.retry:spring-retry:$springRetryVersion"
 	implementation "com.squareup.okhttp3:okhttp:$okHttp3Version"
 	implementation "org.ehcache:ehcache:$ehcacheVersion"
 	implementation "javax.cache:cache-api:$javaxCacheVersion"
+	implementation "io.jsonwebtoken:jjwt-api:$jsonWebTokenVersion"
 
-	compileOnly "org.projectlombok:lombok:${lombokVersion}"
+	compileOnly "org.projectlombok:lombok:$lombokVersion"
 
-	annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+	runtimeOnly "org.aspectj:aspectjweaver:$aspectjweaverVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:$jsonWebTokenVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jsonWebTokenVersion"
+
+	annotationProcessor "org.projectlombok:lombok:$lombokVersion"
 
 	testImplementation "com.squareup.okhttp3:mockwebserver:$okHttp3Version"
 	testImplementation "org.springframework.boot:spring-boot-starter-test"
+	testImplementation "org.springframework.security:spring-security-test"
 }
 
 tasks.named('bootBuildImage') {

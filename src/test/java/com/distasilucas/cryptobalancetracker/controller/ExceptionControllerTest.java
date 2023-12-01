@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
@@ -11,6 +12,7 @@ import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceExcept
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.junit.jupiter.api.Test;
@@ -40,8 +42,11 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USERNAME_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class ExceptionControllerTest {
 
@@ -174,6 +179,20 @@ class ExceptionControllerTest {
     }
 
     @Test
+    void shouldHandleUsernameNotFoundException() {
+        var message = USERNAME_NOT_FOUND.formatted("admin");
+        var exception = new UsernameNotFoundException(message);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.NOT_FOUND, message);
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleUsernameNotFoundException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+    }
+
+    @Test
     void shouldHandleApiValidationException() {
         var exception = new ApiValidationException(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
@@ -184,6 +203,36 @@ class ExceptionControllerTest {
         assertThat(responseEntity)
                 .usingRecursiveComparison()
                 .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleApiExceptionWithCustomStatus() {
+        var exception = new ApiException(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.I_AM_A_TEAPOT, "I'm a teapot!");
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleApiException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleApiExceptionWithInternalServerError() {
+        var runtimeException = new RuntimeException("Some exception as occurred");
+        var exception = new ApiException(UNKNOWN_ERROR, runtimeException);
+        var problemDetail = ProblemDetail.forStatusAndDetail(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                UNKNOWN_ERROR
+        );
+        problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
+
+        var responseEntity = exceptionController.handleApiException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .usingRecursiveComparison()
+                .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
     }
 
     @Test
@@ -252,6 +301,24 @@ class ExceptionControllerTest {
         problemDetail.setDetail("Required parameter 'parameterName' is not present.");
 
         var responseEntity = exceptionController.handleMissingServletRequestParameterException(exception, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleMissingServletRequestParameterExceptionWithNullDetail() {
+        var exceptionMock = mock(MissingServletRequestParameterException.class);
+        var nullProblemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.I_AM_A_TEAPOT, null);
+
+        when(exceptionMock.getBody()).thenReturn(nullProblemDetail);
+        when(exceptionMock.getMessage()).thenReturn("Some error occurred");
+
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail("Some error occurred");
+
+        var responseEntity = exceptionController.handleMissingServletRequestParameterException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
