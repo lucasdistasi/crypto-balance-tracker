@@ -5,6 +5,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -19,7 +20,7 @@ public record UserCrypto(
 
         @Field("platform_id")
         String platformId
-) {
+) implements Serializable {
 
     public UserCrypto(String coingeckoCryptoId, BigDecimal quantity, String platformId) {
         this(UUID.randomUUID().toString(), coingeckoCryptoId, quantity, platformId);
