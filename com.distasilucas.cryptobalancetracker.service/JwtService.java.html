@@ -17,58 +17,59 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.TOKEN_EXPIRED;
 
-<span class="fc" id="L22">@Slf4j</span>
+<span class="fc" id="L23">@Slf4j</span>
 @Service
 @ConditionalOnProperty(prefix = &quot;security&quot;, name = &quot;enabled&quot;, havingValue = &quot;true&quot;)
 public class JwtService {
 
     public final String jwtSigningKey;
 
-<span class="fc" id="L29">    public JwtService(@Value(&quot;${jwt.signing-key}&quot;) String jwtSigningKey) {</span>
-<span class="fc" id="L30">        this.jwtSigningKey = jwtSigningKey;</span>
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L30">    public JwtService(@Value(&quot;${jwt.signing-key}&quot;) String jwtSigningKey) {</span>
+<span class="fc" id="L31">        this.jwtSigningKey = jwtSigningKey;</span>
+<span class="fc" id="L32">    }</span>
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
-<span class="fc" id="L34">        log.info(&quot;Validating JWT token for {}&quot;, userDetails.getUsername());</span>
+<span class="fc" id="L35">        log.info(&quot;Validating JWT token for {}&quot;, userDetails.getUsername());</span>
 
-<span class="pc bpc" id="L36" title="1 of 4 branches missed.">        return isTokenNonExpired(token) &amp;&amp; extractUsername(token).equals(userDetails.getUsername());</span>
+<span class="pc bpc" id="L37" title="1 of 4 branches missed.">        return isTokenNonExpired(token) &amp;&amp; extractUsername(token).equals(userDetails.getUsername());</span>
     }
 
     public String extractUsername(String token) {
-<span class="fc" id="L40">        return extractClaim(token, Claims::getSubject);</span>
+<span class="fc" id="L41">        return extractClaim(token, Claims::getSubject);</span>
     }
 
     private boolean isTokenNonExpired(String token) {
-<span class="fc" id="L44">        var date = extractClaim(token, Claims::getExpiration);</span>
-<span class="fc" id="L45">        return date.after(new Date());</span>
+<span class="fc" id="L45">        var date = extractClaim(token, Claims::getExpiration);</span>
+<span class="fc" id="L46">        return date.after(new Date());</span>
     }
 
     private &lt;T&gt; T extractClaim(String token, Function&lt;Claims, T&gt; claims) {
-<span class="fc" id="L49">        Claims claim = extractClaims(token);</span>
-<span class="fc" id="L50">        return claims.apply(claim);</span>
+<span class="fc" id="L50">        Claims claim = extractClaims(token);</span>
+<span class="fc" id="L51">        return claims.apply(claim);</span>
     }
 
     private Claims extractClaims(String token) {
         try {
-<span class="fc" id="L55">            return Jwts.parser()</span>
-<span class="fc" id="L56">                    .verifyWith(getSigningKey())</span>
-<span class="fc" id="L57">                    .build()</span>
-<span class="fc" id="L58">                    .parseSignedClaims(token)</span>
-<span class="fc" id="L59">                    .getPayload();</span>
-<span class="fc" id="L60">        } catch (ExpiredJwtException ex) {</span>
-<span class="fc" id="L61">            throw new ApiException(HttpStatus.BAD_REQUEST, TOKEN_EXPIRED);</span>
-<span class="fc" id="L62">        } catch (Exception ex) {</span>
-<span class="fc" id="L63">            log.info(&quot;Exception when parsing JWT Token {}&quot;, ex.getMessage());</span>
-<span class="fc" id="L64">            throw new ApiException(ex);</span>
+<span class="fc" id="L56">            return Jwts.parser()</span>
+<span class="fc" id="L57">                    .verifyWith(getSigningKey())</span>
+<span class="fc" id="L58">                    .build()</span>
+<span class="fc" id="L59">                    .parseSignedClaims(token)</span>
+<span class="fc" id="L60">                    .getPayload();</span>
+<span class="fc" id="L61">        } catch (ExpiredJwtException ex) {</span>
+<span class="fc" id="L62">            throw new ApiException(HttpStatus.BAD_REQUEST, TOKEN_EXPIRED);</span>
+<span class="fc" id="L63">        } catch (Exception ex) {</span>
+<span class="fc" id="L64">            log.info(&quot;Exception when parsing JWT Token {}&quot;, ex.getMessage());</span>
+<span class="fc" id="L65">            throw new ApiException(UNKNOWN_ERROR, ex);</span>
         }
     }
 
     private SecretKey getSigningKey() {
-<span class="fc" id="L69">        var decoders = Decoders.BASE64.decode(jwtSigningKey);</span>
+<span class="fc" id="L70">        var decoders = Decoders.BASE64.decode(jwtSigningKey);</span>
 
-<span class="fc" id="L71">        return Keys.hmacShaKeyFor(decoders);</span>
+<span class="fc" id="L72">        return Keys.hmacShaKeyFor(decoders);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
