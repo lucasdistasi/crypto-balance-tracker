@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  mongo-crypto-db:
+    image: 'mongo:latest'
+    container_name: 'mongo-crypto-db'
+    ports:
+      - '27017:27017'
+    volumes:
+      - crypto-db-volume:/data/db
+
+  crypto-balance-tracker:
+    image: 'crypto-balance-tracker:latest'
+    container_name: 'crypto-balance-tracker'
+    depends_on:
+      - mongo-crypto-db
+    environment:
+      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
+      - COINGECKO_API_KEY=${COINGECKO_API_KEY}
+      - ENV_PROFILE=docker
+    ports:
+      - '8080:8080'
+
+  crypto-balance-tracker-ui:
+    image: 'crypto-balance-tracker-ui:latest'
+    container_name: 'crypto-balance-tracker-ui'
+    depends_on:
+      - crypto-balance-tracker
+    ports:
+      - '5173:5173'
+
+volumes:
+  crypto-db-volume:
