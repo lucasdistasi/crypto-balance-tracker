@@ -45,19 +45,22 @@ import static org.mockito.MockitoAnnotations.openMocks;
 class CryptoServiceTest {
 
     @Mock
-    CoingeckoService coingeckoServiceMock;
+    private CoingeckoService coingeckoServiceMock;
 
     @Mock
-    CryptoRepository cryptoRepositoryMock;
+    private CryptoRepository cryptoRepositoryMock;
 
     @Mock
-    UserCryptoRepository userCryptoRepositoryMock;
+    private UserCryptoRepository userCryptoRepositoryMock;
 
     @Mock
-    GoalRepository goalRepositoryMock;
+    private GoalRepository goalRepositoryMock;
 
     @Mock
-    Clock clockMock;
+    private CacheService cacheServiceMock;
+
+    @Mock
+    private Clock clockMock;
 
     private CryptoService cryptoService;
 
@@ -65,7 +68,7 @@ class CryptoServiceTest {
     void setUp() {
         openMocks(this);
         cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, userCryptoRepositoryMock,
-                goalRepositoryMock, clockMock);
+                goalRepositoryMock, cacheServiceMock, clockMock);
     }
 
     @Test
@@ -217,6 +220,7 @@ class CryptoServiceTest {
         cryptoService.saveCryptoIfNotExists("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
 
         assertThat(captor.getValue())
                 .usingRecursiveComparison()
@@ -242,6 +246,7 @@ class CryptoServiceTest {
         cryptoService.saveCryptoIfNotExists("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
 
         assertThat(captor.getValue())
                 .usingRecursiveComparison()
@@ -280,6 +285,7 @@ class CryptoServiceTest {
         cryptoService.deleteCryptoIfNotUsed("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).deleteById("bitcoin");
+        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
     }
 
     @Test

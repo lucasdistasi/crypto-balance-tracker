@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.ApiValidationException;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
@@ -10,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.exception.InsufficientBalanceExcept
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -161,12 +163,40 @@ public class ExceptionController {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail));
     }
 
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<List<ProblemDetail>> handleUsernameNotFoundException(
+            UsernameNotFoundException exception,
+            WebRequest webRequest
+    ) {
+        log.info("An UsernameNotFoundException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));
+    }
+
     @ExceptionHandler(ApiValidationException.class)
     public ResponseEntity<List<ProblemDetail>> handleApiValidationException(
             ApiValidationException exception,
             WebRequest webRequest
     ) {
         log.info("An ApiValidationException has occurred", exception);
+
+        var request = (ServletWebRequest) webRequest;
+        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));
+    }
+
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<List<ProblemDetail>> handleApiException(
+            ApiException exception,
+            WebRequest webRequest
+    ) {
+        log.info("An ApiException has occurred", exception);
 
         var request = (ServletWebRequest) webRequest;
         var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());
