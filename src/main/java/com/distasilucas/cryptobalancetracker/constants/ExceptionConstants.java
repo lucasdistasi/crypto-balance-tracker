@@ -16,4 +16,6 @@ public class ExceptionConstants {
     public static final String REQUEST_LIMIT_REACHED = "Request limit reached";
     public static final String NOT_ENOUGH_BALANCE = "You don't have enough balance to perform this action";
     public static final String SAME_FROM_TO_PLATFORM = "From platform and to platform cannot be the same";
+    public static final String TOKEN_EXPIRED = "Token is expired";
+    public static final String USERNAME_NOT_FOUND = "Username %s not found";
 }
