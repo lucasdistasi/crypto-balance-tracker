@@ -4,12 +4,12 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 @Getter
-public class ApiValidationException extends RuntimeException {
+public class ApiValidationException extends ApiException {
 
 <span class="fc" id="L9">    private final HttpStatus httpStatus;</span>
 
     public ApiValidationException(HttpStatus status, String message) {
-<span class="fc" id="L12">        super(message);</span>
+<span class="fc" id="L12">        super(status, message);</span>
 <span class="fc" id="L13">        this.httpStatus = status;</span>
 <span class="fc" id="L14">    }</span>
 }
