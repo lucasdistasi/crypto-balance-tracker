@@ -5,12 +5,11 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
 @Document(&quot;UserCryptos&quot;)
-<span class="fc" id="L13">public record UserCrypto(</span>
+<span class="fc" id="L12">public record UserCrypto(</span>
         @Id
         String id,
 
@@ -20,18 +19,18 @@ import java.util.UUID;
 
         @Field(&quot;platform_id&quot;)
         String platformId
-) implements Serializable {
+) {
 
     public UserCrypto(String coingeckoCryptoId, BigDecimal quantity, String platformId) {
-<span class="fc" id="L26">        this(UUID.randomUUID().toString(), coingeckoCryptoId, quantity, platformId);</span>
-<span class="fc" id="L27">    }</span>
+<span class="fc" id="L25">        this(UUID.randomUUID().toString(), coingeckoCryptoId, quantity, platformId);</span>
+<span class="fc" id="L26">    }</span>
 
     public UserCryptoResponse toUserCryptoResponse(String cryptoName, String platformName) {
-<span class="fc" id="L30">        return new UserCryptoResponse(id, cryptoName, quantity.toPlainString(), platformName);</span>
+<span class="fc" id="L29">        return new UserCryptoResponse(id, cryptoName, quantity.toPlainString(), platformName);</span>
     }
 
     public UserCrypto copy(BigDecimal updatedQuantity) {
-<span class="fc" id="L34">        return new UserCrypto(id, coingeckoCryptoId, updatedQuantity, platformId);</span>
+<span class="fc" id="L33">        return new UserCrypto(id, coingeckoCryptoId, updatedQuantity, platformId);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
