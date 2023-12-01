@@ -4,11 +4,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Document(&quot;Cryptos&quot;)
-<span class="fc" id="L11">public record Crypto(</span>
+<span class="fc" id="L12">public record Crypto(</span>
         @Id
         String id,
         String name,
@@ -32,6 +33,6 @@ import java.time.LocalDateTime;
 
         @Field(&quot;last_updated_at&quot;)
         LocalDateTime lastUpdatedAt
-) {
+) implements Serializable {
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

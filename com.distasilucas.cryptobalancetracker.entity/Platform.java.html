@@ -3,14 +3,16 @@
 import com.distasilucas.cryptobalancetracker.model.response.platform.PlatformResponse;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Document(&quot;Platforms&quot;)
-<span class="fc" id="L7">public record Platform(</span>
+<span class="fc" id="L9">public record Platform(</span>
         String id,
         String name
-) {
+) implements Serializable {
 
     public PlatformResponse toPlatformResponse() {
-<span class="fc" id="L13">        return new PlatformResponse(id, name);</span>
+<span class="fc" id="L15">        return new PlatformResponse(id, name);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
