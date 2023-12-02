@@ -298,7 +298,7 @@ public class InsightsService {
         }
 
         var totalPages = (int)ceil(userCryptos.size() / ELEMENTS_PER_PAGE);
-        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : INT_ELEMENTS_PER_PAGE;
+        var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : startIndex + INT_ELEMENTS_PER_PAGE;
         var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);
 
         return Optional.of(new PageUserCryptosInsightsResponse(page, totalPages, totalBalances, cryptosInsights));

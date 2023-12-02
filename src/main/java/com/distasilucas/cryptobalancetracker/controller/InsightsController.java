@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +29,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @RestController
 @RequestMapping(INSIGHTS_ENDPOINT)
 @RequiredArgsConstructor
+@CrossOrigin(origins = "${allowed-origins}")
 public class InsightsController implements InsightsControllerAPI {
 
     private final InsightsService insightsService;

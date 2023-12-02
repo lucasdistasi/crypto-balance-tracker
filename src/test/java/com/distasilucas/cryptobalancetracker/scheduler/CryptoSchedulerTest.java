@@ -102,7 +102,7 @@ class CryptoSchedulerTest {
                 new BigDecimal("27000"),
                 new BigDecimal("1"),
                 new BigDecimal("19000000"),
-                null,
+                BigDecimal.ZERO,
                 localDateTime
         );
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");

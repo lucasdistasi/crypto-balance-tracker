@@ -31,3 +31,5 @@ security:
 
 jwt:
   signing-key: ${JWT_SIGNING_KEY}
+
+allowed-origins: "http://localhost:5173"
