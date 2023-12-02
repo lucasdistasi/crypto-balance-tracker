@@ -1,0 +1,7 @@
+spring:
+  data:
+    mongodb:
+      database: ${MONGODB_DATABASE}
+      auto-index-creation: true
+      host: mongo-crypto-db
+      port: 27017
