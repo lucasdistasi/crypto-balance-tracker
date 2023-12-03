@@ -138,7 +138,7 @@ public class EhCacheConfiguration {
     }
 
     private CacheConfiguration<Collection<String>, List<Platform>> getPlatformsIdsCache() {
-        Class<Collection<String>> stringCollectionClass = cast(List.class);
+        Class<Collection<String>> stringCollectionClass = cast(Collection.class);
         Class<List<Platform>> platformListClass = cast(List.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
                 .offheap(1, MemoryUnit.MB)
@@ -166,7 +166,7 @@ public class EhCacheConfiguration {
     }
 
     private CacheConfiguration<Collection<String>, List<Crypto>> getCryptosIdsCache() {
-        Class<Collection<String>> stringCollectionClass = cast(List.class);
+        Class<Collection<String>> stringCollectionClass = cast(Collection.class);
         Class<List<Crypto>> cryptoListClass = cast(List.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
                 .offheap(1, MemoryUnit.MB)

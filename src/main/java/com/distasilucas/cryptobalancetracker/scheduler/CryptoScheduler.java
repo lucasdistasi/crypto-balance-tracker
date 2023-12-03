@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -45,6 +46,9 @@ public class CryptoScheduler {
                 .map(crypto -> {
                     try {
                         var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());
+                        var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
+                                coingeckoCrypto.marketData().maxSupply() :
+                                BigDecimal.ZERO;
 
                         return new Crypto(
                                 coingeckoCrypto.id(),
@@ -55,7 +59,7 @@ public class CryptoScheduler {
                                 coingeckoCrypto.marketData().currentPrice().eur(),
                                 coingeckoCrypto.marketData().currentPrice().btc(),
                                 coingeckoCrypto.marketData().circulatingSupply(),
-                                coingeckoCrypto.marketData().maxSupply(),
+                                maxSupply,
                                 LocalDateTime.now(clock)
                         );
                     } catch (RestClientResponseException exception) {
