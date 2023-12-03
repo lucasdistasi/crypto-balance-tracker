@@ -95,7 +95,7 @@ class PlatformControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"binance", "OKX", "Coinbase", "Kraken"})
+    @ValueSource(strings = {"binance", "OKX", "Coinbase", "Kraken", "Gate Io"})
     void shouldSavePlatformWithStatus200(String platformName) throws Exception {
         var platformRequest = new PlatformRequest(platformName);
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformName.toUpperCase());
@@ -111,7 +111,7 @@ class PlatformControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"123", "Coin base", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e"})
+    @ValueSource(strings = {"123", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e", "Gate  Io", " Gate Io", "Gate Io "})
     void shouldFailWithStatus400WithOneMessageWhenSavingInvalidPlatform(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
                 .formatted(platformName);
@@ -143,10 +143,10 @@ class PlatformControllerMvcTest {
     @Test
     void shouldFailWithStatus400WithTwoMessagesWhenSavingNullPlatform() throws Exception {
         var content = """
-            {
-                "name": null
-            }
-        """;
+                    {
+                        "name": null
+                    }
+                """;
 
         mockMvc.perform(savePlatform(content))
                 .andExpect(status().isBadRequest())
@@ -158,7 +158,7 @@ class PlatformControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"binance", "OKX", "Coinbase", "Kraken"})
+    @ValueSource(strings = {"binance", "OKX", "Coinbase", "Kraken", "Coinbase Exchange", "Gate IO"})
     void shouldUpdatePlatformWithStatus200(String platformName) throws Exception {
         var platformRequest = new PlatformRequest(platformName);
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformName.toUpperCase());
@@ -193,7 +193,7 @@ class PlatformControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"123", "Coin base", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e"})
+    @ValueSource(strings = {"123", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e", "Gate  Io", " Gate Io", "Gate Io "})
     void shouldFailWithStatus400WithOneMessagesWhenUpdatingInvalidPlatformName(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
                 .formatted(platformName);
@@ -226,10 +226,10 @@ class PlatformControllerMvcTest {
     @Test
     void shouldFailWithStatus400WithTwoMessagesWhenUpdatingNullPlatform() throws Exception {
         var content = """
-            {
-                "name": null
-            }
-        """;
+                    {
+                        "name": null
+                    }
+                """;
 
         mockMvc.perform(updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", content))
                 .andExpect(status().isBadRequest())
