@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +27,9 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 
 @Validated
 @RestController
-<span class="fc" id="L29">@RequiredArgsConstructor</span>
+<span class="fc" id="L30">@RequiredArgsConstructor</span>
 @RequestMapping(PLATFORMS_ENDPOINT)
+@CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class PlatformController implements PlatformControllerAPI {
 
     private final PlatformService platformService;
@@ -35,12 +37,12 @@ public class PlatformController implements PlatformControllerAPI {
     @Override
     @GetMapping
     public ResponseEntity&lt;List&lt;PlatformResponse&gt;&gt; retrieveAllPlatforms() {
-<span class="fc" id="L38">        var platforms = platformService.retrieveAllPlatforms()</span>
-<span class="fc" id="L39">                .stream()</span>
-<span class="fc" id="L40">                .map(Platform::toPlatformResponse)</span>
-<span class="fc" id="L41">                .toList();</span>
+<span class="fc" id="L40">        var platforms = platformService.retrieveAllPlatforms()</span>
+<span class="fc" id="L41">                .stream()</span>
+<span class="fc" id="L42">                .map(Platform::toPlatformResponse)</span>
+<span class="fc" id="L43">                .toList();</span>
 
-<span class="fc bfc" id="L43" title="All 2 branches covered.">        return platforms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(platforms);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        return platforms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(platforms);</span>
     }
 
     @Override
@@ -49,19 +51,19 @@ public class PlatformController implements PlatformControllerAPI {
             @UUID(message = PLATFORM_ID_UUID)
             @PathVariable String platformId
     ) {
-<span class="fc" id="L52">        var platform = platformService.retrievePlatformById(platformId);</span>
-<span class="fc" id="L53">        var platformResponse = platform.toPlatformResponse();</span>
+<span class="fc" id="L54">        var platform = platformService.retrievePlatformById(platformId);</span>
+<span class="fc" id="L55">        var platformResponse = platform.toPlatformResponse();</span>
 
-<span class="fc" id="L55">        return ResponseEntity.ok(platformResponse);</span>
+<span class="fc" id="L57">        return ResponseEntity.ok(platformResponse);</span>
     }
 
     @Override
     @PostMapping
     public ResponseEntity&lt;PlatformResponse&gt; savePlatform(@Valid @RequestBody PlatformRequest platformRequest) {
-<span class="fc" id="L61">        var platform = platformService.savePlatform(platformRequest);</span>
-<span class="fc" id="L62">        var platformResponse = platform.toPlatformResponse();</span>
+<span class="fc" id="L63">        var platform = platformService.savePlatform(platformRequest);</span>
+<span class="fc" id="L64">        var platformResponse = platform.toPlatformResponse();</span>
 
-<span class="fc" id="L64">        return ResponseEntity.ok(platformResponse);</span>
+<span class="fc" id="L66">        return ResponseEntity.ok(platformResponse);</span>
     }
 
     @Override
@@ -70,18 +72,18 @@ public class PlatformController implements PlatformControllerAPI {
             @UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId,
             @Valid @RequestBody PlatformRequest platformRequest
     ) {
-<span class="fc" id="L73">        var platform = platformService.updatePlatform(platformId, platformRequest);</span>
-<span class="fc" id="L74">        var platformResponse = platform.toPlatformResponse();</span>
+<span class="fc" id="L75">        var platform = platformService.updatePlatform(platformId, platformRequest);</span>
+<span class="fc" id="L76">        var platformResponse = platform.toPlatformResponse();</span>
 
-<span class="fc" id="L76">        return ResponseEntity.ok(platformResponse);</span>
+<span class="fc" id="L78">        return ResponseEntity.ok(platformResponse);</span>
     }
 
     @Override
     @DeleteMapping(&quot;/{platformId}&quot;)
     public ResponseEntity&lt;Void&gt; deletePlatform(@UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId) {
-<span class="fc" id="L82">        platformService.deletePlatform(platformId);</span>
+<span class="fc" id="L84">        platformService.deletePlatform(platformId);</span>
 
-<span class="fc" id="L84">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L86">        return ResponseEntity.ok().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

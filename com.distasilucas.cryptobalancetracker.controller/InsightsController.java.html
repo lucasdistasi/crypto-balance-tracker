@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,7 +28,8 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @Validated
 @RestController
 @RequestMapping(INSIGHTS_ENDPOINT)
-<span class="fc" id="L30">@RequiredArgsConstructor</span>
+<span class="fc" id="L31">@RequiredArgsConstructor</span>
+@CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class InsightsController implements InsightsControllerAPI {
 
     private final InsightsService insightsService;
@@ -35,10 +37,10 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping(&quot;/balances&quot;)
     public ResponseEntity&lt;BalancesResponse&gt; retrieveTotalBalancesInsights() {
-<span class="fc" id="L38">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
+<span class="fc" id="L40">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
 
-<span class="fc" id="L40">        return totalBalances.map(ResponseEntity::ok)</span>
-<span class="fc" id="L41">                .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
+<span class="fc" id="L42">        return totalBalances.map(ResponseEntity::ok)</span>
+<span class="fc" id="L43">                .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
     }
 
     @Override
@@ -48,9 +50,9 @@ public class InsightsController implements InsightsControllerAPI {
             @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
             int page
     ) {
-<span class="fc" id="L51">        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page);</span>
+<span class="fc" id="L53">        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page);</span>
 
-<span class="fc" id="L53">        return okOrNoContent(userCryptosInsights);</span>
+<span class="fc" id="L55">        return okOrNoContent(userCryptosInsights);</span>
     }
 
     @Override
@@ -60,33 +62,33 @@ public class InsightsController implements InsightsControllerAPI {
             @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
             int page
     ) {
-<span class="fc" id="L63">        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page);</span>
+<span class="fc" id="L65">        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page);</span>
 
-<span class="fc" id="L65">        return okOrNoContent(userCryptosPlatformsInsights);</span>
+<span class="fc" id="L67">        return okOrNoContent(userCryptosPlatformsInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/cryptos/balances&quot;)
     public ResponseEntity&lt;CryptosBalancesInsightsResponse&gt; retrieveCryptosBalancesInsights() {
-<span class="fc" id="L71">        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();</span>
+<span class="fc" id="L73">        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();</span>
 
-<span class="fc" id="L73">        return okOrNoContent(cryptosBalancesInsights);</span>
+<span class="fc" id="L75">        return okOrNoContent(cryptosBalancesInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/platforms/balances&quot;)
     public ResponseEntity&lt;PlatformsBalancesInsightsResponse&gt; retrievePlatformsBalancesInsights() {
-<span class="fc" id="L79">        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();</span>
+<span class="fc" id="L81">        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();</span>
 
-<span class="fc" id="L81">        return okOrNoContent(platformsBalancesInsights);</span>
+<span class="fc" id="L83">        return okOrNoContent(platformsBalancesInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/cryptos/{coingeckoCryptoId}&quot;)
     public ResponseEntity&lt;CryptoInsightResponse&gt; retrieveCryptoInsights(@PathVariable String coingeckoCryptoId) {
-<span class="fc" id="L87">        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);</span>
+<span class="fc" id="L89">        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);</span>
 
-<span class="fc" id="L89">        return okOrNoContent(cryptoInsights);</span>
+<span class="fc" id="L91">        return okOrNoContent(cryptoInsights);</span>
     }
 
     @Override
@@ -96,13 +98,13 @@ public class InsightsController implements InsightsControllerAPI {
             @UUID(message = PLATFORM_ID_UUID)
             String platformId
     ) {
-<span class="fc" id="L99">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
+<span class="fc" id="L101">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
 
-<span class="fc" id="L101">        return okOrNoContent(platformsInsights);</span>
+<span class="fc" id="L103">        return okOrNoContent(platformsInsights);</span>
     }
 
     private &lt;T&gt; ResponseEntity&lt;T&gt; okOrNoContent(Optional&lt;T&gt; body) {
-<span class="fc" id="L105">        return body.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.noContent().build());</span>
+<span class="fc" id="L107">        return body.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.noContent().build());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

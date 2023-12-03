@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,30 +29,31 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @Validated
 @RestController
 @RequestMapping(GOALS_ENDPOINT)
-<span class="fc" id="L31">@RequiredArgsConstructor</span>
+<span class="fc" id="L32">@RequiredArgsConstructor</span>
+@CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class GoalController implements GoalControllerAPI {
 
     private final GoalService goalService;
 
     @GetMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;GoalResponse&gt; retrieveGoalById(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
-<span class="fc" id="L38">        var goal = goalService.retrieveGoalById(goalId);</span>
+<span class="fc" id="L40">        var goal = goalService.retrieveGoalById(goalId);</span>
 
-<span class="fc" id="L40">        return ResponseEntity.ok(goal);</span>
+<span class="fc" id="L42">        return ResponseEntity.ok(goal);</span>
     }
 
     @GetMapping
     public ResponseEntity&lt;PageGoalResponse&gt; retrieveGoalsForPage(@RequestParam @Min(value = 0, message = INVALID_PAGE_NUMBER) int page) {
-<span class="fc" id="L45">        var goals = goalService.retrieveGoalsForPage(page);</span>
+<span class="fc" id="L47">        var goals = goalService.retrieveGoalsForPage(page);</span>
 
-<span class="fc bfc" id="L47" title="All 2 branches covered.">        return goals.goals().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(goals);</span>
+<span class="fc bfc" id="L49" title="All 2 branches covered.">        return goals.goals().isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(goals);</span>
     }
 
     @PostMapping
     public ResponseEntity&lt;GoalResponse&gt; saveGoal(@RequestBody @Valid GoalRequest goalRequest) {
-<span class="fc" id="L52">        var goal = goalService.saveGoal(goalRequest);</span>
+<span class="fc" id="L54">        var goal = goalService.saveGoal(goalRequest);</span>
 
-<span class="fc" id="L54">        return ResponseEntity.ok(goal);</span>
+<span class="fc" id="L56">        return ResponseEntity.ok(goal);</span>
     }
 
     @PutMapping(&quot;/{goalId}&quot;)
@@ -59,16 +61,16 @@ public class GoalController implements GoalControllerAPI {
             @PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId,
             @Valid @RequestBody GoalRequest goalRequest
     ) {
-<span class="fc" id="L62">        var goal = goalService.updateGoal(goalId, goalRequest);</span>
+<span class="fc" id="L64">        var goal = goalService.updateGoal(goalId, goalRequest);</span>
 
-<span class="fc" id="L64">        return ResponseEntity.ok(goal);</span>
+<span class="fc" id="L66">        return ResponseEntity.ok(goal);</span>
     }
 
     @DeleteMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;Void&gt; deleteGoal(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
-<span class="fc" id="L69">        goalService.deleteGoal(goalId);</span>
+<span class="fc" id="L71">        goalService.deleteGoal(goalId);</span>
 
-<span class="fc" id="L71">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L73">        return ResponseEntity.ok().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

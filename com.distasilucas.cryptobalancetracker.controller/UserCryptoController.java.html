@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -31,7 +32,8 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @Validated
 @RestController
 @RequestMapping(USER_CRYPTOS_ENDPOINT)
-<span class="fc" id="L34">@RequiredArgsConstructor</span>
+<span class="fc" id="L35">@RequiredArgsConstructor</span>
+@CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class UserCryptoController implements UserCryptoControllerAPI {
 
     private final UserCryptoService userCryptoService;
@@ -44,9 +46,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
             @PathVariable
             String userCryptoId
     ) {
-<span class="fc" id="L47">        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L49">        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);</span>
 
-<span class="fc" id="L49">        return ResponseEntity.ok(userCrypto);</span>
+<span class="fc" id="L51">        return ResponseEntity.ok(userCrypto);</span>
     }
 
     @Override
@@ -56,19 +58,19 @@ public class UserCryptoController implements UserCryptoControllerAPI {
             @RequestParam
             int page
     ) {
-<span class="fc" id="L59">        var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);</span>
+<span class="fc" id="L61">        var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);</span>
 
-<span class="fc bfc" id="L61" title="All 2 branches covered.">        return userCryptos.cryptos().isEmpty() ?</span>
-<span class="fc" id="L62">                ResponseEntity.noContent().build() :</span>
-<span class="fc" id="L63">                ResponseEntity.ok(userCryptos);</span>
+<span class="fc bfc" id="L63" title="All 2 branches covered.">        return userCryptos.cryptos().isEmpty() ?</span>
+<span class="fc" id="L64">                ResponseEntity.noContent().build() :</span>
+<span class="fc" id="L65">                ResponseEntity.ok(userCryptos);</span>
     }
 
     @Override
     @PostMapping
     public ResponseEntity&lt;UserCryptoResponse&gt; saveUserCrypto(@Valid @RequestBody UserCryptoRequest userCryptoRequest) {
-<span class="fc" id="L69">        var userCrypto = userCryptoService.saveUserCrypto(userCryptoRequest);</span>
+<span class="fc" id="L71">        var userCrypto = userCryptoService.saveUserCrypto(userCryptoRequest);</span>
 
-<span class="fc" id="L71">        return ResponseEntity.ok(userCrypto);</span>
+<span class="fc" id="L73">        return ResponseEntity.ok(userCrypto);</span>
     }
 
     @Override
@@ -81,9 +83,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
             @RequestBody
             UserCryptoRequest userCryptoRequest
     ) {
-<span class="fc" id="L84">        var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);</span>
+<span class="fc" id="L86">        var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);</span>
 
-<span class="fc" id="L86">        return ResponseEntity.ok(userCrypto);</span>
+<span class="fc" id="L88">        return ResponseEntity.ok(userCrypto);</span>
     }
 
     @Override
@@ -93,9 +95,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
             @PathVariable
             String userCryptoId
     ) {
-<span class="fc" id="L96">        userCryptoService.deleteUserCrypto(userCryptoId);</span>
+<span class="fc" id="L98">        userCryptoService.deleteUserCrypto(userCryptoId);</span>
 
-<span class="fc" id="L98">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L100">        return ResponseEntity.ok().build();</span>
     }
 
     @Override
@@ -105,9 +107,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
             @RequestBody
             TransferCryptoRequest transferCryptoRequest
     ) {
-<span class="fc" id="L108">        var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);</span>
+<span class="fc" id="L110">        var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);</span>
 
-<span class="fc" id="L110">        return ResponseEntity.ok(transferCryptoResponse);</span>
+<span class="fc" id="L112">        return ResponseEntity.ok(transferCryptoResponse);</span>
     }
 
 }
