@@ -82,10 +82,10 @@ public class UserCryptoService {
 
         var userCrypto = userCryptoRequest.toEntity(coingeckoCrypto.id());
 
-        userCryptoRepository.save(userCrypto);
-        cacheService.invalidateUserCryptosCaches();
-        log.info("Saved user crypto {}", userCrypto);
         cryptoService.saveCryptoIfNotExists(coingeckoCrypto.id());
+        userCryptoRepository.save(userCrypto);
+        log.info("Saved user crypto {}", userCrypto);
+        cacheService.invalidateUserCryptosCaches();
 
         return userCrypto.toUserCryptoResponse(coingeckoCrypto.name(), platform.name());
     }

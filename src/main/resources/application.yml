@@ -7,7 +7,9 @@ spring:
       default: local
 
 coingecko:
-  api-key: ${COINGECKO_API_KEY}
+  api-key:
+    demo: ${DEMO_COINGECKO_API_KEY}
+    pro: ${PRO_COINGECKO_API_KEY}
   url: "https://api.coingecko.com/api/v3"
   pro:
     url: "https://pro-api.coingecko.com/api/v3"
@@ -24,7 +26,7 @@ logging:
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %cyan([ %thread ]) %green(%logger) - %boldCyan(%msg%n)"
 
-max-limit-crypto: 9
+max-limit-crypto: 10
 
 security:
   enabled: false
