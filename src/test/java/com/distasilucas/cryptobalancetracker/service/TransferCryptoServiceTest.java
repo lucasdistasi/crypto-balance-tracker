@@ -561,7 +561,6 @@ class TransferCryptoServiceTest {
                 );
     }
 
-    // TODO
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabledAndDeleteOneCrypto() {
         var transferCryptoRequest = new TransferCryptoRequest(

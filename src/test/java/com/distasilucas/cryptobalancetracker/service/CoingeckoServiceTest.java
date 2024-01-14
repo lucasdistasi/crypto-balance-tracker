@@ -38,7 +38,7 @@ class CoingeckoServiceTest {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
         var restClient = RestClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", restClient);
+        coingeckoService = new CoingeckoService("", "", restClient);
 
         var cryptos = coingeckoService.retrieveAllCryptos();
 
@@ -50,7 +50,7 @@ class CoingeckoServiceTest {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
         var restClient = RestClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", restClient);
+        coingeckoService = new CoingeckoService("", "", restClient);
 
         var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo("bitcoin");
 
@@ -62,7 +62,7 @@ class CoingeckoServiceTest {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
         var restClient = RestClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("", restClient);
+        coingeckoService = new CoingeckoService("", "", restClient);
 
         var exception = assertThrows(
                 RestClientResponseException.class,
@@ -77,7 +77,7 @@ class CoingeckoServiceTest {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
         var restClient = RestClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("TEST123", restClient);
+        coingeckoService = new CoingeckoService("TEST123", "", restClient);
 
         var exception = assertThrows(
                 RestClientResponseException.class,
@@ -92,7 +92,7 @@ class CoingeckoServiceTest {
         var mockResponse = new MockResponse();
         mockWebServer.enqueue(mockResponse);
         var restClient = RestClient.create(COINGECKO_API_URL);
-        coingeckoService = new CoingeckoService("TEST123", restClient);
+        coingeckoService = new CoingeckoService("TEST123", "", restClient);
 
         var exception = assertThrows(
                 RestClientResponseException.class,
