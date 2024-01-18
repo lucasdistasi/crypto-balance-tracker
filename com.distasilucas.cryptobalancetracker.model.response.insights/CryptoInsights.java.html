@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 <span class="fc" id="L6">public record CryptoInsights(</span>
+        String id,
         String cryptoName,
         String cryptoId,
         String quantity,
@@ -12,7 +13,11 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 ) {
 
     public CryptoInsights(String cryptoName, BalancesResponse balancesResponse, float percentage) {
-<span class="fc" id="L15">        this(cryptoName, null, null, balancesResponse, percentage);</span>
-<span class="fc" id="L16">    }</span>
+<span class="fc" id="L16">        this(null, cryptoName, null, null, balancesResponse, percentage);</span>
+<span class="fc" id="L17">    }</span>
+
+    public CryptoInsights(String cryptoName, String cryptoId, String quantity, BalancesResponse balancesResponse, float percentage) {
+<span class="fc" id="L20">        this(null, cryptoName, cryptoId, quantity, balancesResponse, percentage);</span>
+<span class="fc" id="L21">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
