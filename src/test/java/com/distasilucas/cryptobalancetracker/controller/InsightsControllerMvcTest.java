@@ -250,6 +250,7 @@ class InsightsControllerMvcTest {
                 .andExpect(jsonPath("$.balances.totalUSDBalance", is("4500.00")))
                 .andExpect(jsonPath("$.balances.totalBTCBalance", is("0.15")))
                 .andExpect(jsonPath("$.balances.totalEURBalance", is("4050.00")))
+                .andExpect(jsonPath("$.cryptos[0].id", is("1f832f95-62e3-4d1b-a1e6-982d8c22f2bb")))
                 .andExpect(jsonPath("$.cryptos[0].cryptoName", is("Bitcoin")))
                 .andExpect(jsonPath("$.cryptos[0].cryptoId", is("bitcoin")))
                 .andExpect(jsonPath("$.cryptos[0].quantity", is("0.15")))
@@ -307,6 +308,7 @@ class InsightsControllerMvcTest {
                 new BalancesResponse("7500.00", "6750.00", "0.25"),
                 List.of(
                         new CryptoInsights(
+                                "1f832f95-62e3-4d1b-a1e6-982d8c22f2bb",
                                 "Bitcoin",
                                 "bitcoin",
                                 "0.25",
@@ -351,6 +353,7 @@ class InsightsControllerMvcTest {
                 new BalancesResponse("4500.00", "4050.00", "0.15"),
                 List.of(
                         new CryptoInsights(
+                                "1f832f95-62e3-4d1b-a1e6-982d8c22f2bb",
                                 "Bitcoin",
                                 "bitcoin",
                                 "0.15",

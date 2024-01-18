@@ -96,7 +96,16 @@ class InsightsServiceTest {
         var expected = new PlatformInsightsResponse(
                 "BINANCE",
                 new BalancesResponse("7500.00", "6750.00", "0.25"),
-                List.of(new CryptoInsights("Bitcoin", "bitcoin", "0.25", new BalancesResponse("7500.00", "6750.00", "0.25"), 100f))
+                List.of(
+                        new CryptoInsights(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                                "Bitcoin",
+                                "bitcoin",
+                                "0.25",
+                                new BalancesResponse("7500.00", "6750.00", "0.25"),
+                                100f
+                        )
+                )
         );
         assertThat(platformInsightsResponse)
                 .usingRecursiveComparison()
@@ -136,6 +145,7 @@ class InsightsServiceTest {
                 new BalancesResponse("7925.00", "7147.00", "0.266554"),
                 List.of(
                         new CryptoInsights(
+                                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
                                 "Bitcoin",
                                 "bitcoin",
                                 "0.25",
@@ -143,6 +153,7 @@ class InsightsServiceTest {
                                 94.64f
                         ),
                         new CryptoInsights(
+                                polkadotUserCrypto.id(),
                                 "Polkadot",
                                 "polkadot",
                                 "100",
@@ -308,6 +319,7 @@ class InsightsServiceTest {
                 new BalancesResponse("7108.39", "6484.23", "0.25127935932"),
                 List.of(
                         new CryptoInsights(
+                                null,
                                 "Bitcoin",
                                 "bitcoin",
                                 "0.15",
@@ -315,6 +327,7 @@ class InsightsServiceTest {
                                 63.31f
                         ),
                         new CryptoInsights(
+                                null,
                                 "Ethereum",
                                 "ethereum",
                                 "1.372",
@@ -322,6 +335,7 @@ class InsightsServiceTest {
                                 31.22f
                         ),
                         new CryptoInsights(
+                                null,
                                 "Tether",
                                 "tether",
                                 "200",
@@ -329,6 +343,7 @@ class InsightsServiceTest {
                                 2.81f
                         ),
                         new CryptoInsights(
+                                null,
                                 "Litecoin",
                                 "litecoin",
                                 "3.125",
@@ -374,6 +389,7 @@ class InsightsServiceTest {
                                         new BalancesResponse("8373.63", "7663.61", "0.29959591932"),
                                         List.of(
                                                 new CryptoInsights(
+                                                        null,
                                                         "Bitcoin",
                                                         "bitcoin",
                                                         "0.15",
@@ -381,6 +397,7 @@ class InsightsServiceTest {
                                                         53.74f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Ethereum",
                                                         "ethereum",
                                                         "1.372",
@@ -388,6 +405,7 @@ class InsightsServiceTest {
                                                         26.5f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Avalanche",
                                                         "avalanche-2",
                                                         "25",
@@ -395,6 +413,7 @@ class InsightsServiceTest {
                                                         2.78f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "BNB",
                                                         "binancecoin",
                                                         "1",
@@ -402,6 +421,7 @@ class InsightsServiceTest {
                                                         2.53f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Chainlink",
                                                         "chainlink",
                                                         "35",
@@ -409,6 +429,7 @@ class InsightsServiceTest {
                                                         2.5f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Tether",
                                                         "tether",
                                                         "200",
@@ -416,6 +437,7 @@ class InsightsServiceTest {
                                                         2.39f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Litecoin",
                                                         "litecoin",
                                                         "3.125",
@@ -423,6 +445,7 @@ class InsightsServiceTest {
                                                         2.26f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Solana",
                                                         "solana",
                                                         "10",
@@ -430,6 +453,7 @@ class InsightsServiceTest {
                                                         2.15f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Polkadot",
                                                         "polkadot",
                                                         "40",
@@ -437,6 +461,7 @@ class InsightsServiceTest {
                                                         1.92f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Uniswap",
                                                         "uniswap",
                                                         "30",
@@ -444,6 +469,7 @@ class InsightsServiceTest {
                                                         1.52f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Polygon",
                                                         "matic-network",
                                                         "100",
@@ -451,6 +477,7 @@ class InsightsServiceTest {
                                                         0.61f
                                                 ),
                                                 new CryptoInsights(
+                                                        null,
                                                         "Cardano",
                                                         "cardano",
                                                         "150",
