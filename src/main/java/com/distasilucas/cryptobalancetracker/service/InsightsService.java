@@ -82,7 +82,13 @@ public class InsightsService {
                     var quantity = userCryptosQuantity.get(crypto.id());
                     var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
 
+                    var userCrypto = userCryptos.stream()
+                            .filter(c -> crypto.id().equals(c.coingeckoCryptoId()))
+                            .findFirst()
+                            .get();
+
                     return new CryptoInsights(
+                            userCrypto.id(),
                             crypto.name(),
                             crypto.id(),
                             quantity.toPlainString(),
