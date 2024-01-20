@@ -10,6 +10,9 @@ public record CoingeckoCryptoInfo(
         String name,
         Image image,
 
+        @JsonProperty("market_cap_rank")
+        int marketCapRank,
+
         @JsonProperty("market_data")
         MarketData marketData
 ) implements Serializable {

@@ -10,6 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoC
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
+import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketCap;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
@@ -198,7 +199,7 @@ public class TestDataSource {
         return StreamUtils.copyToString(classPathResource.getInputStream(), Charset.defaultCharset());
     }
 
-    public static Crypto getCryptoEntity() {
+    public static Crypto getBitcoinCryptoEntity() {
         return new Crypto(
                 "bitcoin",
                 "Bitcoin",
@@ -209,6 +210,11 @@ public class TestDataSource {
                 new BigDecimal("1"),
                 new BigDecimal("19000000"),
                 new BigDecimal("21000000"),
+                1,
+                new BigDecimal("813208997089"),
+                new BigDecimal("10.00"),
+                new BigDecimal("-5.00"),
+                new BigDecimal("0.00"),
                 LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         );
     }
@@ -216,9 +222,17 @@ public class TestDataSource {
     public static CoingeckoCryptoInfo getCoingeckoCryptoInfo() {
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
         var currentPrice = new CurrentPrice(new BigDecimal("30000"), new BigDecimal("27000"), new BigDecimal("1"));
-        var marketData = new MarketData(currentPrice, new BigDecimal("19000000"), new BigDecimal("21000000"));
+        var marketData = new MarketData(
+                currentPrice,
+                new BigDecimal("19000000"),
+                new BigDecimal("21000000"),
+                new MarketCap(new BigDecimal("813208997089")),
+                new BigDecimal("10.00"),
+                new BigDecimal("-5.00"),
+                new BigDecimal("0.00")
+        );
 
-        return new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, marketData);
+        return new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketData);
     }
 
     public static CoingeckoCrypto getCoingeckoCrypto() {

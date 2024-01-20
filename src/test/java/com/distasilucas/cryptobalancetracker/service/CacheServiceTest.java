@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.ALL_PLATFORMS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
@@ -125,7 +125,7 @@ class CacheServiceTest {
     
     @Test
     void shouldInvalidateCryptosCacheIfItExists() {
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var map = Map.of(List.of("bitcoin"), List.of(crypto));
         var cache = new ConcurrentMapCache(CRYPTOS_CRYPTOS_IDS_CACHE, new ConcurrentHashMap<>(map), false);
 

@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
@@ -95,7 +95,7 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCrypto() {
         var userCrypto = getUserCrypto();
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var platform = getPlatformEntity();
         var expected = new UserCryptoResponse(
                 "af827ac7-d642-4461-a73c-b31ca6f6d13d",
@@ -131,7 +131,7 @@ class UserCryptoServiceTest {
     void shouldRetrieveUserCryptosByPage() {
         var userCrypto = getUserCrypto();
         var platformEntity = getPlatformEntity();
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var expected = new PageUserCryptoResponse(
                 1,
                 1,
@@ -155,7 +155,7 @@ class UserCryptoServiceTest {
     void shouldRetrieveUserCryptosByPageWithNextPage() {
         var userCrypto = getUserCrypto();
         var platformEntity = getPlatformEntity();
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var userCryptosPage = List.of(userCrypto, userCrypto);
         var pageImpl = new PageImpl<>(userCryptosPage, PageRequest.of(0, 2), 10L);
         var expected = new PageUserCryptoResponse(

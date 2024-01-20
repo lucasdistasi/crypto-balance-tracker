@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
+import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -25,6 +26,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -98,11 +100,16 @@ class InsightsControllerMvcTest {
                 .andExpect(jsonPath("$.cryptos[0].balances.totalUSDBalance", is("4500.00")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalBTCBalance", is("0.15")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalEURBalance", is("4050.00")))
+                .andExpect(jsonPath("$.cryptos[0].marketCapRank", is(1)))
                 .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply", is("19000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.maxSupply", is("21000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.usd", is("30000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.eur", is("27000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.btc", is("1")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.marketCap", is("813208997089")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn24h", is(10.00)))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn7d", is(-5.00)))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn30d", is(0.00)))
                 .andExpect(jsonPath("$.cryptos[0].platforms", is(List.of("BINANCE"))));
     }
 
@@ -152,11 +159,16 @@ class InsightsControllerMvcTest {
                 .andExpect(jsonPath("$.cryptos[0].balances.totalUSDBalance", is("4500.00")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalBTCBalance", is("0.15")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalEURBalance", is("4050.00")))
+                .andExpect(jsonPath("$.cryptos[0].marketCapRank", is(1)))
                 .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply", is("19000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.maxSupply", is("21000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.usd", is("30000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.eur", is("27000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.btc", is("1")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.marketCap", is("813208997089")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn24h", is(10.00)))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn7d", is(-5.00)))
+                .andExpect(jsonPath("$.cryptos[0].marketData.priceChange.changePercentageIn30d", is(0.00)))
                 .andExpect(jsonPath("$.cryptos[0].platforms", is(List.of("BINANCE", "COINBASE"))));
     }
 
@@ -292,10 +304,17 @@ class InsightsControllerMvcTest {
                                 "0.15",
                                 100f,
                                 new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                1,
                                 new MarketData(
                                         "19000000",
                                         "21000000",
-                                        new CurrentPrice("30000", "27000", "1")
+                                        new CurrentPrice("30000", "27000", "1"),
+                                        "813208997089",
+                                        new PriceChange(
+                                                new BigDecimal("10.00"),
+                                                new BigDecimal("-5.00"),
+                                                new BigDecimal("0.00")
+                                        )
                                 ),
                                 platforms
                         )

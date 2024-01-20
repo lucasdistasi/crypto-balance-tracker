@@ -3,11 +3,13 @@ package com.distasilucas.cryptobalancetracker.service;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
+import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -31,6 +33,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 import static java.lang.Math.ceil;
 
 @Slf4j
@@ -65,27 +68,26 @@ public class InsightsService {
     public Optional<PlatformInsightsResponse> retrievePlatformInsights(String platformId) {
         log.info("Retrieving insights for platform with id {}", platformId);
 
-        var userCryptos = userCryptoService.findAllByPlatformId(platformId);
+        var userCryptosInPlatform = userCryptoService.findAllByPlatformId(platformId);
 
-        if (userCryptos.isEmpty()) {
+        if (userCryptosInPlatform.isEmpty()) {
             return Optional.empty();
         }
 
         var platformResponse = platformService.retrievePlatformById(platformId);
-        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).toList();
+        var cryptosIds = userCryptosInPlatform.stream().map(UserCrypto::coingeckoCryptoId).toList();
         var cryptos = cryptoService.findAllByIds(cryptosIds);
-        var userCryptosQuantity = getUserCryptoQuantity(userCryptos);
+        var userCryptosQuantity = getUserCryptoQuantity(userCryptosInPlatform);
         var totalBalances = getTotalBalances(cryptos, userCryptosQuantity);
 
-        var cryptosInsights = cryptos.stream()
-                .map(crypto -> {
-                    var quantity = userCryptosQuantity.get(crypto.id());
-                    var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
-
-                    var userCrypto = userCryptos.stream()
-                            .filter(c -> crypto.id().equals(c.coingeckoCryptoId()))
+        var cryptosInsights = userCryptosInPlatform.stream()
+                .map(userCrypto -> {
+                    var quantity = userCryptosQuantity.get(userCrypto.coingeckoCryptoId());
+                    var crypto = cryptos.stream()
+                            .filter(c -> userCrypto.coingeckoCryptoId().equals(c.id()))
                             .findFirst()
-                            .get();
+                            .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(userCrypto.coingeckoCryptoId())));
+                    var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
 
                     return new CryptoInsights(
                             userCrypto.id(),
@@ -278,6 +280,7 @@ public class InsightsService {
                     userCrypto.quantity().toPlainString(),
                     calculatePercentage(totalBalances.totalUSDBalance(), balances.totalUSDBalance()),
                     balances,
+                    crypto.marketCapRank(),
                     new MarketData(
                             crypto.circulatingSupply().toPlainString(),
                             crypto.maxSupply().toPlainString(),
@@ -285,6 +288,12 @@ public class InsightsService {
                                     crypto.lastKnownPrice().toPlainString(),
                                     crypto.lastKnownPriceInEUR().toPlainString(),
                                     crypto.lastKnownPriceInBTC().toPlainString()
+                            ),
+                            crypto.marketCap().toPlainString(),
+                            new PriceChange(
+                                    crypto.changePercentageIn24h(),
+                                    crypto.changePercentageIn7d(),
+                                    crypto.changePercentageIn30d()
                             )
                     ),
                     List.of(platform.name())
@@ -319,7 +328,7 @@ public class InsightsService {
         // So I need to calculate everything from all the user cryptos.
         // Maybe create a query that returns the coingeckoCryptoId summing all balances for that crypto and
         // returning an array of the platforms for that crypto and then paginate the results
-        // would be a better approach so I don't need to retrieve all.
+        // would be a better approach, so I don't need to retrieve all.
         var userCryptos = userCryptoService.findAll();
 
         if (userCryptos.isEmpty()) {
@@ -350,6 +359,7 @@ public class InsightsService {
                             cryptoTotalQuantity.toPlainString(),
                             calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),
                             cryptoTotalBalances,
+                            crypto.marketCapRank(),
                             new MarketData(
                                     crypto.circulatingSupply().toPlainString(),
                                     crypto.maxSupply().toPlainString(),
@@ -357,6 +367,12 @@ public class InsightsService {
                                             crypto.lastKnownPrice().toPlainString(),
                                             crypto.lastKnownPriceInEUR().toPlainString(),
                                             crypto.lastKnownPriceInBTC().toPlainString()
+                                    ),
+                                    crypto.marketCap().toPlainString(),
+                                    new PriceChange(
+                                            crypto.changePercentageIn24h(),
+                                            crypto.changePercentageIn7d(),
+                                            crypto.changePercentageIn30d()
                                     )
                             ),
                             cryptoPlatforms
