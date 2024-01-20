@@ -14,7 +14,19 @@ import java.math.BigDecimal;
         BigDecimal circulatingSupply,
 
         @JsonProperty(&quot;max_supply&quot;)
-        BigDecimal maxSupply
+        BigDecimal maxSupply,
+
+        @JsonProperty(&quot;market_cap&quot;)
+        MarketCap marketCap,
+
+        @JsonProperty(&quot;price_change_percentage_24h&quot;)
+        float changePercentageIn24h,
+
+        @JsonProperty(&quot;price_change_percentage_7d&quot;)
+        float changePercentageIn7d,
+
+        @JsonProperty(&quot;price_change_percentage_30d&quot;)
+        float changePercentageIn30d
 ) implements Serializable {
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

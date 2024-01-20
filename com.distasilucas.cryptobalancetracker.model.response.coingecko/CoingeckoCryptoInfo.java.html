@@ -10,6 +10,9 @@ import java.io.Serializable;
         String name,
         Image image,
 
+        @JsonProperty(&quot;market_cap_rank&quot;)
+        int marketCapRank,
+
         @JsonProperty(&quot;market_data&quot;)
         MarketData marketData
 ) implements Serializable {
