@@ -31,6 +31,21 @@ public record Crypto(
         @Field("max_supply")
         BigDecimal maxSupply,
 
+        @Field("market_cap_rank")
+        int marketCapRank,
+
+        @Field("market_cap")
+        BigDecimal marketCap,
+
+        @Field("change_percentage_in_24h")
+        BigDecimal changePercentageIn24h,
+
+        @Field("change_percentage_in_7d")
+        BigDecimal changePercentageIn7d,
+
+        @Field("change_percentage_in_30d")
+        BigDecimal changePercentageIn30d,
+
         @Field("last_updated_at")
         LocalDateTime lastUpdatedAt
 ) implements Serializable {

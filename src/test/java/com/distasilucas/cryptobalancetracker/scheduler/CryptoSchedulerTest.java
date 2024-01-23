@@ -5,6 +5,7 @@ import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
+import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketCap;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.service.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -23,7 +24,7 @@ import java.time.ZonedDateTime;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,6 +73,11 @@ class CryptoSchedulerTest {
                 new BigDecimal("1"),
                 new BigDecimal("19000000"),
                 new BigDecimal("21000000"),
+                1,
+                new BigDecimal("813208997089"),
+                new BigDecimal("10.00"),
+                new BigDecimal("-5.00"),
+                new BigDecimal("0.00"),
                 localDateTime
         );
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
@@ -103,12 +109,25 @@ class CryptoSchedulerTest {
                 new BigDecimal("1"),
                 new BigDecimal("19000000"),
                 BigDecimal.ZERO,
+                1,
+                new BigDecimal("813208997089"),
+                new BigDecimal("10.00"),
+                new BigDecimal("-5.00"),
+                new BigDecimal("0.00"),
                 localDateTime
         );
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
         var currentPrice = new CurrentPrice(new BigDecimal("30000"), new BigDecimal("27000"), new BigDecimal("1"));
-        var marketData = new MarketData(currentPrice, new BigDecimal("19000000"), null);
-        var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, marketData);
+        var marketData = new MarketData(
+                currentPrice,
+                new BigDecimal("19000000"),
+                null,
+                new MarketCap(new BigDecimal("813208997089")),
+                new BigDecimal("10.00"),
+                new BigDecimal("-5.00"),
+                new BigDecimal("0.00")
+        );
+        var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketData);
 
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
@@ -139,7 +158,7 @@ class CryptoSchedulerTest {
 
     @Test
     void shouldThrowTooManyRequestsExceptionWhenReachingCoingeckoLimit() {
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var queryLocalDateTime = LocalDateTime.of(2023, 5, 3, 18, 50, 0);
@@ -161,7 +180,7 @@ class CryptoSchedulerTest {
 
     @Test
     void shouldSaveSameCryptoWhenRestClientResponseExceptionOccursWithStatusNot429() {
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var queryLocalDateTime = LocalDateTime.of(2023, 5, 3, 18, 50, 0);
@@ -180,7 +199,7 @@ class CryptoSchedulerTest {
 
     @Test
     void shouldSaveSameCryptoIfExceptionOccursWhenRetrievingCryptoInfo() {
-        var crypto = getCryptoEntity();
+        var crypto = getBitcoinCryptoEntity();
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var queryLocalDateTime = LocalDateTime.of(2023, 5, 3, 18, 50, 0);

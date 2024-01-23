@@ -43,23 +43,7 @@ public class CryptoService {
             return cryptoOptional.get();
         }
 
-        var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
-        var maxSupply = coingeckoCryptoInfo.marketData().maxSupply() != null ?
-                coingeckoCryptoInfo.marketData().maxSupply() :
-                BigDecimal.ZERO;
-
-        var cryptoToSave = new Crypto(
-                coingeckoCryptoId,
-                coingeckoCryptoInfo.name(),
-                coingeckoCryptoInfo.symbol(),
-                coingeckoCryptoInfo.image().large(),
-                coingeckoCryptoInfo.marketData().currentPrice().usd(),
-                coingeckoCryptoInfo.marketData().currentPrice().eur(),
-                coingeckoCryptoInfo.marketData().currentPrice().btc(),
-                coingeckoCryptoInfo.marketData().circulatingSupply(),
-                maxSupply,
-                LocalDateTime.now(clock)
-        );
+        var cryptoToSave = getCrypto(coingeckoCryptoId);
 
         log.info("Saved crypto {} because it didn't exist", cryptoToSave);
 
@@ -80,26 +64,10 @@ public class CryptoService {
         var cryptoOptional = cryptoRepository.findById(coingeckoCryptoId);
 
         if (cryptoOptional.isEmpty()) {
-            var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
-            var maxSupply = coingeckoCryptoInfo.marketData().maxSupply() != null ?
-                    coingeckoCryptoInfo.marketData().maxSupply() :
-                    BigDecimal.ZERO;
-
-            var crypto = new Crypto(
-                    coingeckoCryptoId,
-                    coingeckoCryptoInfo.name(),
-                    coingeckoCryptoInfo.symbol(),
-                    coingeckoCryptoInfo.image().large(),
-                    coingeckoCryptoInfo.marketData().currentPrice().usd(),
-                    coingeckoCryptoInfo.marketData().currentPrice().eur(),
-                    coingeckoCryptoInfo.marketData().currentPrice().btc(),
-                    coingeckoCryptoInfo.marketData().circulatingSupply(),
-                    maxSupply,
-                    LocalDateTime.now(clock)
-            );
-
+            var crypto = getCrypto(coingeckoCryptoId);
             cryptoRepository.save(crypto);
             cacheService.invalidateCryptosCache();
+
             log.info("Saved crypto {}", crypto);
         }
     }
@@ -138,5 +106,31 @@ public class CryptoService {
         log.info("Retrieving cryptos with ids {}", ids);
 
         return cryptoRepository.findAllByIdIn(ids);
+    }
+
+    private Crypto getCrypto(String coingeckoCryptoId) {
+        var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
+        var marketData = coingeckoCryptoInfo.marketData();
+        var maxSupply = marketData.maxSupply() != null ?
+                marketData.maxSupply() :
+                BigDecimal.ZERO;
+
+        return new Crypto(
+                coingeckoCryptoId,
+                coingeckoCryptoInfo.name(),
+                coingeckoCryptoInfo.symbol(),
+                coingeckoCryptoInfo.image().large(),
+                marketData.currentPrice().usd(),
+                marketData.currentPrice().eur(),
+                marketData.currentPrice().btc(),
+                marketData.circulatingSupply(),
+                maxSupply,
+                coingeckoCryptoInfo.marketCapRank(),
+                marketData.marketCap().usd(),
+                marketData.changePercentageIn24h(),
+                marketData.changePercentageIn7d(),
+                marketData.changePercentageIn30d(),
+                LocalDateTime.now(clock)
+        );
     }
 }

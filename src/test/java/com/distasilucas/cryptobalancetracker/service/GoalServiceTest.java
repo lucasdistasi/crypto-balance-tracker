@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
@@ -62,7 +62,7 @@ class GoalServiceTest {
     @Test
     void shouldRetrieveGoalById() {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = getUserCrypto();
         var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00");
 
@@ -80,7 +80,7 @@ class GoalServiceTest {
     @Test
     void shouldRetrieveCompletedGoal() {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = new UserCrypto(
                 "af827ac7-d642-4461-a73c-b31ca6f6d13d",
                 "bitcoin",
@@ -116,7 +116,7 @@ class GoalServiceTest {
     void shouldRetrieveGoalsForPage() {
         var pageRequest = PageRequest.of(0, 10);
         var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = getUserCrypto();
 
         when(goalRepositoryMock.findAll(pageRequest)).thenReturn(new PageImpl<>(List.of(goal)));
@@ -146,7 +146,7 @@ class GoalServiceTest {
     @Test
     void shouldRetrieveGoalsForPageWithNextPage() {
         var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = getUserCrypto();
         var goalPage = List.of(goal, goal);
         var pageImpl = new PageImpl<>(goalPage, PageRequest.of(0, 2), 10L);
@@ -203,7 +203,7 @@ class GoalServiceTest {
     void shouldSaveGoal() {
         var goalRequest = getGoalRequest();
         var coingeckoCrypto = getCoingeckoCrypto();
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = getUserCrypto();
 
         var captor = ArgumentCaptor.forClass(Goal.class);
@@ -248,7 +248,7 @@ class GoalServiceTest {
         var goalRequest = new GoalRequest("bitcoin", new BigDecimal("0.75"));
         var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
         var updatedGoal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("0.75"));
-        var cryptoEntity = getCryptoEntity();
+        var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = getUserCrypto();
         var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 33.33f, "0.50", "0.75", "15000.00");
 

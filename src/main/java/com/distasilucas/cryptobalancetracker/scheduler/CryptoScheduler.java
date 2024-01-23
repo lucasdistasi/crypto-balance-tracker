@@ -49,28 +49,34 @@ public class CryptoScheduler {
                         var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
                                 coingeckoCrypto.marketData().maxSupply() :
                                 BigDecimal.ZERO;
+                        var marketData = coingeckoCrypto.marketData();
 
                         return new Crypto(
                                 coingeckoCrypto.id(),
                                 coingeckoCrypto.name(),
                                 coingeckoCrypto.symbol(),
                                 coingeckoCrypto.image().large(),
-                                coingeckoCrypto.marketData().currentPrice().usd(),
-                                coingeckoCrypto.marketData().currentPrice().eur(),
-                                coingeckoCrypto.marketData().currentPrice().btc(),
-                                coingeckoCrypto.marketData().circulatingSupply(),
+                                marketData.currentPrice().usd(),
+                                marketData.currentPrice().eur(),
+                                marketData.currentPrice().btc(),
+                                marketData.circulatingSupply(),
                                 maxSupply,
+                                coingeckoCrypto.marketCapRank(),
+                                marketData.marketCap().usd(),
+                                marketData.changePercentageIn24h(),
+                                marketData.changePercentageIn7d(),
+                                marketData.changePercentageIn30d(),
                                 LocalDateTime.now(clock)
                         );
                     } catch (RestClientResponseException exception) {
                         if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
                             throw new TooManyRequestsException();
                         } else {
-                            log.warn("A RestClientResponseException occurred while retrieving info for {}. Exception: {}", crypto.id(), exception);
+                            log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.id(), exception);
                             return crypto;
                         }
                     } catch (Exception exception) {
-                        log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated. Exception: {}", crypto.id(), exception);
+                        log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.id(), exception);
 
                         return crypto;
                     }
