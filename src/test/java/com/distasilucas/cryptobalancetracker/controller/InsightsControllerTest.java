@@ -1,5 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortParams;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -26,6 +29,8 @@ class InsightsControllerTest {
     private InsightsService insightsServiceMock;
 
     private InsightsController insightsController;
+
+    private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
 
     @BeforeEach
     void setUp() {
@@ -61,9 +66,9 @@ class InsightsControllerTest {
     void shouldRetrieveCryptosInsightsWithStatus200() {
         var pageUserCryptosInsightsResponse = new PageUserCryptosInsightsResponse(1, 1, getBalances(), emptyList());
 
-        when(insightsServiceMock.retrieveUserCryptosInsights(0)).thenReturn(Optional.of(pageUserCryptosInsightsResponse));
+        when(insightsServiceMock.retrieveUserCryptosInsights(0, sortParams)).thenReturn(Optional.of(pageUserCryptosInsightsResponse));
 
-        var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0);
+        var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(userCryptosInsights)
                 .usingRecursiveComparison()
@@ -72,9 +77,9 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveEmptyForCryptosInsightsWithStatus204() {
-        when(insightsServiceMock.retrieveUserCryptosInsights(0)).thenReturn(Optional.empty());
+        when(insightsServiceMock.retrieveUserCryptosInsights(0, sortParams)).thenReturn(Optional.empty());
 
-        var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0);
+        var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(userCryptosInsights)
                 .usingRecursiveComparison()
@@ -85,9 +90,9 @@ class InsightsControllerTest {
     void shouldRetrieveCryptosPlatformsInsightsWithStatus200() {
         var pageUserCryptosInsightsResponse = new PageUserCryptosInsightsResponse(0, 1, getBalances(), emptyList());
 
-        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(0)).thenReturn(Optional.of(pageUserCryptosInsightsResponse));
+        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(0, sortParams)).thenReturn(Optional.of(pageUserCryptosInsightsResponse));
 
-        var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0);
+        var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(cryptosPlatformsInsights)
                 .usingRecursiveComparison()
@@ -96,9 +101,9 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveEmptyForCryptosPlatformsInsightsWithStatus204() {
-        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(0)).thenReturn(Optional.empty());
+        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(0, sortParams)).thenReturn(Optional.empty());
 
-        var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0);
+        var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(cryptosPlatformsInsights)
                 .usingRecursiveComparison()

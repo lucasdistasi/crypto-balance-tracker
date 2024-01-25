@@ -3,6 +3,9 @@ package com.distasilucas.cryptobalancetracker.service;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortParams;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
@@ -48,6 +51,8 @@ class InsightsServiceTest {
     private CryptoService cryptoServiceMock;
 
     private InsightsService insightsService;
+
+    private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
 
     @BeforeEach
     void setUp() {
@@ -523,7 +528,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
 
-        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(0);
+        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(0, sortParams);
 
         assertThat(userCryptosInsights)
                 .usingRecursiveComparison()
@@ -595,7 +600,7 @@ class InsightsServiceTest {
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForRetrieveUserCryptosInsights() {
         when(userCryptoServiceMock.findAll()).thenReturn(emptyList());
 
-        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(0);
+        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(0, sortParams);
 
         assertTrue(userCryptosInsights.isEmpty());
     }
@@ -613,14 +618,13 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosInsights(1);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosInsights(1, sortParams);
 
         assertTrue(userCryptosPlatformsInsights.isEmpty());
     }
 
     @Test
-    // TODO shouldRetrieveUserCryptosPlatformsInsightsWithNextPage TODO
-    void test() {
+    void shouldRetrieveUserCryptosInsightsWithNextPage() {
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
         var ethereumMarketData = new MarketData(
@@ -658,7 +662,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos());
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosInsights(0);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosInsights(0, sortParams);
 
         assertTrue(userCryptosPlatformsInsights.isPresent());
         assertThat(userCryptosPlatformsInsights.get().cryptos()).hasSize(10);
@@ -921,7 +925,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, sortParams);
 
         assertThat(userCryptosPlatformsInsights)
                 .usingRecursiveComparison()
@@ -1039,7 +1043,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos());
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, sortParams);
 
         assertTrue(userCryptosPlatformsInsights.isPresent());
         assertThat(userCryptosPlatformsInsights.get().cryptos()).hasSize(10);
@@ -1326,7 +1330,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos());
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(1);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(1, sortParams);
 
         assertThat(userCryptosPlatformsInsights)
                 .usingRecursiveComparison()
@@ -1444,7 +1448,7 @@ class InsightsServiceTest {
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForRetrieveUserCryptosPlatformsInsights() {
         when(userCryptoServiceMock.findAll()).thenReturn(emptyList());
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, sortParams);
 
         assertTrue(userCryptosPlatformsInsights.isEmpty());
     }
@@ -1462,7 +1466,7 @@ class InsightsServiceTest {
                 .thenReturn(List.of(binancePlatform, coinbasePlatform));
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
 
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(1);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(1, sortParams);
 
         assertTrue(userCryptosPlatformsInsights.isEmpty());
     }

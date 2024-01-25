@@ -1,6 +1,9 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.InsightsControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortParams;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -48,9 +51,14 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(
             @RequestParam
             @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page
+            int page,
+            @RequestParam(required = false, defaultValue = "PERCENTAGE")
+            SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "DESC")
+            SortType sortType
     ) {
-        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page);
+        var sortParams = new SortParams(sortBy, sortType);
+        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page, sortParams);
 
         return okOrNoContent(userCryptosInsights);
     }
@@ -60,9 +68,14 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(
             @RequestParam
             @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page
+            int page,
+            @RequestParam(required = false, defaultValue = "PERCENTAGE")
+            SortBy sortBy,
+            @RequestParam(required = false, defaultValue = "DESC")
+            SortType sortType
     ) {
-        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page);
+        var sortParams = new SortParams(sortBy, sortType);
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page, sortParams);
 
         return okOrNoContent(userCryptosPlatformsInsights);
     }

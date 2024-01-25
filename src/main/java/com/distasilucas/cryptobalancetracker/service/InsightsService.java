@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
@@ -86,7 +87,7 @@ public class InsightsService {
                     var crypto = cryptos.stream()
                             .filter(c -> userCrypto.coingeckoCryptoId().equals(c.id()))
                             .findFirst()
-                            .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(userCrypto.coingeckoCryptoId())));
+                            .get();
                     var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
 
                     return new CryptoInsights(
@@ -239,8 +240,8 @@ public class InsightsService {
         return Optional.of(new CryptosBalancesInsightsResponse(totalBalances, cryptosToReturn));
     }
 
-    public Optional<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(int page) {
-        log.info("Retrieving user cryptos insights for page {}", page);
+    public Optional<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(int page, SortParams sortParams) {
+        log.info("Retrieving user cryptos insights for page {} with sort params {}", page, sortParams);
 
         // Not the best because I'm paginating, but I need total balances to calculate individual percentages
         var userCryptos = userCryptoService.findAll();
@@ -303,7 +304,7 @@ public class InsightsService {
         }
 
         userCryptosInsights = userCryptosInsights.stream()
-                .sorted(Comparator.comparing(UserCryptosInsights::percentage, Comparator.reverseOrder()))
+                .sorted(sortParams.cryptosInsightsResponseComparator())
                 .toList();
 
         var startIndex = page * INT_ELEMENTS_PER_PAGE;
@@ -319,8 +320,8 @@ public class InsightsService {
         return Optional.of(new PageUserCryptosInsightsResponse(page, totalPages, totalBalances, cryptosInsights));
     }
 
-    public Optional<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(int page) {
-        log.info("Retrieving user cryptos in platforms insights for page {}", page);
+    public Optional<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(int page, SortParams sortParams) {
+        log.info("Retrieving user cryptos in platforms insights for page {} with sort params {}", page, sortParams);
 
         // If one of the user cryptos happens to be at the end, and another of the same (i.e: bitcoin), at the start
         // using findAllByPage() will display the same crypto twice (in this example), and the idea of this insight
@@ -378,7 +379,7 @@ public class InsightsService {
                             cryptoPlatforms
                     );
                 })
-                .sorted(Comparator.comparing(UserCryptosInsights::percentage, Comparator.reverseOrder()))
+                .sorted(sortParams.cryptosInsightsResponseComparator())
                 .toList();
 
         var startIndex = page * INT_ELEMENTS_PER_PAGE;

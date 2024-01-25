@@ -12,6 +12,8 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -24,11 +26,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.ServletWebRequest;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.INVALID_VALUE_FOR;
 
 @Slf4j
 @RestControllerAdvice
@@ -264,6 +270,23 @@ public class ExceptionController {
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
     }
 
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<List<ProblemDetail>> handleMethodArgumentTypeMismatchException(
+            MethodArgumentTypeMismatchException exception,
+            WebRequest webRequest
+    ) {
+        log.info("A MethodArgumentTypeMismatchException has occurred", exception);
+
+        var name = exception.getName();
+        var availableValues = getAvailableValues(name);
+        var request = (ServletWebRequest) webRequest;
+        var message = String.format(INVALID_VALUE_FOR, exception.getValue(), name, availableValues);
+        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, message);
+        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+
+        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<List<ProblemDetail>> handleException(
             Exception exception,
@@ -276,5 +299,13 @@ public class ExceptionController {
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail));
+    }
+
+    private String getAvailableValues(String field) {
+        return switch (field) {
+            case "sortBy" -> Arrays.toString(SortBy.values());
+            case "sortType" -> Arrays.toString(SortType.values());
+            default -> "";
+        };
     }
 }
