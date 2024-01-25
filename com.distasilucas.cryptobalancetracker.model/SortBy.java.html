@@ -2,25 +2,26 @@
 
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
 
-<span class="fc" id="L7">public enum SortBy {</span>
-<span class="fc" id="L8">    PERCENTAGE(Comparator.comparing(UserCryptosInsights::percentage)),</span>
-<span class="fc" id="L9">    MARKET_CAP_RANK(Comparator.comparing(UserCryptosInsights::marketCapRank)),</span>
-<span class="pc" id="L10">    CURRENT_PRICE(Comparator.comparing(crypto -&gt; crypto.marketData().currentPrice().usd())),</span>
-<span class="pc" id="L11">    MAX_SUPPLY(Comparator.comparing(crypto -&gt; crypto.marketData().maxSupply())),</span>
-<span class="pc" id="L12">    CHANGE_PRICE_IN_24H(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn24h())),</span>
-<span class="pc" id="L13">    CHANGE_PRICE_IN_7D(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn7d())),</span>
-<span class="pc" id="L14">    CHANGE_PRICE_IN_30D(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn30d()));</span>
+<span class="fc" id="L8">public enum SortBy {</span>
+<span class="fc" id="L9">    PERCENTAGE(Comparator.comparing(UserCryptosInsights::percentage)),</span>
+<span class="fc" id="L10">    MARKET_CAP_RANK(Comparator.comparing(UserCryptosInsights::marketCapRank)),</span>
+<span class="pc" id="L11">    CURRENT_PRICE(Comparator.comparing(crypto -&gt; new BigDecimal(crypto.marketData().currentPrice().usd()))),</span>
+<span class="pc" id="L12">    MAX_SUPPLY(Comparator.comparing(crypto -&gt; new BigDecimal(crypto.marketData().maxSupply()))),</span>
+<span class="pc" id="L13">    CHANGE_PRICE_IN_24H(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn24h())),</span>
+<span class="pc" id="L14">    CHANGE_PRICE_IN_7D(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn7d())),</span>
+<span class="pc" id="L15">    CHANGE_PRICE_IN_30D(Comparator.comparing(crypto -&gt; crypto.marketData().priceChange().changePercentageIn30d()));</span>
 
     private final Comparator&lt;UserCryptosInsights&gt; userCryptosInsightsComparator;
 
-<span class="fc" id="L18">    SortBy(Comparator&lt;UserCryptosInsights&gt; comparator) {</span>
-<span class="fc" id="L19">        this.userCryptosInsightsComparator = comparator;</span>
-<span class="fc" id="L20">    }</span>
+<span class="fc" id="L19">    SortBy(Comparator&lt;UserCryptosInsights&gt; comparator) {</span>
+<span class="fc" id="L20">        this.userCryptosInsightsComparator = comparator;</span>
+<span class="fc" id="L21">    }</span>
 
     public Comparator&lt;UserCryptosInsights&gt; getUserCryptosInsightsComparator(SortType sortType) {
-<span class="pc bpc" id="L23" title="1 of 2 branches missed.">        return sortType == SortType.ASC ? userCryptosInsightsComparator : userCryptosInsightsComparator.reversed();</span>
+<span class="pc bpc" id="L24" title="1 of 2 branches missed.">        return sortType == SortType.ASC ? userCryptosInsightsComparator : userCryptosInsightsComparator.reversed();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
