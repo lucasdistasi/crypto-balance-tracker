@@ -1,5 +1,8 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortParams;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
@@ -56,6 +59,8 @@ class InsightsControllerMvcTest {
     @MockBean
     private InsightsService insightsServiceMock;
 
+    private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
+
     @Test
     void shouldRetrieveTotalBalancesWithStatus200() throws Exception {
         when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(getBalances()));
@@ -74,7 +79,7 @@ class InsightsControllerMvcTest {
                 "676fb38a-556e-11ee-b56e-325096b39f47", List.of("BINANCE")
         );
 
-        when(insightsServiceMock.retrieveUserCryptosInsights(page))
+        when(insightsServiceMock.retrieveUserCryptosInsights(page, sortParams))
                 .thenReturn(Optional.of(pageUserCryptosInsightsResponse));
 
         mockMvc.perform(retrieveUserCryptosInsights(page))
@@ -134,7 +139,7 @@ class InsightsControllerMvcTest {
                 List.of("BINANCE", "COINBASE")
         );
 
-        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(page))
+        when(insightsServiceMock.retrieveUserCryptosPlatformsInsights(page, sortParams))
                 .thenReturn(Optional.of(pageUserCryptosInsightsResponse));
 
         mockMvc.perform(retrieveUserCryptosPlatformsInsights(page))

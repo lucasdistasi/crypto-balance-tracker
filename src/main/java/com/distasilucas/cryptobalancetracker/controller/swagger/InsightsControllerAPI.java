@@ -1,5 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -68,7 +70,9 @@ public interface InsightsControllerAPI {
     )
     ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(
             @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page
+            int page,
+            SortBy sortBy,
+            SortType sortType
     );
 
     @Operation(summary = "Retrieves information of each INDIVIDUAL user crypto, like the total balance, information about the crypto, in which platforms it's stored")
@@ -96,7 +100,9 @@ public interface InsightsControllerAPI {
     )
     ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(
             @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page
+            int page,
+            SortBy sortBy,
+            SortType sortType
     );
 
     @Operation(summary = "Retrieve insights balances for all user cryptos")

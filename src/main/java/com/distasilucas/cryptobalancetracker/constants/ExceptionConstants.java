@@ -18,4 +18,5 @@ public class ExceptionConstants {
     public static final String SAME_FROM_TO_PLATFORM = "From platform and to platform cannot be the same";
     public static final String TOKEN_EXPIRED = "Token is expired";
     public static final String USERNAME_NOT_FOUND = "Username %s not found";
+    public static final String INVALID_VALUE_FOR = "Invalid value %s for %s. Available values: %s";
 }

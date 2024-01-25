@@ -13,6 +13,8 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
+import com.distasilucas.cryptobalancetracker.model.SortBy;
+import com.distasilucas.cryptobalancetracker.model.SortType;
 import jakarta.validation.ConstraintViolationException;
 import org.hibernate.validator.internal.engine.ConstraintViolationImpl;
 import org.junit.jupiter.api.Test;
@@ -26,9 +28,11 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.context.request.ServletWebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import java.lang.reflect.Method;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -39,6 +43,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.INVALID_VALUE_FOR;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
@@ -319,6 +324,60 @@ class ExceptionControllerTest {
         problemDetail.setDetail("Some error occurred");
 
         var responseEntity = exceptionController.handleMissingServletRequestParameterException(exceptionMock, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleMethodArgumentTypeMismatchException() {
+        var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+        var detail = INVALID_VALUE_FOR.formatted("idontknow", "idontknow", "");
+
+        when(exceptionMock.getName()).thenReturn("idontknow");
+        when(exceptionMock.getValue()).thenReturn("idontknow");
+
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail(detail);
+
+        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleMethodArgumentTypeMismatchExceptionForSortBy() {
+        var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+        var detail = INVALID_VALUE_FOR.formatted("idontknow", "sortBy", Arrays.toString(SortBy.values()));
+
+        when(exceptionMock.getName()).thenReturn("sortBy");
+        when(exceptionMock.getValue()).thenReturn("idontknow");
+
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail(detail);
+
+        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
+
+        assertThat(responseEntity)
+                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+    }
+
+    @Test
+    void shouldHandleMethodArgumentTypeMismatchExceptionForSortType() {
+        var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+        var detail = INVALID_VALUE_FOR.formatted("idontknow", "sortType", Arrays.toString(SortType.values()));
+
+        when(exceptionMock.getName()).thenReturn("sortType");
+        when(exceptionMock.getValue()).thenReturn("idontknow");
+
+        var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
+        problemDetail.setDetail(detail);
+
+        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
                 .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
