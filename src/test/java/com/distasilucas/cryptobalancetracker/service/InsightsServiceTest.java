@@ -1016,6 +1016,521 @@ class InsightsServiceTest {
     }
 
     @Test
+    void shouldRetrieveUserCryptosInsightsSortedByCurrentPriceAscending() {
+        var cryptos = List.of("bitcoin", "ethereum", "tether");
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
+        when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum"))).thenReturn(cryptosEntities);
+        when(platformServiceMock.findAllByIds(Set.of("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "a76b400e-8ffc-42d6-bf47-db866eb20153")))
+                .thenReturn(List.of(binancePlatform, coinbasePlatform));
+        when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
+
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, new SortParams(SortBy.CURRENT_PRICE, SortType.ASC));
+
+        assertThat(userCryptosPlatformsInsights)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        Optional.of(
+                                new PageUserCryptosInsightsResponse(
+                                        1,
+                                        1,
+                                        false,
+                                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                                        List.of(
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Tether",
+                                                                "tether",
+                                                                "usdt",
+                                                                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663"
+                                                        ),
+                                                        "200",
+                                                        2.89f,
+                                                        new BalancesResponse("199.92", "186.62", "0.00776"),
+                                                        3,
+                                                        new MarketData(
+                                                                "83016246102",
+                                                                "0",
+                                                                new CurrentPrice("0.999618", "0.933095", "0.0000388"),
+                                                                "95085861049",
+                                                                new PriceChange(
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Ethereum",
+                                                                "ethereum",
+                                                                "eth",
+                                                                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880"
+                                                        ),
+                                                        "1.372",
+                                                        32.07f,
+                                                        new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                                        2,
+                                                        new MarketData(
+                                                                "120220572",
+                                                                "0",
+                                                                new CurrentPrice("1617.44", "1509.37", "0.06280356"),
+                                                                "298219864117",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("2.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE", "COINBASE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Bitcoin",
+                                                                "bitcoin",
+                                                                "btc",
+                                                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+                                                        ),
+                                                        "0.15",
+                                                        65.04f,
+                                                        new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                                        1,
+                                                        new MarketData(
+                                                                "19000000",
+                                                                "21000000",
+                                                                new CurrentPrice("30000", "27000", "1"),
+                                                                "813208997089",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @Test
+    void shouldRetrieveUserCryptosInsightsSortedByMaxSupplyAscending() {
+        var cryptos = List.of("bitcoin", "ethereum", "tether");
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
+        when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum"))).thenReturn(cryptosEntities);
+        when(platformServiceMock.findAllByIds(Set.of("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "a76b400e-8ffc-42d6-bf47-db866eb20153")))
+                .thenReturn(List.of(binancePlatform, coinbasePlatform));
+        when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
+
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, new SortParams(SortBy.MAX_SUPPLY, SortType.ASC));
+
+        assertThat(userCryptosPlatformsInsights)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        Optional.of(
+                                new PageUserCryptosInsightsResponse(
+                                        1,
+                                        1,
+                                        false,
+                                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                                        List.of(
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Ethereum",
+                                                                "ethereum",
+                                                                "eth",
+                                                                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880"
+                                                        ),
+                                                        "1.372",
+                                                        32.07f,
+                                                        new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                                        2,
+                                                        new MarketData(
+                                                                "120220572",
+                                                                "0",
+                                                                new CurrentPrice("1617.44", "1509.37", "0.06280356"),
+                                                                "298219864117",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("2.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE", "COINBASE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Tether",
+                                                                "tether",
+                                                                "usdt",
+                                                                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663"
+                                                        ),
+                                                        "200",
+                                                        2.89f,
+                                                        new BalancesResponse("199.92", "186.62", "0.00776"),
+                                                        3,
+                                                        new MarketData(
+                                                                "83016246102",
+                                                                "0",
+                                                                new CurrentPrice("0.999618", "0.933095", "0.0000388"),
+                                                                "95085861049",
+                                                                new PriceChange(
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Bitcoin",
+                                                                "bitcoin",
+                                                                "btc",
+                                                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+                                                        ),
+                                                        "0.15",
+                                                        65.04f,
+                                                        new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                                        1,
+                                                        new MarketData(
+                                                                "19000000",
+                                                                "21000000",
+                                                                new CurrentPrice("30000", "27000", "1"),
+                                                                "813208997089",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @Test
+    void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn24hDescending() {
+        var cryptos = List.of("bitcoin", "ethereum", "tether");
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
+        when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum"))).thenReturn(cryptosEntities);
+        when(platformServiceMock.findAllByIds(Set.of("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "a76b400e-8ffc-42d6-bf47-db866eb20153")))
+                .thenReturn(List.of(binancePlatform, coinbasePlatform));
+        when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
+
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, new SortParams(SortBy.CHANGE_PRICE_IN_24H, SortType.DESC));
+
+        assertThat(userCryptosPlatformsInsights)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        Optional.of(
+                                new PageUserCryptosInsightsResponse(
+                                        1,
+                                        1,
+                                        false,
+                                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                                        List.of(
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Ethereum",
+                                                                "ethereum",
+                                                                "eth",
+                                                                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880"
+                                                        ),
+                                                        "1.372",
+                                                        32.07f,
+                                                        new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                                        2,
+                                                        new MarketData(
+                                                                "120220572",
+                                                                "0",
+                                                                new CurrentPrice("1617.44", "1509.37", "0.06280356"),
+                                                                "298219864117",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("2.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE", "COINBASE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Bitcoin",
+                                                                "bitcoin",
+                                                                "btc",
+                                                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+                                                        ),
+                                                        "0.15",
+                                                        65.04f,
+                                                        new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                                        1,
+                                                        new MarketData(
+                                                                "19000000",
+                                                                "21000000",
+                                                                new CurrentPrice("30000", "27000", "1"),
+                                                                "813208997089",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Tether",
+                                                                "tether",
+                                                                "usdt",
+                                                                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663"
+                                                        ),
+                                                        "200",
+                                                        2.89f,
+                                                        new BalancesResponse("199.92", "186.62", "0.00776"),
+                                                        3,
+                                                        new MarketData(
+                                                                "83016246102",
+                                                                "0",
+                                                                new CurrentPrice("0.999618", "0.933095", "0.0000388"),
+                                                                "95085861049",
+                                                                new PriceChange(
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @Test
+    void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn7dDescending() {
+        var cryptos = List.of("bitcoin", "ethereum", "tether");
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
+        when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum"))).thenReturn(cryptosEntities);
+        when(platformServiceMock.findAllByIds(Set.of("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "a76b400e-8ffc-42d6-bf47-db866eb20153")))
+                .thenReturn(List.of(binancePlatform, coinbasePlatform));
+        when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
+
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, new SortParams(SortBy.CHANGE_PRICE_IN_7D, SortType.DESC));
+
+        assertThat(userCryptosPlatformsInsights)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        Optional.of(
+                                new PageUserCryptosInsightsResponse(
+                                        1,
+                                        1,
+                                        false,
+                                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                                        List.of(
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Tether",
+                                                                "tether",
+                                                                "usdt",
+                                                                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663"
+                                                        ),
+                                                        "200",
+                                                        2.89f,
+                                                        new BalancesResponse("199.92", "186.62", "0.00776"),
+                                                        3,
+                                                        new MarketData(
+                                                                "83016246102",
+                                                                "0",
+                                                                new CurrentPrice("0.999618", "0.933095", "0.0000388"),
+                                                                "95085861049",
+                                                                new PriceChange(
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Ethereum",
+                                                                "ethereum",
+                                                                "eth",
+                                                                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880"
+                                                        ),
+                                                        "1.372",
+                                                        32.07f,
+                                                        new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                                        2,
+                                                        new MarketData(
+                                                                "120220572",
+                                                                "0",
+                                                                new CurrentPrice("1617.44", "1509.37", "0.06280356"),
+                                                                "298219864117",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("2.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE", "COINBASE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Bitcoin",
+                                                                "bitcoin",
+                                                                "btc",
+                                                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+                                                        ),
+                                                        "0.15",
+                                                        65.04f,
+                                                        new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                                        1,
+                                                        new MarketData(
+                                                                "19000000",
+                                                                "21000000",
+                                                                new CurrentPrice("30000", "27000", "1"),
+                                                                "813208997089",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @Test
+    void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn30dAscending() {
+        var cryptos = List.of("bitcoin", "ethereum", "tether");
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
+        when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum"))).thenReturn(cryptosEntities);
+        when(platformServiceMock.findAllByIds(Set.of("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "a76b400e-8ffc-42d6-bf47-db866eb20153")))
+                .thenReturn(List.of(binancePlatform, coinbasePlatform));
+        when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
+
+        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(0, new SortParams(SortBy.CHANGE_PRICE_IN_30D, SortType.ASC));
+
+        assertThat(userCryptosPlatformsInsights)
+                .usingRecursiveComparison()
+                .isEqualTo(
+                        Optional.of(
+                                new PageUserCryptosInsightsResponse(
+                                        1,
+                                        1,
+                                        false,
+                                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                                        List.of(
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Tether",
+                                                                "tether",
+                                                                "usdt",
+                                                                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663"
+                                                        ),
+                                                        "200",
+                                                        2.89f,
+                                                        new BalancesResponse("199.92", "186.62", "0.00776"),
+                                                        3,
+                                                        new MarketData(
+                                                                "83016246102",
+                                                                "0",
+                                                                new CurrentPrice("0.999618", "0.933095", "0.0000388"),
+                                                                "95085861049",
+                                                                new PriceChange(
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Bitcoin",
+                                                                "bitcoin",
+                                                                "btc",
+                                                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579"
+                                                        ),
+                                                        "0.15",
+                                                        65.04f,
+                                                        new BalancesResponse("4500.00", "4050.00", "0.15"),
+                                                        1,
+                                                        new MarketData(
+                                                                "19000000",
+                                                                "21000000",
+                                                                new CurrentPrice("30000", "27000", "1"),
+                                                                "813208997089",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("0.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE")
+                                                ),
+                                                new UserCryptosInsights(
+                                                        new CryptoInfo(
+                                                                "Ethereum",
+                                                                "ethereum",
+                                                                "eth",
+                                                                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880"
+                                                        ),
+                                                        "1.372",
+                                                        32.07f,
+                                                        new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                                        2,
+                                                        new MarketData(
+                                                                "120220572",
+                                                                "0",
+                                                                new CurrentPrice("1617.44", "1509.37", "0.06280356"),
+                                                                "298219864117",
+                                                                new PriceChange(
+                                                                        new BigDecimal("10.00"),
+                                                                        new BigDecimal("-5.00"),
+                                                                        new BigDecimal("2.00")
+                                                                )
+                                                        ),
+                                                        List.of("BINANCE", "COINBASE")
+                                                )
+                                        )
+                                )
+                        )
+                );
+    }
+
+    @Test
     void shouldRetrieveUserCryptosPlatformsInsightsWithNextPage() {
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
