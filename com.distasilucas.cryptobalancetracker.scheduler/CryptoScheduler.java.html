@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CryptoScheduler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.scheduler</a> &gt; <span class="el_source">CryptoScheduler.java</span></div><h1>CryptoScheduler.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.exception.ApiException;
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.service.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 
 import java.math.BigDecimal;
@@ -16,7 +18,7 @@ import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
 
-<span class="fc" id="L19">@Slf4j</span>
+<span class="fc" id="L21">@Slf4j</span>
 @Component
 public class CryptoScheduler {
 
@@ -30,70 +32,72 @@ public class CryptoScheduler {
             Clock clock,
             CryptoService cryptoService,
             CoingeckoService coingeckoService
-<span class="fc" id="L33">    ) {</span>
-<span class="fc" id="L34">        this.maxLimit = maxLimit;</span>
-<span class="fc" id="L35">        this.clock = clock;</span>
-<span class="fc" id="L36">        this.cryptoService = cryptoService;</span>
-<span class="fc" id="L37">        this.coingeckoService = coingeckoService;</span>
-<span class="fc" id="L38">    }</span>
+<span class="fc" id="L35">    ) {</span>
+<span class="fc" id="L36">        this.maxLimit = maxLimit;</span>
+<span class="fc" id="L37">        this.clock = clock;</span>
+<span class="fc" id="L38">        this.cryptoService = cryptoService;</span>
+<span class="fc" id="L39">        this.coingeckoService = coingeckoService;</span>
+<span class="fc" id="L40">    }</span>
 
-    @Scheduled(cron = &quot;0 */3 * ? * *&quot;)
+    @Scheduled(cron = &quot;${update-crypto-info-cron}&quot;)
     public void updateCryptosInformation() {
-<span class="fc" id="L42">        log.info(&quot;Running cron to update cryptos...&quot;);</span>
+<span class="fc" id="L44">        log.info(&quot;Running cron to update cryptos...&quot;);</span>
 
-<span class="fc" id="L44">        var cryptosToUpdate = getCryptosToUpdate()</span>
-<span class="fc" id="L45">                .stream()</span>
-<span class="fc" id="L46">                .map(crypto -&gt; {</span>
+<span class="fc" id="L46">        var cryptosToUpdate = getCryptosToUpdate()</span>
+<span class="fc" id="L47">                .stream()</span>
+<span class="fc" id="L48">                .map(crypto -&gt; {</span>
                     try {
-<span class="fc" id="L48">                        var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());</span>
-<span class="fc bfc" id="L49" title="All 2 branches covered.">                        var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?</span>
-<span class="fc" id="L50">                                coingeckoCrypto.marketData().maxSupply() :</span>
-<span class="fc" id="L51">                                BigDecimal.ZERO;</span>
-<span class="fc" id="L52">                        var marketData = coingeckoCrypto.marketData();</span>
+<span class="fc" id="L50">                        var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());</span>
+<span class="fc bfc" id="L51" title="All 2 branches covered.">                        var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?</span>
+<span class="fc" id="L52">                                coingeckoCrypto.marketData().maxSupply() :</span>
+<span class="fc" id="L53">                                BigDecimal.ZERO;</span>
+<span class="fc" id="L54">                        var marketData = coingeckoCrypto.marketData();</span>
 
-<span class="fc" id="L54">                        return new Crypto(</span>
-<span class="fc" id="L55">                                coingeckoCrypto.id(),</span>
-<span class="fc" id="L56">                                coingeckoCrypto.name(),</span>
-<span class="fc" id="L57">                                coingeckoCrypto.symbol(),</span>
-<span class="fc" id="L58">                                coingeckoCrypto.image().large(),</span>
-<span class="fc" id="L59">                                marketData.currentPrice().usd(),</span>
-<span class="fc" id="L60">                                marketData.currentPrice().eur(),</span>
-<span class="fc" id="L61">                                marketData.currentPrice().btc(),</span>
-<span class="fc" id="L62">                                marketData.circulatingSupply(),</span>
+<span class="fc" id="L56">                        return new Crypto(</span>
+<span class="fc" id="L57">                                coingeckoCrypto.id(),</span>
+<span class="fc" id="L58">                                coingeckoCrypto.name(),</span>
+<span class="fc" id="L59">                                coingeckoCrypto.symbol(),</span>
+<span class="fc" id="L60">                                coingeckoCrypto.image().large(),</span>
+<span class="fc" id="L61">                                marketData.currentPrice().usd(),</span>
+<span class="fc" id="L62">                                marketData.currentPrice().eur(),</span>
+<span class="fc" id="L63">                                marketData.currentPrice().btc(),</span>
+<span class="fc" id="L64">                                marketData.circulatingSupply(),</span>
                                 maxSupply,
-<span class="fc" id="L64">                                coingeckoCrypto.marketCapRank(),</span>
-<span class="fc" id="L65">                                marketData.marketCap().usd(),</span>
-<span class="fc" id="L66">                                marketData.changePercentageIn24h(),</span>
-<span class="fc" id="L67">                                marketData.changePercentageIn7d(),</span>
-<span class="fc" id="L68">                                marketData.changePercentageIn30d(),</span>
-<span class="fc" id="L69">                                LocalDateTime.now(clock)</span>
+<span class="fc" id="L66">                                coingeckoCrypto.marketCapRank(),</span>
+<span class="fc" id="L67">                                marketData.marketCap().usd(),</span>
+<span class="fc" id="L68">                                marketData.changePercentageIn24h(),</span>
+<span class="fc" id="L69">                                marketData.changePercentageIn7d(),</span>
+<span class="fc" id="L70">                                marketData.changePercentageIn30d(),</span>
+<span class="fc" id="L71">                                LocalDateTime.now(clock)</span>
                         );
-<span class="fc" id="L71">                    } catch (RestClientResponseException exception) {</span>
-<span class="fc bfc" id="L72" title="All 2 branches covered.">                        if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {</span>
-<span class="fc" id="L73">                            throw new TooManyRequestsException();</span>
+<span class="fc" id="L73">                    } catch (RestClientResponseException exception) {</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">                        if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {</span>
+<span class="fc" id="L75">                            throw new TooManyRequestsException();</span>
                         } else {
-<span class="fc" id="L75">                            log.warn(&quot;A RestClientResponseException occurred while retrieving info for {}&quot;, crypto.id(), exception);</span>
-<span class="fc" id="L76">                            return crypto;</span>
+<span class="fc" id="L77">                            log.warn(&quot;A RestClientResponseException occurred while retrieving info for {}&quot;, crypto.id(), exception);</span>
+<span class="fc" id="L78">                            return crypto;</span>
                         }
-<span class="fc" id="L78">                    } catch (Exception exception) {</span>
-<span class="fc" id="L79">                        log.error(&quot;An exception occurred while retrieving info for {}, therefore crypto info might be outdated&quot;, crypto.id(), exception);</span>
+<span class="nc" id="L80">                    } catch (ResourceAccessException ex) {</span>
+<span class="nc" id="L81">                        throw new ApiException(&quot;A ResourceAccessException occurred&quot;, ex);</span>
+<span class="fc" id="L82">                    } catch (Exception exception) {</span>
+<span class="fc" id="L83">                        log.error(&quot;An exception occurred while retrieving info for {}, therefore crypto info might be outdated&quot;, crypto.id(), exception);</span>
 
-<span class="fc" id="L81">                        return crypto;</span>
+<span class="fc" id="L85">                        return crypto;</span>
                     }
                 })
-<span class="fc" id="L84">                .toList();</span>
+<span class="fc" id="L88">                .toList();</span>
 
-<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (cryptosToUpdate.isEmpty()) {</span>
-<span class="fc" id="L87">            log.info(&quot;No cryptos to update&quot;);</span>
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        if (cryptosToUpdate.isEmpty()) {</span>
+<span class="fc" id="L91">            log.info(&quot;No cryptos to update&quot;);</span>
         } else {
-<span class="fc" id="L89">            log.info(&quot;About to update {} crypto(s)&quot;, cryptosToUpdate.size());</span>
+<span class="fc" id="L93">            log.info(&quot;About to update {} crypto(s)&quot;, cryptosToUpdate.size());</span>
 
-<span class="fc" id="L91">            cryptoService.updateCryptos(cryptosToUpdate);</span>
+<span class="fc" id="L95">            cryptoService.updateCryptos(cryptosToUpdate);</span>
         }
-<span class="fc" id="L93">    }</span>
+<span class="fc" id="L97">    }</span>
 
     private List&lt;Crypto&gt; getCryptosToUpdate() {
-<span class="fc" id="L96">        return cryptoService.findOldestNCryptosByLastPriceUpdate(LocalDateTime.now(clock).minusMinutes(5), maxLimit);</span>
+<span class="fc" id="L100">        return cryptoService.findOldestNCryptosByLastPriceUpdate(LocalDateTime.now(clock).minusMinutes(5), maxLimit);</span>
     }
 
 }
