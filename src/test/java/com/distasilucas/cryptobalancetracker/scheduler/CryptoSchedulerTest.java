@@ -23,8 +23,8 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.REQUEST_LIMIT_REACHED;
 import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;

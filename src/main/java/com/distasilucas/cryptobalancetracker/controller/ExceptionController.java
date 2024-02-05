@@ -30,7 +30,6 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
