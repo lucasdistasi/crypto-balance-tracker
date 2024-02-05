@@ -77,8 +77,8 @@ public class CryptoScheduler {
 <span class="fc" id="L77">                            log.warn(&quot;A RestClientResponseException occurred while retrieving info for {}&quot;, crypto.id(), exception);</span>
 <span class="fc" id="L78">                            return crypto;</span>
                         }
-<span class="nc" id="L80">                    } catch (ResourceAccessException ex) {</span>
-<span class="nc" id="L81">                        throw new ApiException(&quot;A ResourceAccessException occurred&quot;, ex);</span>
+<span class="fc" id="L80">                    } catch (ResourceAccessException ex) {</span>
+<span class="fc" id="L81">                        throw new ApiException(&quot;A ResourceAccessException occurred&quot;, ex);</span>
 <span class="fc" id="L82">                    } catch (Exception exception) {</span>
 <span class="fc" id="L83">                        log.error(&quot;An exception occurred while retrieving info for {}, therefore crypto info might be outdated&quot;, crypto.id(), exception);</span>
 
