@@ -37,7 +37,7 @@ public class CryptoScheduler {
         this.coingeckoService = coingeckoService;
     }
 
-    @Scheduled(cron = "0 */3 * ? * *")
+    @Scheduled(cron = "${update-crypto-info-cron}")
     public void updateCryptosInformation() {
         log.info("Running cron to update cryptos...");
 
