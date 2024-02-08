@@ -1,7 +1,7 @@
 package com.distasilucas.cryptobalancetracker.model.response.insights;
 
 public record MarketData(
-        String circulatingSupply,
+        CirculatingSupply circulatingSupply,
         String maxSupply,
         CurrentPrice currentPrice,
         String marketCap,

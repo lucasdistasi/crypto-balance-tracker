@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
@@ -106,7 +107,8 @@ class InsightsControllerMvcTest {
                 .andExpect(jsonPath("$.cryptos[0].balances.totalBTCBalance", is("0.15")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalEURBalance", is("4050.00")))
                 .andExpect(jsonPath("$.cryptos[0].marketCapRank", is(1)))
-                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply", is("19000000")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply.totalCirculatingSupply", is("19000000")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply.percentage", is(90.48)))
                 .andExpect(jsonPath("$.cryptos[0].marketData.maxSupply", is("21000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.usd", is("30000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.eur", is("27000")))
@@ -165,7 +167,8 @@ class InsightsControllerMvcTest {
                 .andExpect(jsonPath("$.cryptos[0].balances.totalBTCBalance", is("0.15")))
                 .andExpect(jsonPath("$.cryptos[0].balances.totalEURBalance", is("4050.00")))
                 .andExpect(jsonPath("$.cryptos[0].marketCapRank", is(1)))
-                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply", is("19000000")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply.totalCirculatingSupply", is("19000000")))
+                .andExpect(jsonPath("$.cryptos[0].marketData.circulatingSupply.percentage", is(90.48)))
                 .andExpect(jsonPath("$.cryptos[0].marketData.maxSupply", is("21000000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.usd", is("30000")))
                 .andExpect(jsonPath("$.cryptos[0].marketData.currentPrice.eur", is("27000")))
@@ -311,7 +314,7 @@ class InsightsControllerMvcTest {
                                 new BalancesResponse("4500.00", "4050.00", "0.15"),
                                 1,
                                 new MarketData(
-                                        "19000000",
+                                        new CirculatingSupply("19000000", 90.48f),
                                         "21000000",
                                         new CurrentPrice("30000", "27000", "1"),
                                         "813208997089",

@@ -3,9 +3,9 @@ package com.distasilucas.cryptobalancetracker.service;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
-import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
@@ -20,8 +20,8 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.platform.Pl
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
 import kotlin.Pair;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -34,20 +34,29 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 import static java.lang.Math.ceil;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class InsightsService {
 
     private static final Double ELEMENTS_PER_PAGE = 10.0;
     private static final int INT_ELEMENTS_PER_PAGE = ELEMENTS_PER_PAGE.intValue();
 
+    private final int max;
     private final PlatformService platformService;
     private final UserCryptoService userCryptoService;
     private final CryptoService cryptoService;
+
+    public InsightsService(@Value("${insights.cryptos}") int max,
+                           PlatformService platformService,
+                           UserCryptoService userCryptoService,
+                           CryptoService cryptoService) {
+        this.max = max;
+        this.platformService = platformService;
+        this.userCryptoService = userCryptoService;
+        this.cryptoService = cryptoService;
+    }
 
     public Optional<BalancesResponse> retrieveTotalBalancesInsights() {
         log.info("Retrieving total balances");
@@ -235,7 +244,9 @@ public class InsightsService {
                 .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))
                 .toList();
 
-        var cryptosToReturn = cryptosInsights.size() > 12 ? getCryptoInsightsWithOthers(totalBalances, cryptosInsights) : cryptosInsights;
+        var cryptosToReturn = cryptosInsights.size() > max ?
+                getCryptoInsightsWithOthers(totalBalances, cryptosInsights) :
+                cryptosInsights;
 
         return Optional.of(new CryptosBalancesInsightsResponse(totalBalances, cryptosToReturn));
     }
@@ -269,6 +280,7 @@ public class InsightsService {
                     .findFirst()
                     .orElseThrow();
             var balances = getCryptoTotalBalances(crypto, userCrypto.quantity());
+            var circulatingSupply = getCirculatingSupply(crypto.maxSupply(), crypto.circulatingSupply());
 
             var userCryptosInsight = new UserCryptosInsights(
                     new CryptoInfo(
@@ -283,7 +295,7 @@ public class InsightsService {
                     balances,
                     crypto.marketCapRank(),
                     new MarketData(
-                            crypto.circulatingSupply().toPlainString(),
+                            circulatingSupply,
                             crypto.maxSupply().toPlainString(),
                             new CurrentPrice(
                                     crypto.lastKnownPrice().toPlainString(),
@@ -313,7 +325,7 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var totalPages = (int)ceil(userCryptos.size() / ELEMENTS_PER_PAGE);
+        var totalPages = (int) ceil(userCryptos.size() / ELEMENTS_PER_PAGE);
         var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : startIndex + INT_ELEMENTS_PER_PAGE;
         var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);
 
@@ -354,6 +366,7 @@ public class InsightsService {
                             .findFirst()
                             .orElseThrow();
                     var cryptoTotalBalances = getCryptoTotalBalances(crypto, cryptoTotalQuantity);
+                    var circulatingSupply = getCirculatingSupply(crypto.maxSupply(), crypto.circulatingSupply());
 
                     return new UserCryptosInsights(
                             new CryptoInfo(crypto.name(), crypto.id(), crypto.ticker(), crypto.image()),
@@ -362,7 +375,7 @@ public class InsightsService {
                             cryptoTotalBalances,
                             crypto.marketCapRank(),
                             new MarketData(
-                                    crypto.circulatingSupply().toPlainString(),
+                                    circulatingSupply,
                                     crypto.maxSupply().toPlainString(),
                                     new CurrentPrice(
                                             crypto.lastKnownPrice().toPlainString(),
@@ -388,7 +401,7 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var totalPages = (int)ceil(userCryptosInsights.size() / ELEMENTS_PER_PAGE);
+        var totalPages = (int) ceil(userCryptosInsights.size() / ELEMENTS_PER_PAGE);
         var endIndex = isLastPage(page, totalPages) ? userCryptosInsights.size() : startIndex + INT_ELEMENTS_PER_PAGE;
         var cryptosInsights = userCryptosInsights.subList(startIndex, endIndex);
 
@@ -448,6 +461,18 @@ public class InsightsService {
         );
     }
 
+    private CirculatingSupply getCirculatingSupply(BigDecimal maxSupply, BigDecimal circulatingSupply) {
+        var circulatingSupplyPercentage = 0f;
+
+        if (BigDecimal.ZERO.compareTo(maxSupply) < 0) {
+            circulatingSupplyPercentage = circulatingSupply.multiply(new BigDecimal("100"))
+                    .divide(maxSupply, 2, RoundingMode.HALF_UP)
+                    .floatValue();
+        }
+
+        return new CirculatingSupply(circulatingSupply.toPlainString(), circulatingSupplyPercentage);
+    }
+
     private float calculatePercentage(String totalUSDBalance, String cryptoBalance) {
         return new BigDecimal(cryptoBalance)
                 .multiply(new BigDecimal("100"))
@@ -477,8 +502,8 @@ public class InsightsService {
     }
 
     private List<CryptoInsights> getCryptoInsightsWithOthers(BalancesResponse totalBalances, List<CryptoInsights> cryptosInsights) {
-        var topCryptos = cryptosInsights.subList(0, 12);
-        var others = cryptosInsights.subList(12, cryptosInsights.size());
+        var topCryptos = cryptosInsights.subList(0, max);
+        var others = cryptosInsights.subList(max, cryptosInsights.size());
 
         var totalUSDBalance = BigDecimal.ZERO;
         var totalBTCBalance = BigDecimal.ZERO;

@@ -7,6 +7,7 @@ import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
@@ -57,7 +58,7 @@ class InsightsServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        insightsService = new InsightsService(platformServiceMock, userCryptoServiceMock, cryptoServiceMock);
+        insightsService = new InsightsService(12, platformServiceMock, userCryptoServiceMock, cryptoServiceMock);
     }
 
     @Test
@@ -553,7 +554,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -578,7 +579,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("189.34", "176.75", "0.007352875"),
                                                         19,
                                                         new MarketData(
-                                                                "73638701",
+                                                                new CirculatingSupply("73638701", 87.67f),
                                                                 "84000000",
                                                                 new CurrentPrice("60.59", "56.56", "0.00235292"),
                                                                 "5259205267",
@@ -628,7 +629,7 @@ class InsightsServiceTest {
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
         var ethereumMarketData = new MarketData(
-                "120220572",
+                new CirculatingSupply("120220572", 0),
                 "0",
                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                 "298219864117",
@@ -689,7 +690,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -744,7 +745,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("232.50", "216.75", "0.008879"),
                                                         10,
                                                         new MarketData(
-                                                                "353804673",
+                                                                new CirculatingSupply("353804673", 49.14f),
                                                                 "720000000",
                                                                 new CurrentPrice("9.3", "8.67", "0.00035516"),
                                                                 "11953262327",
@@ -769,7 +770,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("211.79", "197.80", "0.00811016"),
                                                         4,
                                                         new MarketData(
-                                                                "153856150",
+                                                                new CirculatingSupply("153856150", 76.93f),
                                                                 "200000000",
                                                                 new CurrentPrice("211.79", "197.8", "0.00811016"),
                                                                 "48318686968",
@@ -794,7 +795,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("209.65", "195.30", "0.0080031"),
                                                         14,
                                                         new MarketData(
-                                                                "538099971",
+                                                                new CirculatingSupply("538099971", 53.81f),
                                                                 "1000000000",
                                                                 new CurrentPrice("5.99", "5.58", "0.00022866"),
                                                                 "9021587267",
@@ -819,7 +820,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -844,7 +845,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("189.34", "176.75", "0.007352875"),
                                                         19,
                                                         new MarketData(
-                                                                "73638701",
+                                                                new CirculatingSupply("73638701", 87.67f),
                                                                 "84000000",
                                                                 new CurrentPrice("60.59", "56.56", "0.00235292"),
                                                                 "5259205267",
@@ -869,7 +870,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("180.40", "168.20", "0.0068809"),
                                                         5,
                                                         new MarketData(
-                                                                "410905807",
+                                                                new CirculatingSupply("410905807", 0),
                                                                 "0",
                                                                 new CurrentPrice("18.04", "16.82", "0.00068809"),
                                                                 "40090766907",
@@ -894,7 +895,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("160.40", "149.20", "0.0061208"),
                                                         13,
                                                         new MarketData(
-                                                                "1274258350",
+                                                                new CirculatingSupply("1274258350", 0),
                                                                 "0",
                                                                 new CurrentPrice("4.01", "3.73", "0.00015302"),
                                                                 "8993575127",
@@ -949,7 +950,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -973,7 +974,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -997,7 +998,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1052,7 +1053,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1076,7 +1077,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1100,7 +1101,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1155,7 +1156,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1179,7 +1180,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1203,7 +1204,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1258,7 +1259,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1282,7 +1283,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1306,7 +1307,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1361,7 +1362,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1385,7 +1386,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1409,7 +1410,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1464,7 +1465,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1488,7 +1489,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1512,7 +1513,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1584,7 +1585,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("4500.00", "4050.00", "0.15"),
                                                         1,
                                                         new MarketData(
-                                                                "19000000",
+                                                                new CirculatingSupply("19000000", 90.48f),
                                                                 "21000000",
                                                                 new CurrentPrice("30000", "27000", "1"),
                                                                 "813208997089",
@@ -1608,7 +1609,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
                                                         2,
                                                         new MarketData(
-                                                                "120220572",
+                                                                new CirculatingSupply("120220572", 0),
                                                                 "0",
                                                                 new CurrentPrice("1617.44", "1509.37", "0.06280356"),
                                                                 "298219864117",
@@ -1632,7 +1633,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("232.50", "216.75", "0.008879"),
                                                         10,
                                                         new MarketData(
-                                                                "353804673",
+                                                                new CirculatingSupply("353804673", 49.14f),
                                                                 "720000000",
                                                                 new CurrentPrice("9.3", "8.67", "0.00035516"),
                                                                 "11953262327",
@@ -1656,7 +1657,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("211.79", "197.80", "0.00811016"),
                                                         4,
                                                         new MarketData(
-                                                                "153856150",
+                                                                new CirculatingSupply("153856150", 76.93f),
                                                                 "200000000",
                                                                 new CurrentPrice("211.79", "197.8", "0.00811016"),
                                                                 "48318686968",
@@ -1680,7 +1681,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("209.65", "195.30", "0.0080031"),
                                                         14,
                                                         new MarketData(
-                                                                "538099971",
+                                                                new CirculatingSupply("538099971", 53.81f),
                                                                 "1000000000",
                                                                 new CurrentPrice("5.99", "5.58", "0.00022866"),
                                                                 "9021587267",
@@ -1704,7 +1705,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("199.92", "186.62", "0.00776"),
                                                         3,
                                                         new MarketData(
-                                                                "83016246102",
+                                                                new CirculatingSupply("83016246102", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.999618", "0.933095", "0.0000388"),
                                                                 "95085861049",
@@ -1728,7 +1729,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("189.34", "176.75", "0.007352875"),
                                                         19,
                                                         new MarketData(
-                                                                "73638701",
+                                                                new CirculatingSupply("73638701", 87.67f),
                                                                 "84000000",
                                                                 new CurrentPrice("60.59", "56.56", "0.00235292"),
                                                                 "5259205267",
@@ -1752,7 +1753,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("180.40", "168.20", "0.0068809"),
                                                         5,
                                                         new MarketData(
-                                                                "410905807",
+                                                                new CirculatingSupply("410905807", 0),
                                                                 "0",
                                                                 new CurrentPrice("18.04", "16.82", "0.00068809"),
                                                                 "40090766907",
@@ -1776,7 +1777,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("160.40", "149.20", "0.0061208"),
                                                         13,
                                                         new MarketData(
-                                                                "1274258350",
+                                                                new CirculatingSupply("1274258350", 0),
                                                                 "0",
                                                                 new CurrentPrice("4.01", "3.73", "0.00015302"),
                                                                 "8993575127",
@@ -1800,7 +1801,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("127.50", "118.80", "0.0048591"),
                                                         22,
                                                         new MarketData(
-                                                                "753766667",
+                                                                new CirculatingSupply("753766667", 75.38f),
                                                                 "1000000000",
                                                                 new CurrentPrice("4.25", "3.96", "0.00016197"),
                                                                 "4772322900",
@@ -1869,7 +1870,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("51.00", "47.54", "0.001947"),
                                                         16,
                                                         new MarketData(
-                                                                "9319469069",
+                                                                new CirculatingSupply("9319469069", 93.19f),
                                                                 "10000000000",
                                                                 new CurrentPrice("0.509995", "0.475407", "0.00001947"),
                                                                 "7001911961",
@@ -1893,7 +1894,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("37.34", "34.80", "0.001425"),
                                                         9,
                                                         new MarketData(
-                                                                "35045020830",
+                                                                new CirculatingSupply("35045020830", 77.88f),
                                                                 "45000000000",
                                                                 new CurrentPrice("0.248915", "0.231985", "0.0000095"),
                                                                 "29348197308",
@@ -1917,7 +1918,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("30.74", "28.66", "0.001175"),
                                                         11,
                                                         new MarketData(
-                                                                "140978466383",
+                                                                new CirculatingSupply("140978466383", 0),
                                                                 "0",
                                                                 new CurrentPrice("0.061481", "0.057319", "0.00000235"),
                                                                 "11195832359",
@@ -1941,7 +1942,7 @@ class InsightsServiceTest {
                                                         new BalancesResponse("23.92", "22.33", "0.0009165"),
                                                         6,
                                                         new MarketData(
-                                                                "53083046512",
+                                                                new CirculatingSupply("53083046512", 53.08f),
                                                                 "100000000000",
                                                                 new CurrentPrice("0.478363", "0.446699", "0.00001833"),
                                                                 "29348197308",

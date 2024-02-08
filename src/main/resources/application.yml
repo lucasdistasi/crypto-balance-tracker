@@ -29,6 +29,9 @@ logging:
 max-limit-crypto: 10
 update-crypto-info-cron: "0 */5 * ? * *"
 
+insights:
+  cryptos: 15
+
 security:
   enabled: false
 
