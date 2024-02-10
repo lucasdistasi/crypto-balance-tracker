@@ -17,12 +17,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 class GoalControllerTest {
-    
+
     @Mock
     private GoalService goalServiceMock;
-    
+
     private GoalController goalController;
-    
+
     @BeforeEach
     void setUp() {
         openMocks(this);
@@ -34,13 +34,13 @@ class GoalControllerTest {
         var goalResponse = getGoalResponse();
 
         when(goalServiceMock.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3"))
-                .thenReturn(goalResponse);
+            .thenReturn(goalResponse);
 
         var responseEntity = goalController.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         assertThat(responseEntity)
-                .usingRecursiveAssertion()
-                .isEqualTo(ResponseEntity.ok(goalResponse));
+            .usingRecursiveAssertion()
+            .isEqualTo(ResponseEntity.ok(goalResponse));
     }
 
     @Test
@@ -52,8 +52,8 @@ class GoalControllerTest {
         var responseEntity = goalController.retrieveGoalsForPage(0);
 
         assertThat(responseEntity)
-                .usingRecursiveAssertion()
-                .isEqualTo(ResponseEntity.ok(pageGoalResponse));
+            .usingRecursiveAssertion()
+            .isEqualTo(ResponseEntity.ok(pageGoalResponse));
     }
 
     @Test
@@ -65,8 +65,8 @@ class GoalControllerTest {
         var responseEntity = goalController.retrieveGoalsForPage(0);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -79,8 +79,8 @@ class GoalControllerTest {
         var responseEntity = goalController.saveGoal(goalRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(goalResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(goalResponse));
     }
 
     @Test
@@ -89,13 +89,13 @@ class GoalControllerTest {
         var goalResponse = getGoalResponse();
 
         when(goalServiceMock.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest))
-                .thenReturn(goalResponse);
+            .thenReturn(goalResponse);
 
         var responseEntity = goalController.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(goalResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(goalResponse));
     }
 
     @Test
@@ -105,8 +105,8 @@ class GoalControllerTest {
         var responseEntity = goalController.deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok().build());
     }
 
 }

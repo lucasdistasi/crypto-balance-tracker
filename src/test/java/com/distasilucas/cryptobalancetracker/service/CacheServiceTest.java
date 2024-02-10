@@ -50,11 +50,11 @@ class CacheServiceTest {
         var userCryptosCoingeckoCryptoIdMap = Map.of("bitcoin", List.of(userCrypto));
 
         var userCryptosCacheCache =
-                new ConcurrentMapCache(USER_CRYPTOS_CACHE, new ConcurrentHashMap<>(userCryptosCacheMap), false);
+            new ConcurrentMapCache(USER_CRYPTOS_CACHE, new ConcurrentHashMap<>(userCryptosCacheMap), false);
         var userCryptosPlatformIdCache =
-                new ConcurrentMapCache(USER_CRYPTOS_PLATFORM_ID_CACHE, new ConcurrentHashMap<>(userCryptosPlatformIdMap), false);
+            new ConcurrentMapCache(USER_CRYPTOS_PLATFORM_ID_CACHE, new ConcurrentHashMap<>(userCryptosPlatformIdMap), false);
         var userCryptosCoingeckoCryptoIdCache =
-                new ConcurrentMapCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, new ConcurrentHashMap<>(userCryptosCoingeckoCryptoIdMap), false);
+            new ConcurrentMapCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, new ConcurrentHashMap<>(userCryptosCoingeckoCryptoIdMap), false);
 
         when(cacheManagerMock.getCache(USER_CRYPTOS_CACHE)).thenReturn(userCryptosCacheCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_PLATFORM_ID_CACHE)).thenReturn(userCryptosPlatformIdCache);
@@ -81,8 +81,8 @@ class CacheServiceTest {
         when(cacheManagerMock.getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE)).thenReturn(null);
 
         assertThrows(
-                NullPointerException.class,
-                () -> cacheService.invalidateUserCryptosCaches()
+            NullPointerException.class,
+            () -> cacheService.invalidateUserCryptosCaches()
         );
     }
 
@@ -118,11 +118,11 @@ class CacheServiceTest {
         when(cacheManagerMock.getCache(PLATFORMS_PLATFORMS_IDS_CACHE)).thenReturn(null);
 
         assertThrows(
-                NullPointerException.class,
-                () -> cacheService.invalidatePlatformsCaches()
+            NullPointerException.class,
+            () -> cacheService.invalidatePlatformsCaches()
         );
     }
-    
+
     @Test
     void shouldInvalidateCryptosCacheIfItExists() {
         var crypto = getBitcoinCryptoEntity();
@@ -144,8 +144,8 @@ class CacheServiceTest {
         when(cacheManagerMock.getCache(CRYPTOS_CRYPTOS_IDS_CACHE)).thenReturn(null);
 
         assertThrows(
-                NullPointerException.class,
-                () -> cacheService.invalidateCryptosCache()
+            NullPointerException.class,
+            () -> cacheService.invalidateCryptosCache()
         );
     }
 

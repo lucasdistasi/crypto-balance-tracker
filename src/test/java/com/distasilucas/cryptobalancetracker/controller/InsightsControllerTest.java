@@ -47,8 +47,8 @@ class InsightsControllerTest {
         var totalBalancesInsights = insightsController.retrieveTotalBalancesInsights();
 
         assertThat(totalBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(balances));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(balances));
     }
 
     @Test
@@ -58,8 +58,8 @@ class InsightsControllerTest {
         var totalBalancesInsights = insightsController.retrieveTotalBalancesInsights();
 
         assertThat(totalBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
     }
 
     @Test
@@ -71,8 +71,8 @@ class InsightsControllerTest {
         var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(userCryptosInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(pageUserCryptosInsightsResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(pageUserCryptosInsightsResponse));
     }
 
     @Test
@@ -82,8 +82,8 @@ class InsightsControllerTest {
         var userCryptosInsights = insightsController.retrieveUserCryptosInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(userCryptosInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -95,8 +95,8 @@ class InsightsControllerTest {
         var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(cryptosPlatformsInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(pageUserCryptosInsightsResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(pageUserCryptosInsightsResponse));
     }
 
     @Test
@@ -106,8 +106,8 @@ class InsightsControllerTest {
         var cryptosPlatformsInsights = insightsController.retrieveUserCryptosPlatformsInsights(0, sortParams.sortBy(), sortParams.sortType());
 
         assertThat(cryptosPlatformsInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -119,8 +119,8 @@ class InsightsControllerTest {
         var cryptosBalancesInsights = insightsController.retrieveCryptosBalancesInsights();
 
         assertThat(cryptosBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(cryptosBalancesInsightsResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(cryptosBalancesInsightsResponse));
     }
 
     @Test
@@ -130,8 +130,8 @@ class InsightsControllerTest {
         var cryptosBalancesInsights = insightsController.retrieveCryptosBalancesInsights();
 
         assertThat(cryptosBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -143,8 +143,8 @@ class InsightsControllerTest {
         var platformsBalancesInsights = insightsController.retrievePlatformsBalancesInsights();
 
         assertThat(platformsBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(platformsBalancesInsightsResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(platformsBalancesInsightsResponse));
     }
 
     @Test
@@ -154,8 +154,8 @@ class InsightsControllerTest {
         var platformsBalancesInsights = insightsController.retrievePlatformsBalancesInsights();
 
         assertThat(platformsBalancesInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -167,8 +167,8 @@ class InsightsControllerTest {
         var cryptoInsights = insightsController.retrieveCryptoInsights("bitcoin");
 
         assertThat(cryptoInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(cryptoInsightResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(cryptoInsightResponse));
     }
 
     @Test
@@ -178,8 +178,8 @@ class InsightsControllerTest {
         var cryptoInsights = insightsController.retrieveCryptoInsights("bitcoin");
 
         assertThat(cryptoInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -187,13 +187,13 @@ class InsightsControllerTest {
         var platformInsightsResponse = new PlatformInsightsResponse("BINANCE", getBalances(), emptyList());
 
         when(insightsServiceMock.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111"))
-                .thenReturn(Optional.of(platformInsightsResponse));
+            .thenReturn(Optional.of(platformInsightsResponse));
 
         var platformInsights = insightsController.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
 
         assertThat(platformInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(platformInsightsResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(platformInsightsResponse));
     }
 
     @Test
@@ -203,8 +203,8 @@ class InsightsControllerTest {
         var platformInsights = insightsController.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
 
         assertThat(platformInsights)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
 }

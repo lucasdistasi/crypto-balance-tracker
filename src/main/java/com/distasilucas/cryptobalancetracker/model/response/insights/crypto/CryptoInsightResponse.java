@@ -5,8 +5,8 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesRes
 import java.util.List;
 
 public record CryptoInsightResponse(
-        String cryptoName,
-        BalancesResponse balances,
-        List<PlatformInsight> platforms
+    String cryptoName,
+    BalancesResponse balances,
+    List<PlatformInsight> platforms
 ) {
 }

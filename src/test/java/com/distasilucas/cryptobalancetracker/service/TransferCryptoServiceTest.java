@@ -84,38 +84,38 @@ class TransferCryptoServiceTest {
         var fromPlatform = getFromPlatform();
 
         when(platformServiceMock.retrievePlatformById("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(toPlatform);
+            .thenReturn(toPlatform);
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"))
-                .thenReturn(fromPlatform);
+            .thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479"))
-                .thenReturn(userCryptoToTransfer);
+            .thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.of(toPlatformUserCrypto));
+            .thenReturn(Optional.of(toPlatformUserCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1))
-                .saveOrUpdateAll(
-                        List.of(
-                                new UserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479", "bitcoin", new BigDecimal("1.865321283"), "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"),
-                                new UserCrypto("a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d", "bitcoin", new BigDecimal("2.261938292"), "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b")
-                        ));
+            .saveOrUpdateAll(
+                List.of(
+                    new UserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479", "bitcoin", new BigDecimal("1.865321283"), "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"),
+                    new UserCrypto("a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d", "bitcoin", new BigDecimal("2.261938292"), "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b")
+                ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "0.51",
-                                        "0.51",
-                                        "0.5095",
-                                        "1.865321283",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.261938292")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "0.51",
+                        "0.51",
+                        "0.5095",
+                        "1.865321283",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.261938292")
+                )
+            );
     }
 
     @Test
@@ -129,41 +129,41 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(toPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.865321283"),
-                        "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-                ),
-                new UserCrypto(
-                        "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
-                        "bitcoin",
-                        new BigDecimal("0.5095"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.865321283"),
+                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            ),
+            new UserCrypto(
+                "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
+                "bitcoin",
+                new BigDecimal("0.5095"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "0.51",
-                                        "0.51",
-                                        "0.5095",
-                                        "1.865321283",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0.5095")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "0.51",
+                        "0.51",
+                        "0.5095",
+                        "1.865321283",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0.5095")
+                )
+            );
     }
 
     @Test
@@ -178,40 +178,40 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.of(toPlatformUserCrypto));
+            .thenReturn(Optional.of(toPlatformUserCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.864821283"),
-                        "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-                ),
-                new UserCrypto(
-                        "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                        "bitcoin",
-                        new BigDecimal("2.262438292"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.864821283"),
+                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            ),
+            new UserCrypto(
+                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+                "bitcoin",
+                new BigDecimal("2.262438292"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "0.51",
-                                        "0.5105",
-                                        "0.51",
-                                        "1.864821283",
-                                        true
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.262438292")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "0.51",
+                        "0.5105",
+                        "0.51",
+                        "1.864821283",
+                        true
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.262438292")
+                )
+            );
     }
 
     @Test
@@ -225,57 +225,57 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.864821283"),
-                        "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-                ),
-                new UserCrypto(
-                        "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
-                        "bitcoin",
-                        new BigDecimal("0.51"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.864821283"),
+                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            ),
+            new UserCrypto(
+                "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
+                "bitcoin",
+                new BigDecimal("0.51"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "0.51",
-                                        "0.5105",
-                                        "0.51",
-                                        "1.864821283",
-                                        true
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0.51")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "0.51",
+                        "0.5105",
+                        "0.51",
+                        "1.864821283",
+                        true
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0.51")
+                )
+            );
     }
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabledAndUpdateOnlyOneCrypto() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("0.51"),
-                new BigDecimal("0.51"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("0.51"),
+            new BigDecimal("0.51"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.375321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("2.375321283"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -284,35 +284,35 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(toPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.865321283"),
-                        "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.865321283"),
+                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.51",
-                                        "0.51",
-                                        "0.51",
-                                        "0",
-                                        "1.865321283",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.51",
+                        "0.51",
+                        "0.51",
+                        "0",
+                        "1.865321283",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0")
+                )
+            );
     }
 
     /*
@@ -326,23 +326,23 @@ class TransferCryptoServiceTest {
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithExistingCryptoAndFullQuantityEnabled() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("1.105734142"),
-                new BigDecimal("0.0005"),
-                true,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("1.105734142"),
+            new BigDecimal("0.0005"),
+            true,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.105734142"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("1.105734142"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatformUserCrypto = new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("0.2512"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+            "bitcoin",
+            new BigDecimal("0.2512"),
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -351,51 +351,51 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.of(toPlatformUserCrypto));
+            .thenReturn(Optional.of(toPlatformUserCrypto));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                        "bitcoin",
-                        new BigDecimal("1.356434142"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+                "bitcoin",
+                new BigDecimal("1.356434142"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "1.105734142",
-                                        "1.105734142",
-                                        "1.105234142",
-                                        "0",
-                                        true
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "1.356434142")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "1.105734142",
+                        "1.105734142",
+                        "1.105234142",
+                        "0",
+                        true
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "1.356434142")
+                )
+            );
     }
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityEnabled() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("1.105734142"),
-                new BigDecimal("0.0005"),
-                true,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("1.105734142"),
+            new BigDecimal("0.0005"),
+            true,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.105734142"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("1.105734142"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -404,58 +404,58 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.105234142"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.105234142"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("1.105234142"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("1.105234142"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "1.105734142",
-                                        "1.105734142",
-                                        "1.105234142",
-                                        "0",
-                                        true
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "1.105234142")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "1.105734142",
+                        "1.105734142",
+                        "1.105234142",
+                        "0",
+                        true
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "1.105234142")
+                )
+            );
     }
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithExistingCryptoAndFullQuantityDisabled() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("1.105734142"),
-                new BigDecimal("0.0005"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("1.105734142"),
+            new BigDecimal("0.0005"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.105734142"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("1.105734142"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatformUserCrypto = getToPlatformUserCrypto();
         var toPlatform = getToPlatform();
@@ -465,55 +465,55 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.of(toPlatformUserCrypto));
+            .thenReturn(Optional.of(toPlatformUserCrypto));
 
         doNothing().when(userCryptoServiceMock).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
         doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                        "bitcoin",
-                        new BigDecimal("2.857672434"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+                "bitcoin",
+                new BigDecimal("2.857672434"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                        "bitcoin",
-                        new BigDecimal("2.857672434"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+                "bitcoin",
+                new BigDecimal("2.857672434"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "1.105734142",
-                                        "1.105734142",
-                                        "1.105234142",
-                                        "0",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.857672434")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "1.105734142",
+                        "1.105734142",
+                        "1.105234142",
+                        "0",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.857672434")
+                )
+            );
     }
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabled() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("2.375321283"),
-                new BigDecimal("0.0005"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("2.375321283"),
+            new BigDecimal("0.0005"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatform = getToPlatform();
@@ -523,52 +523,52 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("2.374821283"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("2.374821283"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-                new UserCrypto(
-                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                        "bitcoin",
-                        new BigDecimal("2.374821283"),
-                        "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-                )
+            new UserCrypto(
+                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                "bitcoin",
+                new BigDecimal("2.374821283"),
+                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            )
         ));
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "0.0005",
-                                        "2.375321283",
-                                        "2.375321283",
-                                        "2.374821283",
-                                        "0",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.374821283")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "0.0005",
+                        "2.375321283",
+                        "2.375321283",
+                        "2.374821283",
+                        "0",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "2.374821283")
+                )
+            );
     }
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabledAndDeleteOneCrypto() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("2.375321283"),
-                new BigDecimal("2.375321283"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("2.375321283"),
+            new BigDecimal("2.375321283"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatform = getToPlatform();
@@ -578,7 +578,7 @@ class TransferCryptoServiceTest {
         when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
-                .thenReturn(Optional.empty());
+            .thenReturn(Optional.empty());
         doNothing().when(userCryptoServiceMock).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
@@ -586,23 +586,23 @@ class TransferCryptoServiceTest {
         verify(userCryptoServiceMock, never()).saveOrUpdateAll(anyList());
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
         assertThat(transferCryptoResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new TransferCryptoResponse(
-                                new FromPlatform(
-                                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                                        "2.375321283",
-                                        "2.375321283",
-                                        "2.375321283",
-                                        "0",
-                                        "0",
-                                        false
-                                ),
-                                new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new TransferCryptoResponse(
+                    new FromPlatform(
+                        "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+                        "2.375321283",
+                        "2.375321283",
+                        "2.375321283",
+                        "0",
+                        "0",
+                        false
+                    ),
+                    new ToPlatform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "0")
+                )
+            );
     }
-    
+
     /*
         Exceptions
      */
@@ -619,29 +619,29 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
 
         var exception = assertThrows(
-                ApiValidationException.class,
-                () -> transferCryptoService.transferCrypto(transferCryptoRequest)
+            ApiValidationException.class,
+            () -> transferCryptoService.transferCrypto(transferCryptoRequest)
         );
 
         assertThat(exception)
-                .usingRecursiveComparison()
-                .isEqualTo(new ApiValidationException(HttpStatus.BAD_REQUEST, SAME_FROM_TO_PLATFORM));
+            .usingRecursiveComparison()
+            .isEqualTo(new ApiValidationException(HttpStatus.BAD_REQUEST, SAME_FROM_TO_PLATFORM));
     }
 
     @Test
     void shouldThrowInsufficientBalanceExceptionIfQuantityToTransferIsHigherThanAvailableQuantity() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("5"),
-                new BigDecimal("0.0005"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("5"),
+            new BigDecimal("0.0005"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.375321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("2.375321283"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -651,8 +651,8 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
 
         var exception = assertThrows(
-                InsufficientBalanceException.class,
-                () -> transferCryptoService.transferCrypto(transferCryptoRequest)
+            InsufficientBalanceException.class,
+            () -> transferCryptoService.transferCrypto(transferCryptoRequest)
         );
 
         assertEquals(NOT_ENOUGH_BALANCE, exception.getMessage());
@@ -661,17 +661,17 @@ class TransferCryptoServiceTest {
     @Test
     void shouldThrowInsufficientBalanceExceptionIfNetworkFeeIsHigherThanAvailableQuantity() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("0.5"),
-                new BigDecimal("5"),
-                false,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("0.5"),
+            new BigDecimal("5"),
+            false,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
         var userCryptoToTransfer = new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.375321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("2.375321283"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -681,8 +681,8 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
 
         var exception = assertThrows(
-                InsufficientBalanceException.class,
-                () -> transferCryptoService.transferCrypto(transferCryptoRequest)
+            InsufficientBalanceException.class,
+            () -> transferCryptoService.transferCrypto(transferCryptoRequest)
         );
 
         assertEquals(NOT_ENOUGH_BALANCE, exception.getMessage());
@@ -690,29 +690,29 @@ class TransferCryptoServiceTest {
 
     private TransferCryptoRequest getTransferCryptoRequest(Boolean sendFullQuantity) {
         return new TransferCryptoRequest(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                new BigDecimal("0.51"),
-                new BigDecimal("0.0005"),
-                sendFullQuantity,
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            new BigDecimal("0.51"),
+            new BigDecimal("0.0005"),
+            sendFullQuantity,
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
     }
 
     private UserCrypto getUserCryptoToTransfer() {
         return new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.375321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+            "bitcoin",
+            new BigDecimal("2.375321283"),
+            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
         );
     }
 
     private UserCrypto getToPlatformUserCrypto() {
         return new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("1.752438292"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
+            "bitcoin",
+            new BigDecimal("1.752438292"),
+            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
         );
     }
 

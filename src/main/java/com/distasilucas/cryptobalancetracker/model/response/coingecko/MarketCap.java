@@ -4,6 +4,6 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 
 public record MarketCap(
-        BigDecimal usd
+    BigDecimal usd
 ) implements Serializable {
 }

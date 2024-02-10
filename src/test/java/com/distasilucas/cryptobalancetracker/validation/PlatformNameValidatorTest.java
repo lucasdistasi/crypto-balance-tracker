@@ -13,7 +13,7 @@ class PlatformNameValidatorTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"binance", "OKX", "Kraken", "Safepal", "Coinbase", "Trezor One", "Trezor T", "Ledger Nano X",
-            "LOOOOOOOOOOOOOOOONG NAME"})
+        "LOOOOOOOOOOOOOOOONG NAME"})
     void shouldReturnTrueWhenValidatingPlatformName(String platformName) {
         var isValid = platformNameValidator.isValid(platformName, null);
 
@@ -23,8 +23,8 @@ class PlatformNameValidatorTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {
-            "INVALID-PLATFORM", "INVALID_PLATFORM", "LOOOOOOONGINVALIDPLATFORM", "", "1NV4L1D",
-            " invalid", "inv  alid", "invalid "
+        "INVALID-PLATFORM", "INVALID_PLATFORM", "LOOOOOOONGINVALIDPLATFORM", "", "1NV4L1D",
+        " invalid", "inv  alid", "invalid "
     })
     void shouldReturnFalseWhenValidatingPlatformName(String platformName) {
         var isValid = platformNameValidator.isValid(platformName, null);

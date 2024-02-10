@@ -44,8 +44,8 @@ class UserServiceTest {
         var user = userService.findByUsername("admin");
 
         assertThat(user)
-                .usingRecursiveAssertion()
-                .isEqualTo(entityUser);
+            .usingRecursiveAssertion()
+            .isEqualTo(entityUser);
         assertEquals("admin", user.getUsername());
         assertEquals("admin", user.getPassword());
         assertEquals(List.of(new SimpleGrantedAuthority(Role.ROLE_ADMIN.name())), user.getAuthorities());
@@ -60,8 +60,8 @@ class UserServiceTest {
         when(userRepositoryMock.findByUsername("admin")).thenReturn(Optional.empty());
 
         var exception = assertThrows(
-                UsernameNotFoundException.class,
-                () -> userService.findByUsername("admin")
+            UsernameNotFoundException.class,
+            () -> userService.findByUsername("admin")
         );
 
         assertEquals(USERNAME_NOT_FOUND.formatted("admin"), exception.getMessage());

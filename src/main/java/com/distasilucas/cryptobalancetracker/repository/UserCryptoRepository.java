@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserCryptoRepository extends MongoRepository<UserCrypto, String> {
 
     List<UserCrypto> findAllByCoingeckoCryptoId(String coingeckoCryptoId);
+
     Optional<UserCrypto> findByCoingeckoCryptoIdAndPlatformId(String coingeckoCryptoId, String platformId);
+
     List<UserCrypto> findAllByPlatformId(String platformId);
 }

@@ -38,9 +38,9 @@ public class PlatformController implements PlatformControllerAPI {
     @GetMapping
     public ResponseEntity<List<PlatformResponse>> retrieveAllPlatforms() {
         var platforms = platformService.retrieveAllPlatforms()
-                .stream()
-                .map(Platform::toPlatformResponse)
-                .toList();
+            .stream()
+            .map(Platform::toPlatformResponse)
+            .toList();
 
         return platforms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(platforms);
     }
@@ -48,8 +48,8 @@ public class PlatformController implements PlatformControllerAPI {
     @Override
     @GetMapping("/{platformId}")
     public ResponseEntity<PlatformResponse> retrievePlatformById(
-            @UUID(message = PLATFORM_ID_UUID)
-            @PathVariable String platformId
+        @UUID(message = PLATFORM_ID_UUID)
+        @PathVariable String platformId
     ) {
         var platform = platformService.retrievePlatformById(platformId);
         var platformResponse = platform.toPlatformResponse();
@@ -69,8 +69,8 @@ public class PlatformController implements PlatformControllerAPI {
     @Override
     @PutMapping("/{platformId}")
     public ResponseEntity<PlatformResponse> updatePlatform(
-            @UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId,
-            @Valid @RequestBody PlatformRequest platformRequest
+        @UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId,
+        @Valid @RequestBody PlatformRequest platformRequest
     ) {
         var platform = platformService.updatePlatform(platformId, platformRequest);
         var platformResponse = platform.toPlatformResponse();

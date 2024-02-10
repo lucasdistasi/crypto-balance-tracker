@@ -20,6 +20,6 @@ public class UserService {
         var message = USERNAME_NOT_FOUND.formatted(username);
 
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException(message));
+            .orElseThrow(() -> new UsernameNotFoundException(message));
     }
 }

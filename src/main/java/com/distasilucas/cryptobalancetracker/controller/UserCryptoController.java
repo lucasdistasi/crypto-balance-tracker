@@ -42,9 +42,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     @Override
     @GetMapping("/{userCryptoId}")
     public ResponseEntity<UserCryptoResponse> retrieveUserCrypto(
-            @UUID(message = USER_CRYPTO_ID_UUID)
-            @PathVariable
-            String userCryptoId
+        @UUID(message = USER_CRYPTO_ID_UUID)
+        @PathVariable
+        String userCryptoId
     ) {
         var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);
 
@@ -54,15 +54,15 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     @Override
     @GetMapping
     public ResponseEntity<PageUserCryptoResponse> retrieveUserCryptosForPage(
-            @Min(value = 0, message = INVALID_PAGE_NUMBER)
-            @RequestParam
-            int page
+        @Min(value = 0, message = INVALID_PAGE_NUMBER)
+        @RequestParam
+        int page
     ) {
         var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);
 
         return userCryptos.cryptos().isEmpty() ?
-                ResponseEntity.noContent().build() :
-                ResponseEntity.ok(userCryptos);
+            ResponseEntity.noContent().build() :
+            ResponseEntity.ok(userCryptos);
     }
 
     @Override
@@ -76,12 +76,12 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     @Override
     @PutMapping("/{userCryptoId}")
     public ResponseEntity<UserCryptoResponse> updateUserCrypto(
-            @UUID(message = USER_CRYPTO_ID_UUID)
-            @PathVariable
-            String userCryptoId,
-            @Valid
-            @RequestBody
-            UserCryptoRequest userCryptoRequest
+        @UUID(message = USER_CRYPTO_ID_UUID)
+        @PathVariable
+        String userCryptoId,
+        @Valid
+        @RequestBody
+        UserCryptoRequest userCryptoRequest
     ) {
         var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);
 
@@ -91,9 +91,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     @Override
     @DeleteMapping("/{userCryptoId}")
     public ResponseEntity<UserCryptoResponse> deleteUserCrypto(
-            @UUID(message = USER_CRYPTO_ID_UUID)
-            @PathVariable
-            String userCryptoId
+        @UUID(message = USER_CRYPTO_ID_UUID)
+        @PathVariable
+        String userCryptoId
     ) {
         userCryptoService.deleteUserCrypto(userCryptoId);
 
@@ -103,9 +103,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     @Override
     @PostMapping("/transfer")
     public ResponseEntity<TransferCryptoResponse> transferUserCrypto(
-            @Valid
-            @RequestBody
-            TransferCryptoRequest transferCryptoRequest
+        @Valid
+        @RequestBody
+        TransferCryptoRequest transferCryptoRequest
     ) {
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 

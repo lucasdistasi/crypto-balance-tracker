@@ -39,8 +39,8 @@ class PlatformControllerTest {
         var responseEntity = platformController.retrieveAllPlatforms();
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(List.of(platformResponse)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(List.of(platformResponse)));
     }
 
     @Test
@@ -50,8 +50,8 @@ class PlatformControllerTest {
         var responseEntity = platformController.retrieveAllPlatforms();
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.noContent().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -60,13 +60,13 @@ class PlatformControllerTest {
         var platformResponse = platformEntity.toPlatformResponse();
 
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-                .thenReturn(platformEntity);
+            .thenReturn(platformEntity);
 
         var responseEntity = platformController.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(platformResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(platformResponse));
     }
 
     @Test
@@ -80,8 +80,8 @@ class PlatformControllerTest {
         var responseEntity = platformController.savePlatform(platformRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(platformResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(platformResponse));
     }
 
     @Test
@@ -91,13 +91,13 @@ class PlatformControllerTest {
         var platformResponse = platformEntity.toPlatformResponse();
 
         when(platformServiceMock.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest))
-                .thenReturn(platformEntity);
+            .thenReturn(platformEntity);
 
         var responseEntity = platformController.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok(platformResponse));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(platformResponse));
     }
 
     @Test
@@ -107,8 +107,8 @@ class PlatformControllerTest {
         var responseEntity = platformController.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.ok().build());
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok().build());
     }
 
 }

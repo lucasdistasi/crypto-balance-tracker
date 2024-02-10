@@ -6,7 +6,7 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsig
 import java.util.List;
 
 public record CryptosBalancesInsightsResponse(
-        BalancesResponse balances,
-        List<CryptoInsights> cryptos
+    BalancesResponse balances,
+    List<CryptoInsights> cryptos
 ) {
 }

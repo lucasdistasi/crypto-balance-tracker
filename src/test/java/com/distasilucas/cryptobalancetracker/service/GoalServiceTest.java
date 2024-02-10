@@ -20,8 +20,8 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
@@ -73,8 +73,8 @@ class GoalServiceTest {
         var goalResponse = goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         assertThat(goalResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(expected);
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
     }
 
     @Test
@@ -82,10 +82,10 @@ class GoalServiceTest {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
         var cryptoEntity = getBitcoinCryptoEntity();
         var userCrypto = new UserCrypto(
-                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-                "bitcoin",
-                new BigDecimal("1"),
-                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            "bitcoin",
+            new BigDecimal("1"),
+            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
         );
         var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0.00");
 
@@ -96,8 +96,8 @@ class GoalServiceTest {
         var goalResponse = goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         assertThat(goalResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(expected);
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
     }
 
     @Test
@@ -105,8 +105,8 @@ class GoalServiceTest {
         when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.empty());
 
         var exception = assertThrows(
-                GoalNotFoundException.class,
-                () -> goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")
+            GoalNotFoundException.class,
+            () -> goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")
         );
 
         assertEquals(GOAL_ID_NOT_FOUND.formatted("10e3c7c1-0732-4294-9410-9708a21128e3"), exception.getMessage());
@@ -126,21 +126,21 @@ class GoalServiceTest {
         var goalsResponse = goalService.retrieveGoalsForPage(0);
 
         assertThat(goalsResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new PageGoalResponse(1, 1, false,
-                                List.of(
-                                        new GoalResponse(
-                                                "10e3c7c1-0732-4294-9410-9708a21128e3",
-                                                "Bitcoin",
-                                                "0.25",
-                                                25f,
-                                                "0.75",
-                                                "1",
-                                                "22500.00"
-                                        ))
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new PageGoalResponse(1, 1, false,
+                    List.of(
+                        new GoalResponse(
+                            "10e3c7c1-0732-4294-9410-9708a21128e3",
+                            "Bitcoin",
+                            "0.25",
+                            25f,
+                            "0.75",
+                            "1",
+                            "22500.00"
+                        ))
+                )
+            );
     }
 
     @Test
@@ -158,31 +158,31 @@ class GoalServiceTest {
         var goalsResponse = goalService.retrieveGoalsForPage(0);
 
         assertThat(goalsResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new PageGoalResponse(1, 5, true,
-                                List.of(
-                                        new GoalResponse(
-                                                "10e3c7c1-0732-4294-9410-9708a21128e3",
-                                                "Bitcoin",
-                                                "0.25",
-                                                25f,
-                                                "0.75",
-                                                "1",
-                                                "22500.00"
-                                        ),
-                                        new GoalResponse(
-                                                "10e3c7c1-0732-4294-9410-9708a21128e3",
-                                                "Bitcoin",
-                                                "0.25",
-                                                25f,
-                                                "0.75",
-                                                "1",
-                                                "22500.00"
-                                        )
-                                )
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new PageGoalResponse(1, 5, true,
+                    List.of(
+                        new GoalResponse(
+                            "10e3c7c1-0732-4294-9410-9708a21128e3",
+                            "Bitcoin",
+                            "0.25",
+                            25f,
+                            "0.75",
+                            "1",
+                            "22500.00"
+                        ),
+                        new GoalResponse(
+                            "10e3c7c1-0732-4294-9410-9708a21128e3",
+                            "Bitcoin",
+                            "0.25",
+                            25f,
+                            "0.75",
+                            "1",
+                            "22500.00"
                         )
-                );
+                    )
+                )
+            );
     }
 
     @Test
@@ -195,8 +195,8 @@ class GoalServiceTest {
 
         assertFalse(goalsResponse.hasNextPage());
         assertThat(goalsResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(new PageGoalResponse(1, 1, false, emptyList()));
+            .usingRecursiveComparison()
+            .isEqualTo(new PageGoalResponse(1, 1, false, emptyList()));
     }
 
     @Test
@@ -219,10 +219,10 @@ class GoalServiceTest {
 
         verify(goalRepositoryMock, times(1)).save(captor.getValue());
         assertThat(goalResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new GoalResponse(captor.getValue().id(), "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00")
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new GoalResponse(captor.getValue().id(), "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00")
+            );
     }
 
     @Test
@@ -235,8 +235,8 @@ class GoalServiceTest {
         when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(existingGoal));
 
         var exception = assertThrows(
-                DuplicatedGoalException.class,
-                () -> goalService.saveGoal(goalRequest)
+            DuplicatedGoalException.class,
+            () -> goalService.saveGoal(goalRequest)
         );
 
         verify(goalRepositoryMock, never()).save(any());
@@ -260,8 +260,8 @@ class GoalServiceTest {
         var goalResponse = goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
 
         assertThat(goalResponse)
-                .usingRecursiveComparison()
-                .isEqualTo(expected);
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
     }
 
     @Test
@@ -271,8 +271,8 @@ class GoalServiceTest {
         when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.empty());
 
         var exception = assertThrows(
-                GoalNotFoundException.class,
-                () -> goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)
+            GoalNotFoundException.class,
+            () -> goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)
         );
 
         assertEquals(GOAL_ID_NOT_FOUND.formatted("10e3c7c1-0732-4294-9410-9708a21128e3"), exception.getMessage());
@@ -297,8 +297,8 @@ class GoalServiceTest {
         when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.empty());
 
         var exception = assertThrows(
-                GoalNotFoundException.class,
-                () -> goalService.deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3")
+            GoalNotFoundException.class,
+            () -> goalService.deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3")
         );
 
         verify(goalRepositoryMock, never()).deleteById("10e3c7c1-0732-4294-9410-9708a21128e3");

@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 @Document("Platforms")
 public record Platform(
-        String id,
-        String name
+    String id,
+    String name
 ) implements Serializable {
 
     public PlatformResponse toPlatformResponse() {

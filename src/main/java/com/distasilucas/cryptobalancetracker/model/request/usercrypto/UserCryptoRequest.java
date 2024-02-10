@@ -22,20 +22,20 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.PLATFORM_ID_UUID;
 
 public record UserCryptoRequest(
-        @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
-        @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
-        @ValidCryptoName
-        String cryptoName,
+    @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
+    @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
+    @ValidCryptoName
+    String cryptoName,
 
-        @NotNull(message = CRYPTO_QUANTITY_NOT_NULL)
-        @Digits(integer = 16, fraction = 12, message = CRYPTO_QUANTITY_DIGITS)
-        @DecimalMax(value = "9999999999999999.999999999999", message = CRYPTO_QUANTITY_DECIMAL_MAX)
-        @Positive(message = CRYPTO_QUANTITY_POSITIVE)
-        BigDecimal quantity,
+    @NotNull(message = CRYPTO_QUANTITY_NOT_NULL)
+    @Digits(integer = 16, fraction = 12, message = CRYPTO_QUANTITY_DIGITS)
+    @DecimalMax(value = "9999999999999999.999999999999", message = CRYPTO_QUANTITY_DECIMAL_MAX)
+    @Positive(message = CRYPTO_QUANTITY_POSITIVE)
+    BigDecimal quantity,
 
-        @NotBlank(message = PLATFORM_ID_NOT_BLANK)
-        @UUID(message = PLATFORM_ID_UUID)
-        String platformId
+    @NotBlank(message = PLATFORM_ID_NOT_BLANK)
+    @UUID(message = PLATFORM_ID_UUID)
+    String platformId
 ) {
 
     public UserCrypto toEntity(String coingeckoCryptoId) {

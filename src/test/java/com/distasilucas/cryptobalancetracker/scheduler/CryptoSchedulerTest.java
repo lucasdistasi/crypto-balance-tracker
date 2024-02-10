@@ -64,28 +64,28 @@ class CryptoSchedulerTest {
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000"),
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
 
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoServiceMock.findOldestNCryptosByLastPriceUpdate(localDateTime.minusMinutes(MINUTES), LIMIT))
-                .thenReturn(List.of(cryptoEntity));
+            .thenReturn(List.of(cryptoEntity));
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         doNothing().when(cryptoServiceMock).updateCryptos(List.of(cryptoEntity));
 
@@ -100,39 +100,39 @@ class CryptoSchedulerTest {
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                BigDecimal.ZERO,
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            BigDecimal.ZERO,
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
         var currentPrice = new CurrentPrice(new BigDecimal("30000"), new BigDecimal("27000"), new BigDecimal("1"));
         var marketData = new MarketData(
-                currentPrice,
-                new BigDecimal("19000000"),
-                null,
-                new MarketCap(new BigDecimal("813208997089")),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00")
+            currentPrice,
+            new BigDecimal("19000000"),
+            null,
+            new MarketCap(new BigDecimal("813208997089")),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00")
         );
         var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketData);
 
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoServiceMock.findOldestNCryptosByLastPriceUpdate(localDateTime.minusMinutes(MINUTES), LIMIT))
-                .thenReturn(List.of(cryptoEntity));
+            .thenReturn(List.of(cryptoEntity));
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         doNothing().when(cryptoServiceMock).updateCryptos(List.of(cryptoEntity));
 
@@ -170,8 +170,8 @@ class CryptoSchedulerTest {
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenThrow(restClientResponseException);
 
         var exception = assertThrows(
-                TooManyRequestsException.class,
-                () -> cryptoScheduler.updateCryptosInformation()
+            TooManyRequestsException.class,
+            () -> cryptoScheduler.updateCryptosInformation()
         );
 
         assertEquals(REQUEST_LIMIT_REACHED, exception.getMessage());

@@ -26,40 +26,40 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
 
 public record TransferCryptoRequest(
-        @NotBlank(message = USER_CRYPTO_ID_NOT_BLANK)
-        @UUID(message = USER_CRYPTO_ID_UUID)
-        String userCryptoId,
+    @NotBlank(message = USER_CRYPTO_ID_NOT_BLANK)
+    @UUID(message = USER_CRYPTO_ID_UUID)
+    String userCryptoId,
 
-        @NotNull(message = QUANTITY_TO_TRANSFER_NOT_NULL)
-        @Digits(integer = 16, fraction = 12, message = QUANTITY_TO_TRANSFER_DIGITS)
-        @DecimalMax(value = "9999999999999999.999999999999", message = QUANTITY_TO_TRANSFER_DECIMAL_MAX)
-        @Positive(message = QUANTITY_TO_TRANSFER_POSITIVE)
-        BigDecimal quantityToTransfer,
+    @NotNull(message = QUANTITY_TO_TRANSFER_NOT_NULL)
+    @Digits(integer = 16, fraction = 12, message = QUANTITY_TO_TRANSFER_DIGITS)
+    @DecimalMax(value = "9999999999999999.999999999999", message = QUANTITY_TO_TRANSFER_DECIMAL_MAX)
+    @Positive(message = QUANTITY_TO_TRANSFER_POSITIVE)
+    BigDecimal quantityToTransfer,
 
-        @NotNull(message = NETWORK_FEE_NOT_NULL)
-        @Digits(integer = 16, fraction = 12, message = NETWORK_FEE_DIGITS)
-        @Min(value = 0, message = NETWORK_FEE_MIN)
-        BigDecimal networkFee,
-        Boolean sendFullQuantity,
+    @NotNull(message = NETWORK_FEE_NOT_NULL)
+    @Digits(integer = 16, fraction = 12, message = NETWORK_FEE_DIGITS)
+    @Min(value = 0, message = NETWORK_FEE_MIN)
+    BigDecimal networkFee,
+    Boolean sendFullQuantity,
 
-        @NotBlank(message = TO_PLATFORM_ID_NOT_BLANK)
-        @UUID(message = TO_PLATFORM_ID_UUID)
-        String toPlatformId
+    @NotBlank(message = TO_PLATFORM_ID_NOT_BLANK)
+    @UUID(message = TO_PLATFORM_ID_UUID)
+    String toPlatformId
 ) {
 
     public TransferCryptoResponse toTransferCryptoResponse(
-            BigDecimal remainingCryptoQuantity,
-            BigDecimal newQuantity,
-            BigDecimal quantityToSendReceive
+        BigDecimal remainingCryptoQuantity,
+        BigDecimal newQuantity,
+        BigDecimal quantityToSendReceive
     ) {
         var fromPlatform = new FromPlatform(
-                userCryptoId,
-                networkFee.toPlainString(),
-                quantityToTransfer.toPlainString(),
-                calculateTotalToSubtract(remainingCryptoQuantity).toPlainString(),
-                quantityToSendReceive.toPlainString(),
-                remainingCryptoQuantity.toPlainString(),
-                sendFullQuantity
+            userCryptoId,
+            networkFee.toPlainString(),
+            quantityToTransfer.toPlainString(),
+            calculateTotalToSubtract(remainingCryptoQuantity).toPlainString(),
+            quantityToSendReceive.toPlainString(),
+            remainingCryptoQuantity.toPlainString(),
+            sendFullQuantity
         );
         var toPlatform = new ToPlatform(toPlatformId, newQuantity.toPlainString());
 
@@ -69,7 +69,7 @@ public record TransferCryptoRequest(
     public BigDecimal calculateTotalToSubtract(BigDecimal remainingCryptoQuantity) {
         if (Boolean.TRUE.equals(sendFullQuantity)) {
             return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) > 0 ?
-                    networkFee.add(quantityToTransfer) : quantityToTransfer;
+                networkFee.add(quantityToTransfer) : quantityToTransfer;
         } else {
             return quantityToTransfer;
         }

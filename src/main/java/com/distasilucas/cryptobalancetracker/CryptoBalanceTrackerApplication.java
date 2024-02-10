@@ -14,8 +14,8 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 @SpringBootApplication
 public class CryptoBalanceTrackerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CryptoBalanceTrackerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(CryptoBalanceTrackerApplication.class, args);
+    }
 
 }

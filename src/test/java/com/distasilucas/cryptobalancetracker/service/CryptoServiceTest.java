@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
@@ -69,28 +69,28 @@ class CryptoServiceTest {
     void setUp() {
         openMocks(this);
         cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, userCryptoRepositoryMock,
-                goalRepositoryMock, cacheServiceMock, clockMock);
+            goalRepositoryMock, cacheServiceMock, clockMock);
     }
 
     @Test
     void shouldRetrieveCryptoInfoById() {
         var cryptoEntity = getBitcoinCryptoEntity();
         var expected = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                LocalDateTime.of(2023, 1, 1, 0, 0, 0)
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000"),
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         );
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.of(cryptoEntity));
@@ -98,8 +98,8 @@ class CryptoServiceTest {
         var crypto = cryptoService.retrieveCryptoInfoById("bitcoin");
 
         assertThat(crypto)
-                .usingRecursiveComparison()
-                .isEqualTo(expected);
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
     }
 
     @Test
@@ -108,21 +108,21 @@ class CryptoServiceTest {
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
         var cryptoEntity = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000"),
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.empty());
@@ -136,8 +136,8 @@ class CryptoServiceTest {
         verify(cryptoRepositoryMock, times(1)).save(crypto);
 
         assertThat(crypto)
-                .usingRecursiveComparison()
-                .isEqualTo(cryptoEntity);
+            .usingRecursiveComparison()
+            .isEqualTo(cryptoEntity);
     }
 
     @Test
@@ -147,31 +147,31 @@ class CryptoServiceTest {
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
         var currentPrice = new CurrentPrice(new BigDecimal("30000"), new BigDecimal("27000"), new BigDecimal("1"));
         var marketDate = new MarketData(
-                currentPrice,
-                new BigDecimal("19000000"),
-                null,
-                new MarketCap(new BigDecimal("813208997089")),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00")
+            currentPrice,
+            new BigDecimal("19000000"),
+            null,
+            new MarketCap(new BigDecimal("813208997089")),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00")
         );
         var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketDate);
         var cryptoEntity = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                BigDecimal.ZERO,
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            BigDecimal.ZERO,
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.empty());
@@ -185,8 +185,8 @@ class CryptoServiceTest {
         verify(cryptoRepositoryMock, times(1)).save(crypto);
 
         assertThat(crypto)
-                .usingRecursiveComparison()
-                .isEqualTo(cryptoEntity);
+            .usingRecursiveComparison()
+            .isEqualTo(cryptoEntity);
     }
 
     @Test
@@ -198,8 +198,8 @@ class CryptoServiceTest {
         var crypto = cryptoService.retrieveCoingeckoCryptoInfoByName("bitcoin");
 
         assertThat(crypto)
-                .usingRecursiveComparison()
-                .isEqualTo(new CoingeckoCrypto("bitcoin", "btc", "Bitcoin"));
+            .usingRecursiveComparison()
+            .isEqualTo(new CoingeckoCrypto("bitcoin", "btc", "Bitcoin"));
     }
 
     @Test
@@ -209,8 +209,8 @@ class CryptoServiceTest {
         when(coingeckoServiceMock.retrieveAllCryptos()).thenReturn(List.of(coingeckoCrypto));
 
         var exception = assertThrows(
-                CoingeckoCryptoNotFoundException.class,
-                () -> cryptoService.retrieveCoingeckoCryptoInfoByName("dogecoin")
+            CoingeckoCryptoNotFoundException.class,
+            () -> cryptoService.retrieveCoingeckoCryptoInfoByName("dogecoin")
         );
 
         assertEquals(COINGECKO_CRYPTO_NOT_FOUND.formatted("dogecoin"), exception.getMessage());
@@ -222,21 +222,21 @@ class CryptoServiceTest {
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
         var crypto = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000"),
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
 
         var captor = ArgumentCaptor.forClass(Crypto.class);
@@ -252,8 +252,8 @@ class CryptoServiceTest {
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
 
         assertThat(captor.getValue())
-                .usingRecursiveComparison()
-                .isEqualTo(crypto);
+            .usingRecursiveComparison()
+            .isEqualTo(crypto);
     }
 
     @Test
@@ -263,13 +263,13 @@ class CryptoServiceTest {
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
         var currentPrice = new CurrentPrice(new BigDecimal("30000"), new BigDecimal("27000"), new BigDecimal("1"));
         var marketDate = new MarketData(
-                currentPrice,
-                new BigDecimal("19000000"),
-                null,
-                new MarketCap(new BigDecimal("813208997089")),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00")
+            currentPrice,
+            new BigDecimal("19000000"),
+            null,
+            new MarketCap(new BigDecimal("813208997089")),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00")
         );
         var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketDate);
 
@@ -286,26 +286,26 @@ class CryptoServiceTest {
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
 
         assertThat(captor.getValue())
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        new Crypto(
-                                "bitcoin",
-                                "Bitcoin",
-                                "btc",
-                                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                                new BigDecimal("30000"),
-                                new BigDecimal("27000"),
-                                new BigDecimal("1"),
-                                new BigDecimal("19000000"),
-                                BigDecimal.ZERO,
-                                1,
-                                new BigDecimal("813208997089"),
-                                new BigDecimal("10.00"),
-                                new BigDecimal("-5.00"),
-                                new BigDecimal("0.00"),
-                                localDateTime
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                new Crypto(
+                    "bitcoin",
+                    "Bitcoin",
+                    "btc",
+                    "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+                    new BigDecimal("30000"),
+                    new BigDecimal("27000"),
+                    new BigDecimal("1"),
+                    new BigDecimal("19000000"),
+                    BigDecimal.ZERO,
+                    1,
+                    new BigDecimal("813208997089"),
+                    new BigDecimal("10.00"),
+                    new BigDecimal("-5.00"),
+                    new BigDecimal("0.00"),
+                    localDateTime
+                )
+            );
     }
 
     @Test
@@ -356,21 +356,21 @@ class CryptoServiceTest {
     void shouldFindTopCryptosByLastPriceUpdate() {
         var localDateTime = LocalDateTime.now();
         var cryptosEntity = new Crypto(
-                "bitcoin",
-                "Bitcoin",
-                "btc",
-                "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-                new BigDecimal("30000"),
-                new BigDecimal("27000"),
-                new BigDecimal("1"),
-                new BigDecimal("19000000"),
-                new BigDecimal("21000000"),
-                1,
-                new BigDecimal("813208997089"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("0.00"),
-                localDateTime
+            "bitcoin",
+            "Bitcoin",
+            "btc",
+            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000"),
+            1,
+            new BigDecimal("813208997089"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
 
         when(cryptoRepositoryMock.findOldestNCryptosByLastPriceUpdate(localDateTime, 5)).thenReturn(List.of(cryptosEntity));
@@ -378,8 +378,8 @@ class CryptoServiceTest {
         var cryptos = cryptoService.findOldestNCryptosByLastPriceUpdate(localDateTime, 5);
 
         assertThat(cryptos)
-                .usingRecursiveComparison()
-                .isEqualTo(List.of(cryptosEntity));
+            .usingRecursiveComparison()
+            .isEqualTo(List.of(cryptosEntity));
     }
 
     @Test
@@ -402,8 +402,8 @@ class CryptoServiceTest {
         var cryptos = cryptoService.findAllByIds(List.of("bitcoin"));
 
         assertThat(cryptos)
-                .usingRecursiveComparison()
-                .isEqualTo(List.of(crypto));
+            .usingRecursiveComparison()
+            .isEqualTo(List.of(crypto));
     }
 
 }

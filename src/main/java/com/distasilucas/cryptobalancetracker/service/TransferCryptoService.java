@@ -43,8 +43,8 @@ public class TransferCryptoService {
         var remainingCryptoQuantity = transferCryptoRequest.calculateRemainingCryptoQuantity(availableQuantity);
         var quantityToSendReceive = transferCryptoRequest.calculateQuantityToSendReceive(remainingCryptoQuantity, availableQuantity);
         var toPlatformOptionalUserCrypto = userCryptoService.findByCoingeckoCryptoIdAndPlatformId(
-                userCryptoToTransfer.coingeckoCryptoId(),
-                transferCryptoRequest.toPlatformId()
+            userCryptoToTransfer.coingeckoCryptoId(),
+            transferCryptoRequest.toPlatformId()
         );
 
         TransferCryptoResponse transferCryptoResponse = null;
@@ -58,19 +58,19 @@ public class TransferCryptoService {
             userCryptoService.saveOrUpdateAll(List.of(updatedFromPlatformUserCrypto, updatedToPlatformUserCrypto));
 
             transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(
-                    remainingCryptoQuantity,
-                    newQuantity,
-                    quantityToSendReceive
+                remainingCryptoQuantity,
+                newQuantity,
+                quantityToSendReceive
             );
         }
 
         if (doesFromPlatformHaveRemaining(remainingCryptoQuantity) && toPlatformOptionalUserCrypto.isEmpty()) {
             var uuid = UUID.randomUUID().toString();
             var toPlatformUserCrypto = new UserCrypto(
-                    uuid,
-                    userCryptoToTransfer.coingeckoCryptoId(),
-                    quantityToSendReceive,
-                    transferCryptoRequest.toPlatformId()
+                uuid,
+                userCryptoToTransfer.coingeckoCryptoId(),
+                quantityToSendReceive,
+                transferCryptoRequest.toPlatformId()
             );
             var updatedUserCryptoToTransfer = userCryptoToTransfer.copy(remainingCryptoQuantity);
 
@@ -85,9 +85,9 @@ public class TransferCryptoService {
             }
 
             transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(
-                    remainingCryptoQuantity,
-                    quantityToSendReceive,
-                    quantityToSendReceive
+                remainingCryptoQuantity,
+                quantityToSendReceive,
+                quantityToSendReceive
             );
         }
 
@@ -101,18 +101,18 @@ public class TransferCryptoService {
             userCryptoService.saveOrUpdateAll(List.of(updatedToPlatformUserCrypto));
 
             transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(
-                    remainingCryptoQuantity,
-                    newQuantity,
-                    quantityToSendReceive
+                remainingCryptoQuantity,
+                newQuantity,
+                quantityToSendReceive
             );
         }
 
         if (!doesFromPlatformHaveRemaining(remainingCryptoQuantity) && toPlatformOptionalUserCrypto.isEmpty()) {
             var updatedFromPlatformUserCrypto = new UserCrypto(
-                    userCryptoToTransfer.id(),
-                    userCryptoToTransfer.coingeckoCryptoId(),
-                    quantityToSendReceive,
-                    toPlatform.id()
+                userCryptoToTransfer.id(),
+                userCryptoToTransfer.coingeckoCryptoId(),
+                quantityToSendReceive,
+                toPlatform.id()
             );
 
             if (updatedFromPlatformUserCrypto.quantity().compareTo(BigDecimal.ZERO) > 0) {
@@ -122,9 +122,9 @@ public class TransferCryptoService {
             }
 
             transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(
-                    remainingCryptoQuantity,
-                    quantityToSendReceive,
-                    quantityToSendReceive
+                remainingCryptoQuantity,
+                quantityToSendReceive,
+                quantityToSendReceive
             );
         }
 

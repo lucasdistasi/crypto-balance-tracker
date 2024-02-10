@@ -11,9 +11,9 @@ import java.util.List;
 public interface CryptoRepository extends MongoRepository<Crypto, String> {
 
     @Aggregation(pipeline = {
-            "{ $match: { 'last_updated_at': { $lte: ?0 } } }",
-            "{ $sort: { 'last_updated_at': 1 } }",
-            "{ $limit: ?1 }"
+        "{ $match: { 'last_updated_at': { $lte: ?0 } } }",
+        "{ $sort: { 'last_updated_at': 1 } }",
+        "{ $limit: ?1 }"
     })
     List<Crypto> findOldestNCryptosByLastPriceUpdate(LocalDateTime dateFilter, int limit);
 

@@ -63,32 +63,32 @@ public class EhCacheConfiguration {
 
         return cacheManager;
     }
-    
+
     private CacheConfiguration<SimpleKey, List<CoingeckoCrypto>> getCoingeckoCryptosCache() {
         Class<List<CoingeckoCrypto>> coinListClass = cast(List.class);
 
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofDays(3));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                SimpleKey.class,
-                coinListClass,
-                resourcePools
+            SimpleKey.class,
+            coinListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
     private CacheConfiguration<String, CoingeckoCryptoInfo> getCoingeckoCryptoInfoCache() {
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(10));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                String.class,
-                CoingeckoCryptoInfo.class,
-                resourcePools
+            String.class,
+            CoingeckoCryptoInfo.class,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
@@ -96,14 +96,14 @@ public class EhCacheConfiguration {
         Class<List<UserCrypto>> userCryptoListClass = cast(List.class);
 
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(60));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                SimpleKey.class,
-                userCryptoListClass,
-                resourcePools
+            SimpleKey.class,
+            userCryptoListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
@@ -111,14 +111,14 @@ public class EhCacheConfiguration {
         Class<List<UserCrypto>> userCryptoListClass = cast(List.class);
 
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(60));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                String.class,
-                userCryptoListClass,
-                resourcePools
+            String.class,
+            userCryptoListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
@@ -126,14 +126,14 @@ public class EhCacheConfiguration {
         Class<List<UserCrypto>> userCryptoListClass = cast(List.class);
 
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(60));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                String.class,
-                userCryptoListClass,
-                resourcePools
+            String.class,
+            userCryptoListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
@@ -141,27 +141,27 @@ public class EhCacheConfiguration {
         Class<Collection<String>> stringCollectionClass = cast(Collection.class);
         Class<List<Platform>> platformListClass = cast(List.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(60));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                stringCollectionClass,
-                platformListClass,
-                resourcePools
+            stringCollectionClass,
+            platformListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
     private CacheConfiguration<String, Crypto> getCryptoCoingeckoCryptoIdCache() {
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(2));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                String.class,
-                Crypto.class,
-                resourcePools
+            String.class,
+            Crypto.class,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
@@ -169,45 +169,45 @@ public class EhCacheConfiguration {
         Class<Collection<String>> stringCollectionClass = cast(Collection.class);
         Class<List<Crypto>> cryptoListClass = cast(List.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(2));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                stringCollectionClass,
-                cryptoListClass,
-                resourcePools
+            stringCollectionClass,
+            cryptoListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
     private CacheConfiguration<SimpleKey, List<Platform>> getAllPlatformsCache() {
         Class<List<Platform>> platformsListClass = cast(List.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofDays(10));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                SimpleKey.class,
-                platformsListClass,
-                resourcePools
+            SimpleKey.class,
+            platformsListClass,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
     private CacheConfiguration<String, Platform> getPlatformCache() {
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-                .offheap(1, MemoryUnit.MB)
-                .build();
+            .offheap(1, MemoryUnit.MB)
+            .build();
         var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofDays(10));
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-                String.class,
-                Platform.class,
-                resourcePools
+            String.class,
+            Platform.class,
+            resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
-    private <K,V> javax.cache.configuration.Configuration<K, V> getCacheConfiguration(CacheConfiguration<K, V> cache) {
+    private <K, V> javax.cache.configuration.Configuration<K, V> getCacheConfiguration(CacheConfiguration<K, V> cache) {
         return Eh107Configuration.fromEhcacheCacheConfiguration(cache);
     }
 }

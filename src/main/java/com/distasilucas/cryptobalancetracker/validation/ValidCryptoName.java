@@ -14,6 +14,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface ValidCryptoName {
     String message() default "Invalid crypto name";
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }
