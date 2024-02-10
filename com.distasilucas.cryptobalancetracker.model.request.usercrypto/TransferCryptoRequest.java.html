@@ -26,40 +26,40 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
 
 <span class="fc" id="L28">public record TransferCryptoRequest(</span>
-        @NotBlank(message = USER_CRYPTO_ID_NOT_BLANK)
-        @UUID(message = USER_CRYPTO_ID_UUID)
-        String userCryptoId,
+    @NotBlank(message = USER_CRYPTO_ID_NOT_BLANK)
+    @UUID(message = USER_CRYPTO_ID_UUID)
+    String userCryptoId,
 
-        @NotNull(message = QUANTITY_TO_TRANSFER_NOT_NULL)
-        @Digits(integer = 16, fraction = 12, message = QUANTITY_TO_TRANSFER_DIGITS)
-        @DecimalMax(value = &quot;9999999999999999.999999999999&quot;, message = QUANTITY_TO_TRANSFER_DECIMAL_MAX)
-        @Positive(message = QUANTITY_TO_TRANSFER_POSITIVE)
-        BigDecimal quantityToTransfer,
+    @NotNull(message = QUANTITY_TO_TRANSFER_NOT_NULL)
+    @Digits(integer = 16, fraction = 12, message = QUANTITY_TO_TRANSFER_DIGITS)
+    @DecimalMax(value = &quot;9999999999999999.999999999999&quot;, message = QUANTITY_TO_TRANSFER_DECIMAL_MAX)
+    @Positive(message = QUANTITY_TO_TRANSFER_POSITIVE)
+    BigDecimal quantityToTransfer,
 
-        @NotNull(message = NETWORK_FEE_NOT_NULL)
-        @Digits(integer = 16, fraction = 12, message = NETWORK_FEE_DIGITS)
-        @Min(value = 0, message = NETWORK_FEE_MIN)
-        BigDecimal networkFee,
-        Boolean sendFullQuantity,
+    @NotNull(message = NETWORK_FEE_NOT_NULL)
+    @Digits(integer = 16, fraction = 12, message = NETWORK_FEE_DIGITS)
+    @Min(value = 0, message = NETWORK_FEE_MIN)
+    BigDecimal networkFee,
+    Boolean sendFullQuantity,
 
-        @NotBlank(message = TO_PLATFORM_ID_NOT_BLANK)
-        @UUID(message = TO_PLATFORM_ID_UUID)
-        String toPlatformId
+    @NotBlank(message = TO_PLATFORM_ID_NOT_BLANK)
+    @UUID(message = TO_PLATFORM_ID_UUID)
+    String toPlatformId
 ) {
 
     public TransferCryptoResponse toTransferCryptoResponse(
-            BigDecimal remainingCryptoQuantity,
-            BigDecimal newQuantity,
-            BigDecimal quantityToSendReceive
+        BigDecimal remainingCryptoQuantity,
+        BigDecimal newQuantity,
+        BigDecimal quantityToSendReceive
     ) {
 <span class="fc" id="L55">        var fromPlatform = new FromPlatform(</span>
-                userCryptoId,
-<span class="fc" id="L57">                networkFee.toPlainString(),</span>
-<span class="fc" id="L58">                quantityToTransfer.toPlainString(),</span>
-<span class="fc" id="L59">                calculateTotalToSubtract(remainingCryptoQuantity).toPlainString(),</span>
-<span class="fc" id="L60">                quantityToSendReceive.toPlainString(),</span>
-<span class="fc" id="L61">                remainingCryptoQuantity.toPlainString(),</span>
-<span class="fc" id="L62">                sendFullQuantity</span>
+            userCryptoId,
+<span class="fc" id="L57">            networkFee.toPlainString(),</span>
+<span class="fc" id="L58">            quantityToTransfer.toPlainString(),</span>
+<span class="fc" id="L59">            calculateTotalToSubtract(remainingCryptoQuantity).toPlainString(),</span>
+<span class="fc" id="L60">            quantityToSendReceive.toPlainString(),</span>
+<span class="fc" id="L61">            remainingCryptoQuantity.toPlainString(),</span>
+<span class="fc" id="L62">            sendFullQuantity</span>
         );
 <span class="fc" id="L64">        var toPlatform = new ToPlatform(toPlatformId, newQuantity.toPlainString());</span>
 
@@ -69,7 +69,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
     public BigDecimal calculateTotalToSubtract(BigDecimal remainingCryptoQuantity) {
 <span class="fc bfc" id="L70" title="All 2 branches covered.">        if (Boolean.TRUE.equals(sendFullQuantity)) {</span>
 <span class="fc bfc" id="L71" title="All 2 branches covered.">            return remainingCryptoQuantity.compareTo(BigDecimal.ZERO) &gt; 0 ?</span>
-<span class="fc" id="L72">                    networkFee.add(quantityToTransfer) : quantityToTransfer;</span>
+<span class="fc" id="L72">                networkFee.add(quantityToTransfer) : quantityToTransfer;</span>
         } else {
 <span class="fc" id="L74">            return quantityToTransfer;</span>
         }

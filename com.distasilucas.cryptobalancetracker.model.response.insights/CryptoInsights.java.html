@@ -4,12 +4,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 <span class="fc" id="L6">public record CryptoInsights(</span>
-        String id,
-        String cryptoName,
-        String cryptoId,
-        String quantity,
-        BalancesResponse balances,
-        float percentage
+    String id,
+    String cryptoName,
+    String cryptoId,
+    String quantity,
+    BalancesResponse balances,
+    float percentage
 ) {
 
     public CryptoInsights(String cryptoName, BalancesResponse balancesResponse, float percentage) {

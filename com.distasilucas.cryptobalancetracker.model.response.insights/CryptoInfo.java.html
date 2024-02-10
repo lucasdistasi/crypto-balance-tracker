@@ -5,13 +5,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 <span class="fc" id="L7">public record CryptoInfo(</span>
-        String id,
-        String cryptoName,
+    String id,
+    String cryptoName,
 
-        @JsonProperty(&quot;cryptoId&quot;)
-        String coingeckoCryptoId,
-        String symbol,
-        String image
+    @JsonProperty(&quot;cryptoId&quot;)
+    String coingeckoCryptoId,
+    String symbol,
+    String image
 ) {
 
     public CryptoInfo(String cryptoName, String coingeckoCryptoId, String symbol, String image) {

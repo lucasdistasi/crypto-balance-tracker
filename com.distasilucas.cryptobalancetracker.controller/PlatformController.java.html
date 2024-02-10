@@ -38,9 +38,9 @@ public class PlatformController implements PlatformControllerAPI {
     @GetMapping
     public ResponseEntity&lt;List&lt;PlatformResponse&gt;&gt; retrieveAllPlatforms() {
 <span class="fc" id="L40">        var platforms = platformService.retrieveAllPlatforms()</span>
-<span class="fc" id="L41">                .stream()</span>
-<span class="fc" id="L42">                .map(Platform::toPlatformResponse)</span>
-<span class="fc" id="L43">                .toList();</span>
+<span class="fc" id="L41">            .stream()</span>
+<span class="fc" id="L42">            .map(Platform::toPlatformResponse)</span>
+<span class="fc" id="L43">            .toList();</span>
 
 <span class="fc bfc" id="L45" title="All 2 branches covered.">        return platforms.isEmpty() ? ResponseEntity.noContent().build() : ResponseEntity.ok(platforms);</span>
     }
@@ -48,8 +48,8 @@ public class PlatformController implements PlatformControllerAPI {
     @Override
     @GetMapping(&quot;/{platformId}&quot;)
     public ResponseEntity&lt;PlatformResponse&gt; retrievePlatformById(
-            @UUID(message = PLATFORM_ID_UUID)
-            @PathVariable String platformId
+        @UUID(message = PLATFORM_ID_UUID)
+        @PathVariable String platformId
     ) {
 <span class="fc" id="L54">        var platform = platformService.retrievePlatformById(platformId);</span>
 <span class="fc" id="L55">        var platformResponse = platform.toPlatformResponse();</span>
@@ -69,8 +69,8 @@ public class PlatformController implements PlatformControllerAPI {
     @Override
     @PutMapping(&quot;/{platformId}&quot;)
     public ResponseEntity&lt;PlatformResponse&gt; updatePlatform(
-            @UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId,
-            @Valid @RequestBody PlatformRequest platformRequest
+        @UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId,
+        @Valid @RequestBody PlatformRequest platformRequest
     ) {
 <span class="fc" id="L75">        var platform = platformService.updatePlatform(platformId, platformRequest);</span>
 <span class="fc" id="L76">        var platformResponse = platform.toPlatformResponse();</span>

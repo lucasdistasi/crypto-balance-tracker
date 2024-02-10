@@ -7,8 +7,8 @@ import java.io.Serializable;
 
 @Document(&quot;Platforms&quot;)
 <span class="fc" id="L9">public record Platform(</span>
-        String id,
-        String name
+    String id,
+    String name
 ) implements Serializable {
 
     public PlatformResponse toPlatformResponse() {

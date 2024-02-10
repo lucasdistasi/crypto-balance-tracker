@@ -8,38 +8,38 @@ import java.math.RoundingMode;
 
 <span class="fc" id="L9">public record MarketData(</span>
 
-        @JsonProperty(&quot;current_price&quot;)
-        CurrentPrice currentPrice,
+    @JsonProperty(&quot;current_price&quot;)
+    CurrentPrice currentPrice,
 
-        @JsonProperty(&quot;circulating_supply&quot;)
-        BigDecimal circulatingSupply,
+    @JsonProperty(&quot;circulating_supply&quot;)
+    BigDecimal circulatingSupply,
 
-        @JsonProperty(&quot;max_supply&quot;)
-        BigDecimal maxSupply,
+    @JsonProperty(&quot;max_supply&quot;)
+    BigDecimal maxSupply,
 
-        @JsonProperty(&quot;market_cap&quot;)
-        MarketCap marketCap,
+    @JsonProperty(&quot;market_cap&quot;)
+    MarketCap marketCap,
 
-        @JsonProperty(&quot;price_change_percentage_24h&quot;)
-        BigDecimal changePercentageIn24h,
+    @JsonProperty(&quot;price_change_percentage_24h&quot;)
+    BigDecimal changePercentageIn24h,
 
-        @JsonProperty(&quot;price_change_percentage_7d&quot;)
-        BigDecimal changePercentageIn7d,
+    @JsonProperty(&quot;price_change_percentage_7d&quot;)
+    BigDecimal changePercentageIn7d,
 
-        @JsonProperty(&quot;price_change_percentage_30d&quot;)
-        BigDecimal changePercentageIn30d
+    @JsonProperty(&quot;price_change_percentage_30d&quot;)
+    BigDecimal changePercentageIn30d
 ) implements Serializable {
 
-        public BigDecimal changePercentageIn24h() {
-<span class="fc" id="L34">                return changePercentageIn24h.setScale(2, RoundingMode.HALF_UP);</span>
-        }
+    public BigDecimal changePercentageIn24h() {
+<span class="fc" id="L34">        return changePercentageIn24h.setScale(2, RoundingMode.HALF_UP);</span>
+    }
 
-        public BigDecimal changePercentageIn7d() {
-<span class="fc" id="L38">                return changePercentageIn7d.setScale(2, RoundingMode.HALF_UP);</span>
-        }
+    public BigDecimal changePercentageIn7d() {
+<span class="fc" id="L38">        return changePercentageIn7d.setScale(2, RoundingMode.HALF_UP);</span>
+    }
 
-        public BigDecimal changePercentageIn30d() {
-<span class="fc" id="L42">                return changePercentageIn30d.setScale(2, RoundingMode.HALF_UP);</span>
-        }
+    public BigDecimal changePercentageIn30d() {
+<span class="fc" id="L42">        return changePercentageIn30d.setScale(2, RoundingMode.HALF_UP);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

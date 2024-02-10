@@ -11,15 +11,15 @@ import java.util.UUID;
 
 @Document(&quot;UserCryptos&quot;)
 <span class="fc" id="L13">public record UserCrypto(</span>
-        @Id
-        String id,
+    @Id
+    String id,
 
-        @Field(&quot;crypto_id&quot;)
-        String coingeckoCryptoId,
-        BigDecimal quantity,
+    @Field(&quot;crypto_id&quot;)
+    String coingeckoCryptoId,
+    BigDecimal quantity,
 
-        @Field(&quot;platform_id&quot;)
-        String platformId
+    @Field(&quot;platform_id&quot;)
+    String platformId
 ) implements Serializable {
 
     public UserCrypto(String coingeckoCryptoId, BigDecimal quantity, String platformId) {

@@ -58,8 +58,8 @@ public class GoalController implements GoalControllerAPI {
 
     @PutMapping(&quot;/{goalId}&quot;)
     public ResponseEntity&lt;GoalResponse&gt; updateGoal(
-            @PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId,
-            @Valid @RequestBody GoalRequest goalRequest
+        @PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId,
+        @Valid @RequestBody GoalRequest goalRequest
     ) {
 <span class="fc" id="L64">        var goal = goalService.updateGoal(goalId, goalRequest);</span>
 

@@ -20,7 +20,7 @@ public class UserService {
 <span class="fc" id="L20">        var message = USERNAME_NOT_FOUND.formatted(username);</span>
 
 <span class="fc" id="L22">        return userRepository.findByUsername(username)</span>
-<span class="fc" id="L23">                .orElseThrow(() -&gt; new UsernameNotFoundException(message));</span>
+<span class="fc" id="L23">            .orElseThrow(() -&gt; new UsernameNotFoundException(message));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

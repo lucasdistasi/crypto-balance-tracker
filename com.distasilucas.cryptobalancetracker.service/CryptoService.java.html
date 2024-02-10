@@ -54,10 +54,10 @@ public class CryptoService {
 <span class="fc" id="L54">        log.info(&quot;Retrieving info for coingecko crypto {}&quot;, cryptoName);</span>
 
 <span class="fc" id="L56">        return coingeckoService.retrieveAllCryptos()</span>
-<span class="fc" id="L57">                .stream()</span>
-<span class="fc" id="L58">                .filter(coingeckoCrypto -&gt; coingeckoCrypto.name().equalsIgnoreCase(cryptoName))</span>
-<span class="fc" id="L59">                .findFirst()</span>
-<span class="fc" id="L60">                .orElseThrow(() -&gt; new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoName)));</span>
+<span class="fc" id="L57">            .stream()</span>
+<span class="fc" id="L58">            .filter(coingeckoCrypto -&gt; coingeckoCrypto.name().equalsIgnoreCase(cryptoName))</span>
+<span class="fc" id="L59">            .findFirst()</span>
+<span class="fc" id="L60">            .orElseThrow(() -&gt; new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoName)));</span>
     }
 
     public void saveCryptoIfNotExists(String coingeckoCryptoId) {
@@ -95,8 +95,8 @@ public class CryptoService {
     public void updateCryptos(List&lt;Crypto&gt; cryptosToUpdate) {
 <span class="fc" id="L96">        cryptoRepository.saveAll(cryptosToUpdate);</span>
 <span class="fc" id="L97">        var cryptosNames = cryptosToUpdate.stream()</span>
-<span class="fc" id="L98">                .map(Crypto::name)</span>
-<span class="fc" id="L99">                .toList();</span>
+<span class="fc" id="L98">            .map(Crypto::name)</span>
+<span class="fc" id="L99">            .toList();</span>
 
 <span class="fc" id="L101">        log.info(&quot;Updated cryptos: {}&quot;, cryptosNames);</span>
 <span class="fc" id="L102">    }</span>
@@ -112,25 +112,25 @@ public class CryptoService {
 <span class="fc" id="L112">        var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);</span>
 <span class="fc" id="L113">        var marketData = coingeckoCryptoInfo.marketData();</span>
 <span class="fc bfc" id="L114" title="All 2 branches covered.">        var maxSupply = marketData.maxSupply() != null ?</span>
-<span class="fc" id="L115">                marketData.maxSupply() :</span>
-<span class="fc" id="L116">                BigDecimal.ZERO;</span>
+<span class="fc" id="L115">            marketData.maxSupply() :</span>
+<span class="fc" id="L116">            BigDecimal.ZERO;</span>
 
 <span class="fc" id="L118">        return new Crypto(</span>
-                coingeckoCryptoId,
-<span class="fc" id="L120">                coingeckoCryptoInfo.name(),</span>
-<span class="fc" id="L121">                coingeckoCryptoInfo.symbol(),</span>
-<span class="fc" id="L122">                coingeckoCryptoInfo.image().large(),</span>
-<span class="fc" id="L123">                marketData.currentPrice().usd(),</span>
-<span class="fc" id="L124">                marketData.currentPrice().eur(),</span>
-<span class="fc" id="L125">                marketData.currentPrice().btc(),</span>
-<span class="fc" id="L126">                marketData.circulatingSupply(),</span>
-                maxSupply,
-<span class="fc" id="L128">                coingeckoCryptoInfo.marketCapRank(),</span>
-<span class="fc" id="L129">                marketData.marketCap().usd(),</span>
-<span class="fc" id="L130">                marketData.changePercentageIn24h(),</span>
-<span class="fc" id="L131">                marketData.changePercentageIn7d(),</span>
-<span class="fc" id="L132">                marketData.changePercentageIn30d(),</span>
-<span class="fc" id="L133">                LocalDateTime.now(clock)</span>
+            coingeckoCryptoId,
+<span class="fc" id="L120">            coingeckoCryptoInfo.name(),</span>
+<span class="fc" id="L121">            coingeckoCryptoInfo.symbol(),</span>
+<span class="fc" id="L122">            coingeckoCryptoInfo.image().large(),</span>
+<span class="fc" id="L123">            marketData.currentPrice().usd(),</span>
+<span class="fc" id="L124">            marketData.currentPrice().eur(),</span>
+<span class="fc" id="L125">            marketData.currentPrice().btc(),</span>
+<span class="fc" id="L126">            marketData.circulatingSupply(),</span>
+            maxSupply,
+<span class="fc" id="L128">            coingeckoCryptoInfo.marketCapRank(),</span>
+<span class="fc" id="L129">            marketData.marketCap().usd(),</span>
+<span class="fc" id="L130">            marketData.changePercentageIn24h(),</span>
+<span class="fc" id="L131">            marketData.changePercentageIn7d(),</span>
+<span class="fc" id="L132">            marketData.changePercentageIn30d(),</span>
+<span class="fc" id="L133">            LocalDateTime.now(clock)</span>
         );
     }
 }

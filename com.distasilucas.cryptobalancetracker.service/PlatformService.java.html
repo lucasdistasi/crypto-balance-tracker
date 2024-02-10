@@ -41,11 +41,11 @@ public class PlatformService {
 <span class="fc" id="L41">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
 
 <span class="fc" id="L43">        return platformRepository.findById(platformId)</span>
-<span class="fc" id="L44">                .orElseThrow(() -&gt; {</span>
-<span class="fc" id="L45">                    var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
+<span class="fc" id="L44">            .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L45">                var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
 
-<span class="fc" id="L47">                    return new PlatformNotFoundException(message);</span>
-                });
+<span class="fc" id="L47">                return new PlatformNotFoundException(message);</span>
+            });
     }
 
     public Platform savePlatform(PlatformRequest platformRequest) {

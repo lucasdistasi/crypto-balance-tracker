@@ -36,7 +36,7 @@ public class UserCryptoService {
 <span class="fc" id="L36">        log.info(&quot;Retrieving user crypto with id {}&quot;, userCryptoId);</span>
 
 <span class="fc" id="L38">        return userCryptoRepository.findById(userCryptoId)</span>
-<span class="fc" id="L39">                .orElseThrow(() -&gt; new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));</span>
+<span class="fc" id="L39">            .orElseThrow(() -&gt; new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));</span>
     }
 
     public UserCryptoResponse retrieveUserCryptoById(String userCryptoId) {
@@ -56,14 +56,14 @@ public class UserCryptoService {
 <span class="fc" id="L56">        var entityUserCryptosPage = userCryptoRepository.findAll(pageRequest);</span>
 
 <span class="fc" id="L58">        var userCryptosPage = entityUserCryptosPage.getContent()</span>
-<span class="fc" id="L59">                .stream()</span>
-<span class="fc" id="L60">                .map(userCrypto -&gt; {</span>
-<span class="fc" id="L61">                    var platform = platformService.retrievePlatformById(userCrypto.platformId());</span>
-<span class="fc" id="L62">                    var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());</span>
+<span class="fc" id="L59">            .stream()</span>
+<span class="fc" id="L60">            .map(userCrypto -&gt; {</span>
+<span class="fc" id="L61">                var platform = platformService.retrievePlatformById(userCrypto.platformId());</span>
+<span class="fc" id="L62">                var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());</span>
 
-<span class="fc" id="L64">                    return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());</span>
-                })
-<span class="fc" id="L66">                .toList();</span>
+<span class="fc" id="L64">                return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());</span>
+            })
+<span class="fc" id="L66">            .toList();</span>
 
 <span class="fc" id="L68">        return new PageUserCryptoResponse(page, entityUserCryptosPage.getTotalPages(), userCryptosPage);</span>
     }
@@ -73,9 +73,9 @@ public class UserCryptoService {
 <span class="fc" id="L73">        var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
 
 <span class="fc" id="L75">        userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
-<span class="fc" id="L76">                coingeckoCrypto.id(),</span>
-<span class="fc" id="L77">                userCryptoRequest.platformId()</span>
-<span class="fc" id="L78">        ).ifPresent(userCrypto -&gt;  {</span>
+<span class="fc" id="L76">            coingeckoCrypto.id(),</span>
+<span class="fc" id="L77">            userCryptoRequest.platformId()</span>
+<span class="fc" id="L78">        ).ifPresent(userCrypto -&gt; {</span>
 <span class="fc" id="L79">            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.name());</span>
 <span class="fc" id="L80">            throw new DuplicatedCryptoPlatFormException(message);</span>
         });
@@ -97,9 +97,9 @@ public class UserCryptoService {
 
 <span class="fc bfc" id="L98" title="All 2 branches covered.">        if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {</span>
 <span class="fc" id="L99">            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
-<span class="fc" id="L100">                    coingeckoCrypto.id(),</span>
-<span class="fc" id="L101">                    userCryptoRequest.platformId()</span>
-<span class="fc" id="L102">            ).ifPresent(uc -&gt;  {</span>
+<span class="fc" id="L100">                coingeckoCrypto.id(),</span>
+<span class="fc" id="L101">                userCryptoRequest.platformId()</span>
+<span class="fc" id="L102">            ).ifPresent(uc -&gt; {</span>
 <span class="fc" id="L103">                String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.name());</span>
 <span class="fc" id="L104">                throw new DuplicatedCryptoPlatFormException(message);</span>
             });

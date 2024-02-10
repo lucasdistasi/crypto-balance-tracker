@@ -43,19 +43,19 @@ public class InsightsController implements InsightsControllerAPI {
 <span class="fc" id="L43">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
 
 <span class="fc" id="L45">        return totalBalances.map(ResponseEntity::ok)</span>
-<span class="fc" id="L46">                .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
+<span class="fc" id="L46">            .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
     }
 
     @Override
     @GetMapping(&quot;/cryptos&quot;)
     public ResponseEntity&lt;PageUserCryptosInsightsResponse&gt; retrieveUserCryptosInsights(
-            @RequestParam
-            @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
-            int page,
-            @RequestParam(required = false, defaultValue = &quot;PERCENTAGE&quot;)
-            SortBy sortBy,
-            @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
-            SortType sortType
+        @RequestParam
+        @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
+        int page,
+        @RequestParam(required = false, defaultValue = &quot;PERCENTAGE&quot;)
+        SortBy sortBy,
+        @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
+        SortType sortType
     ) {
 <span class="fc" id="L60">        var sortParams = new SortParams(sortBy, sortType);</span>
 <span class="fc" id="L61">        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page, sortParams);</span>
@@ -66,13 +66,13 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping(&quot;/cryptos/platforms&quot;)
     public ResponseEntity&lt;PageUserCryptosInsightsResponse&gt; retrieveUserCryptosPlatformsInsights(
-            @RequestParam
-            @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
-            int page,
-            @RequestParam(required = false, defaultValue = &quot;PERCENTAGE&quot;)
-            SortBy sortBy,
-            @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
-            SortType sortType
+        @RequestParam
+        @Min(value = 0, message = &quot;Page must be greater than or equal to 0&quot;)
+        int page,
+        @RequestParam(required = false, defaultValue = &quot;PERCENTAGE&quot;)
+        SortBy sortBy,
+        @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
+        SortType sortType
     ) {
 <span class="fc" id="L77">        var sortParams = new SortParams(sortBy, sortType);</span>
 <span class="fc" id="L78">        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page, sortParams);</span>
@@ -107,9 +107,9 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping(&quot;/platforms/{platformId}&quot;)
     public ResponseEntity&lt;PlatformInsightsResponse&gt; retrievePlatformInsights(
-            @PathVariable
-            @UUID(message = PLATFORM_ID_UUID)
-            String platformId
+        @PathVariable
+        @UUID(message = PLATFORM_ID_UUID)
+        String platformId
     ) {
 <span class="fc" id="L114">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
 

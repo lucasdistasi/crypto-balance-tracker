@@ -5,16 +5,16 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 
 <span class="fc" id="L7">public record CoingeckoCryptoInfo(</span>
-        String id,
-        String symbol,
-        String name,
-        Image image,
+    String id,
+    String symbol,
+    String name,
+    Image image,
 
-        @JsonProperty(&quot;market_cap_rank&quot;)
-        int marketCapRank,
+    @JsonProperty(&quot;market_cap_rank&quot;)
+    int marketCapRank,
 
-        @JsonProperty(&quot;market_data&quot;)
-        MarketData marketData
+    @JsonProperty(&quot;market_data&quot;)
+    MarketData marketData
 ) implements Serializable {
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -17,23 +17,23 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 
 <span class="fc" id="L18">public record GoalRequest(</span>
 
-        @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
-        @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
-        @ValidCryptoName
-        String cryptoName,
+    @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
+    @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
+    @ValidCryptoName
+    String cryptoName,
 
-        @NotNull(message = &quot;Goal quantity can not be null&quot;)
-        @Digits(
-                integer = 16,
-                fraction = 12,
-                message = &quot;Goal quantity must have up to {integer} digits in the integer part and up to {fraction} digits in the decimal part&quot;
-        )
-        @DecimalMax(
-                value = &quot;9999999999999999.999999999999&quot;,
-                message = &quot;Goal quantity must be less than or equal to 9999999999999999.999999999999&quot;
-        )
-        @Positive(message = &quot;Goal quantity must be greater than 0&quot;)
-        BigDecimal goalQuantity
+    @NotNull(message = &quot;Goal quantity can not be null&quot;)
+    @Digits(
+        integer = 16,
+        fraction = 12,
+        message = &quot;Goal quantity must have up to {integer} digits in the integer part and up to {fraction} digits in the decimal part&quot;
+    )
+    @DecimalMax(
+        value = &quot;9999999999999999.999999999999&quot;,
+        message = &quot;Goal quantity must be less than or equal to 9999999999999999.999999999999&quot;
+    )
+    @Positive(message = &quot;Goal quantity must be greater than 0&quot;)
+    BigDecimal goalQuantity
 ) {
 
     public Goal toEntity(String coingeckoCryptoId) {

@@ -10,14 +10,14 @@ import java.util.UUID;
 
 @Document(&quot;Goals&quot;)
 <span class="fc" id="L12">public record Goal(</span>
-        @Id
-        String id,
+    @Id
+    String id,
 
-        @Field(&quot;crypto_id&quot;)
-        String coingeckoCryptoId,
+    @Field(&quot;crypto_id&quot;)
+    String coingeckoCryptoId,
 
-        @Field(&quot;goal_quantity&quot;)
-        BigDecimal goalQuantity
+    @Field(&quot;goal_quantity&quot;)
+    BigDecimal goalQuantity
 ) {
 
     public Goal(String coingeckoCryptoId, BigDecimal goalQuantity) {
@@ -27,7 +27,7 @@ import java.util.UUID;
     public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
                                        BigDecimal remainingQuantity, BigDecimal moneyNeeded) {
 <span class="fc" id="L29">        return new GoalResponse(id, cryptoName, actualQuantity.toPlainString(), progress,</span>
-<span class="fc" id="L30">                remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
+<span class="fc" id="L30">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

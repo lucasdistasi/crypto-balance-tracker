@@ -54,10 +54,10 @@ public class JwtService {
     private Claims extractClaims(String token) {
         try {
 <span class="fc" id="L56">            return Jwts.parser()</span>
-<span class="fc" id="L57">                    .verifyWith(getSigningKey())</span>
-<span class="fc" id="L58">                    .build()</span>
-<span class="fc" id="L59">                    .parseSignedClaims(token)</span>
-<span class="fc" id="L60">                    .getPayload();</span>
+<span class="fc" id="L57">                .verifyWith(getSigningKey())</span>
+<span class="fc" id="L58">                .build()</span>
+<span class="fc" id="L59">                .parseSignedClaims(token)</span>
+<span class="fc" id="L60">                .getPayload();</span>
 <span class="fc" id="L61">        } catch (ExpiredJwtException ex) {</span>
 <span class="fc" id="L62">            throw new ApiException(HttpStatus.BAD_REQUEST, TOKEN_EXPIRED);</span>
 <span class="fc" id="L63">        } catch (Exception ex) {</span>
