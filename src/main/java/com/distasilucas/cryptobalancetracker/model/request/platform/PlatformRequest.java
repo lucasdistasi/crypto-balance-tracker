@@ -9,9 +9,9 @@ import java.util.UUID;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.NULL_BLANK_PLATFORM_NAME;
 
 public record PlatformRequest(
-        @NotBlank(message = NULL_BLANK_PLATFORM_NAME)
-        @ValidPlatformName
-        String name
+    @NotBlank(message = NULL_BLANK_PLATFORM_NAME)
+    @ValidPlatformName
+    String name
 ) {
 
     public Platform toEntity() {

@@ -6,11 +6,11 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptos
 import java.util.List;
 
 public record PageUserCryptosInsightsResponse(
-        int page,
-        int totalPages,
-        boolean hasNextPage,
-        BalancesResponse balances,
-        List<UserCryptosInsights> cryptos
+    int page,
+    int totalPages,
+    boolean hasNextPage,
+    BalancesResponse balances,
+    List<UserCryptosInsights> cryptos
 ) {
 
     public PageUserCryptosInsightsResponse(int page, int totalPages, BalancesResponse balancesResponse, List<UserCryptosInsights> cryptos) {

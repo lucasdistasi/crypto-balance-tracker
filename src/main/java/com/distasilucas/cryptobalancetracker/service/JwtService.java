@@ -54,10 +54,10 @@ public class JwtService {
     private Claims extractClaims(String token) {
         try {
             return Jwts.parser()
-                    .verifyWith(getSigningKey())
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
+                .verifyWith(getSigningKey())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
         } catch (ExpiredJwtException ex) {
             throw new ApiException(HttpStatus.BAD_REQUEST, TOKEN_EXPIRED);
         } catch (Exception ex) {

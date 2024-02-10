@@ -50,8 +50,8 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.retrieveUserCrypto("bitcoin");
 
         assertThat(responseEntity)
-                .usingRecursiveAssertion()
-                .isEqualTo(ResponseEntity.ok(userCryptoResponse));
+            .usingRecursiveAssertion()
+            .isEqualTo(ResponseEntity.ok(userCryptoResponse));
     }
 
     @Test
@@ -65,7 +65,7 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.retrieveUserCryptosForPage(0);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.ok(pageUserCryptoResponse));
+            .isEqualTo(ResponseEntity.ok(pageUserCryptoResponse));
     }
 
     @Test
@@ -77,7 +77,7 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.retrieveUserCryptosForPage(0);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
+            .isEqualTo(ResponseEntity.status(HttpStatus.NO_CONTENT).build());
     }
 
     @Test
@@ -91,7 +91,7 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.saveUserCrypto(userCryptoRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.ok(userCryptoResponse));
+            .isEqualTo(ResponseEntity.ok(userCryptoResponse));
     }
 
     @Test
@@ -101,12 +101,12 @@ class UserCryptoControllerTest {
         var userCryptoResponse = userCryptoEntity.toUserCryptoResponse("bitcoin", "BINANCE");
 
         when(userCryptoServiceMock.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest))
-                .thenReturn(userCryptoResponse);
+            .thenReturn(userCryptoResponse);
 
         var responseEntity = userCryptoController.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.ok(userCryptoResponse));
+            .isEqualTo(ResponseEntity.ok(userCryptoResponse));
     }
 
     @Test
@@ -116,17 +116,17 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.deleteUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.ok().build());
+            .isEqualTo(ResponseEntity.ok().build());
     }
 
     @Test
     void shouldTransferCryptoAndReturn200() {
         var transferCryptoRequest = new TransferCryptoRequest(
-                "9da7b110-8937-4c3a-82d2-bc1923a43278",
-                new BigDecimal("0.2"),
-                new BigDecimal("0.0005"),
-                null,
-                "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            "9da7b110-8937-4c3a-82d2-bc1923a43278",
+            new BigDecimal("0.2"),
+            new BigDecimal("0.0005"),
+            null,
+            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
         );
         var transferCryptoResponse = new TransferCryptoResponse(getFromPlatform(), getToPlatform());
 
@@ -135,18 +135,18 @@ class UserCryptoControllerTest {
         var responseEntity = userCryptoController.transferUserCrypto(transferCryptoRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.ok(transferCryptoResponse));
+            .isEqualTo(ResponseEntity.ok(transferCryptoResponse));
     }
 
     private FromPlatform getFromPlatform() {
         return new FromPlatform(
-                "9da7b110-8937-4c3a-82d2-bc1923a43278",
-                "0.0005",
-                "0.2",
-                "0.1",
-                "0.105",
-                "0.1",
-                true
+            "9da7b110-8937-4c3a-82d2-bc1923a43278",
+            "0.0005",
+            "0.2",
+            "0.1",
+            "0.105",
+            "0.1",
+            true
         );
     }
 

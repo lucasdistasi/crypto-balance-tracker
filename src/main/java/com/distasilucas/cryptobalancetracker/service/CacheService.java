@@ -17,7 +17,7 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRY
 @Service
 @RequiredArgsConstructor
 public class CacheService {
-    
+
     private final CacheManager cacheManager;
 
     public void invalidateUserCryptosCaches() {

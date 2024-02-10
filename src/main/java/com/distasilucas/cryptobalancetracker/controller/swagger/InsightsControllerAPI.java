@@ -26,182 +26,182 @@ public interface InsightsControllerAPI {
 
     @Operation(summary = "Retrieve total balances in USD, BTC and EUR")
     @ApiResponse(
-            responseCode = "200",
-            description = "Total Balances",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = BalancesResponse.class)
-            )
+        responseCode = "200",
+        description = "Total Balances",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = BalancesResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<BalancesResponse> retrieveTotalBalancesInsights();
 
     @Operation(summary = "Retrieves information of each user crypto, like its balance, information about the crypto, where it's stored")
     @ApiResponse(
-            responseCode = "200",
-            description = "Cryptos Information",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = PageUserCryptosInsightsResponse.class)
-            )
+        responseCode = "200",
+        description = "Cryptos Information",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PageUserCryptosInsightsResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(
-            @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page,
-            SortBy sortBy,
-            SortType sortType
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        int page,
+        SortBy sortBy,
+        SortType sortType
     );
 
     @Operation(summary = "Retrieves information of each INDIVIDUAL user crypto, like the total balance, information about the crypto, in which platforms it's stored")
     @ApiResponse(
-            responseCode = "200",
-            description = "Cryptos Information",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = PageUserCryptosInsightsResponse.class)
-            )
+        responseCode = "200",
+        description = "Cryptos Information",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PageUserCryptosInsightsResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(
-            @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page,
-            SortBy sortBy,
-            SortType sortType
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        int page,
+        SortBy sortBy,
+        SortType sortType
     );
 
     @Operation(summary = "Retrieve insights balances for all user cryptos")
     @ApiResponse(
-            responseCode = "200",
-            description = "User cryptos balances insights",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = CryptosBalancesInsightsResponse.class)
-            )
+        responseCode = "200",
+        description = "User cryptos balances insights",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CryptosBalancesInsightsResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<CryptosBalancesInsightsResponse> retrieveCryptosBalancesInsights();
 
     @Operation(summary = "Retrieve insights balances for all platforms")
     @ApiResponse(
-            responseCode = "200",
-            description = "Platforms balances insights",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = PlatformsBalancesInsightsResponse.class)
-            )
+        responseCode = "200",
+        description = "Platforms balances insights",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PlatformsBalancesInsightsResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights();
 
     @Operation(summary = "Retrieve user cryptos insights for the given coingecko crypto id")
     @ApiResponse(
-            responseCode = "200",
-            description = "User cryptos insights",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = CryptoInsightResponse.class)
-            )
+        responseCode = "200",
+        description = "User cryptos insights",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = CryptoInsightResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<CryptoInsightResponse> retrieveCryptoInsights(String coingeckoCryptoId);
 
     @Operation(summary = "Retrieve insights for the given platform")
     @ApiResponse(
-            responseCode = "200",
-            description = "Platform insights",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = PlatformInsightsResponse.class)
-            )
+        responseCode = "200",
+        description = "Platform insights",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = PlatformInsightsResponse.class)
+        )
     )
     @ApiResponse(
-            responseCode = "204",
-            description = "No user cryptos saved"
+        responseCode = "204",
+        description = "No user cryptos saved"
     )
     @ApiResponse(
-            responseCode = "500",
-            description = "Internal Server Error",
-            content = @Content(
-                    mediaType = "application/json",
-                    array = @ArraySchema(
-                            schema = @Schema(implementation = ProblemDetail.class)
-                    )
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
             )
+        )
     )
     ResponseEntity<PlatformInsightsResponse> retrievePlatformInsights(@UUID(message = PLATFORM_ID_UUID) String platformId);
 }

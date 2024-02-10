@@ -11,11 +11,11 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI openAPI() {
         var info = new Info()
-                .title("Crypto Balance Tracker")
-                .version("v1.0.0")
-                .description("REST API to add cryptocurrencies with their respective quantity and platform to retrieve wide information about balances distribution");
+            .title("Crypto Balance Tracker")
+            .version("v1.0.0")
+            .description("REST API to add cryptocurrencies with their respective quantity and platform to retrieve wide information about balances distribution");
 
         return new OpenAPI()
-                .info(info);
+            .info(info);
     }
 }

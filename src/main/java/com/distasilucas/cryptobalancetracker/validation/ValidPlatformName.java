@@ -15,6 +15,8 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Retention(RUNTIME)
 public @interface ValidPlatformName {
     String message() default INVALID_PLATFORM_NAME;
+
     Class<?>[] groups() default {};
+
     Class<? extends Payload>[] payload() default {};
 }

@@ -44,8 +44,8 @@ public class ExceptionController {
 
     @ExceptionHandler(PlatformNotFoundException.class)
     public ResponseEntity<List<ProblemDetail>> handlePlatformNotFoundException(
-            PlatformNotFoundException exception,
-            WebRequest webRequest
+        PlatformNotFoundException exception,
+        WebRequest webRequest
     ) {
         log.info("A PlatformNotFoundException has occurred", exception);
 
@@ -58,8 +58,8 @@ public class ExceptionController {
 
     @ExceptionHandler(DuplicatedPlatformException.class)
     public ResponseEntity<List<ProblemDetail>> handleDuplicatedPlatformException(
-            DuplicatedPlatformException exception,
-            WebRequest webRequest
+        DuplicatedPlatformException exception,
+        WebRequest webRequest
     ) {
         log.info("A DuplicatedPlatformException has occurred", exception);
 
@@ -72,8 +72,8 @@ public class ExceptionController {
 
     @ExceptionHandler(GoalNotFoundException.class)
     public ResponseEntity<List<ProblemDetail>> handleGoalNotFoundException(
-            GoalNotFoundException exception,
-            WebRequest webRequest
+        GoalNotFoundException exception,
+        WebRequest webRequest
     ) {
         log.info("A GoalNotFoundException has occurred", exception);
 
@@ -86,8 +86,8 @@ public class ExceptionController {
 
     @ExceptionHandler(DuplicatedGoalException.class)
     public ResponseEntity<List<ProblemDetail>> handleDuplicatedGoalException(
-            DuplicatedGoalException exception,
-            WebRequest webRequest
+        DuplicatedGoalException exception,
+        WebRequest webRequest
     ) {
         log.info("A DuplicatedGoalException has occurred", exception);
 
@@ -100,8 +100,8 @@ public class ExceptionController {
 
     @ExceptionHandler(CoingeckoCryptoNotFoundException.class)
     public ResponseEntity<List<ProblemDetail>> handleCoingeckoCryptoNotFoundException(
-            CoingeckoCryptoNotFoundException exception,
-            WebRequest webRequest
+        CoingeckoCryptoNotFoundException exception,
+        WebRequest webRequest
     ) {
         log.info("A CoingeckoCryptoNotFoundException has occurred", exception);
 
@@ -114,8 +114,8 @@ public class ExceptionController {
 
     @ExceptionHandler(DuplicatedCryptoPlatFormException.class)
     public ResponseEntity<List<ProblemDetail>> handleDuplicatedCryptoPlatFormException(
-            DuplicatedCryptoPlatFormException exception,
-            WebRequest webRequest
+        DuplicatedCryptoPlatFormException exception,
+        WebRequest webRequest
     ) {
         log.info("A DuplicatedCryptoPlatFormException has occurred", exception);
 
@@ -128,8 +128,8 @@ public class ExceptionController {
 
     @ExceptionHandler(UserCryptoNotFoundException.class)
     public ResponseEntity<List<ProblemDetail>> handleUserCryptoNotFoundException(
-            UserCryptoNotFoundException exception,
-            WebRequest webRequest
+        UserCryptoNotFoundException exception,
+        WebRequest webRequest
     ) {
         log.info("An UserCryptoNotFoundException has occurred", exception);
 
@@ -142,8 +142,8 @@ public class ExceptionController {
 
     @ExceptionHandler(TooManyRequestsException.class)
     public ResponseEntity<List<ProblemDetail>> handleTooManyRequestsException(
-            TooManyRequestsException exception,
-            WebRequest webRequest
+        TooManyRequestsException exception,
+        WebRequest webRequest
     ) {
         log.info("A TooManyRequestsException has occurred", exception);
 
@@ -156,8 +156,8 @@ public class ExceptionController {
 
     @ExceptionHandler(InsufficientBalanceException.class)
     public ResponseEntity<List<ProblemDetail>> handleInsufficientBalanceException(
-            InsufficientBalanceException exception,
-            WebRequest webRequest
+        InsufficientBalanceException exception,
+        WebRequest webRequest
     ) {
         log.info("An InsufficientBalanceException has occurred", exception);
 
@@ -170,8 +170,8 @@ public class ExceptionController {
 
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<List<ProblemDetail>> handleUsernameNotFoundException(
-            UsernameNotFoundException exception,
-            WebRequest webRequest
+        UsernameNotFoundException exception,
+        WebRequest webRequest
     ) {
         log.info("An UsernameNotFoundException has occurred", exception);
 
@@ -184,8 +184,8 @@ public class ExceptionController {
 
     @ExceptionHandler(ApiValidationException.class)
     public ResponseEntity<List<ProblemDetail>> handleApiValidationException(
-            ApiValidationException exception,
-            WebRequest webRequest
+        ApiValidationException exception,
+        WebRequest webRequest
     ) {
         log.info("An ApiValidationException has occurred", exception);
 
@@ -198,8 +198,8 @@ public class ExceptionController {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<List<ProblemDetail>> handleApiException(
-            ApiException exception,
-            WebRequest webRequest
+        ApiException exception,
+        WebRequest webRequest
     ) {
         log.info("An ApiException has occurred", exception);
 
@@ -212,51 +212,51 @@ public class ExceptionController {
 
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<List<ProblemDetail>> handleConstraintViolationException(
-            ConstraintViolationException exception,
-            WebRequest webRequest
+        ConstraintViolationException exception,
+        WebRequest webRequest
     ) {
         log.info("A ConstraintViolationException has occurred", exception);
 
         var request = (ServletWebRequest) webRequest;
         var constraintViolations = exception.getConstraintViolations().stream().toList();
         var problemDetails = constraintViolations.stream()
-                .map(constraintViolation -> {
-                    var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, constraintViolation.getMessage());
-                    problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+            .map(constraintViolation -> {
+                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, constraintViolation.getMessage());
+                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
-                    return problemDetail;
-                })
-                .toList();
+                return problemDetail;
+            })
+            .toList();
 
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(problemDetails);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<ProblemDetail>> handleMethodArgumentNotValidException(
-            MethodArgumentNotValidException exception,
-            WebRequest webRequest
+        MethodArgumentNotValidException exception,
+        WebRequest webRequest
     ) {
         log.info("A MethodArgumentNotValidException has occurred", exception);
 
         var request = (ServletWebRequest) webRequest;
         var allErrors = exception.getAllErrors()
-                .stream()
-                .map(error -> {
-                    var errorMessage = StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : UNKNOWN_ERROR;
-                    var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, errorMessage);
-                    problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
+            .stream()
+            .map(error -> {
+                var errorMessage = StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : UNKNOWN_ERROR;
+                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, errorMessage);
+                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
-                    return problemDetail;
-                })
-                .toList();
+                return problemDetail;
+            })
+            .toList();
 
         return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<List<ProblemDetail>> handleMissingServletRequestParameterException(
-            MissingServletRequestParameterException exception,
-            WebRequest webRequest
+        MissingServletRequestParameterException exception,
+        WebRequest webRequest
     ) {
         log.info("A MissingServletRequestParameterException has occurred", exception);
 
@@ -271,8 +271,8 @@ public class ExceptionController {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<List<ProblemDetail>> handleMethodArgumentTypeMismatchException(
-            MethodArgumentTypeMismatchException exception,
-            WebRequest webRequest
+        MethodArgumentTypeMismatchException exception,
+        WebRequest webRequest
     ) {
         log.info("A MethodArgumentTypeMismatchException has occurred", exception);
 
@@ -288,8 +288,8 @@ public class ExceptionController {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<List<ProblemDetail>> handleException(
-            Exception exception,
-            WebRequest webRequest
+        Exception exception,
+        WebRequest webRequest
     ) {
         log.warn("An unhandled Exception has occurred", exception);
 

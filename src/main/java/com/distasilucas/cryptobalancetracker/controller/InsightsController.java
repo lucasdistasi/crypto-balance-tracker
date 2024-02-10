@@ -43,19 +43,19 @@ public class InsightsController implements InsightsControllerAPI {
         var totalBalances = insightsService.retrieveTotalBalancesInsights();
 
         return totalBalances.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+            .orElse(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
     }
 
     @Override
     @GetMapping("/cryptos")
     public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(
-            @RequestParam
-            @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page,
-            @RequestParam(required = false, defaultValue = "PERCENTAGE")
-            SortBy sortBy,
-            @RequestParam(required = false, defaultValue = "DESC")
-            SortType sortType
+        @RequestParam
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        int page,
+        @RequestParam(required = false, defaultValue = "PERCENTAGE")
+        SortBy sortBy,
+        @RequestParam(required = false, defaultValue = "DESC")
+        SortType sortType
     ) {
         var sortParams = new SortParams(sortBy, sortType);
         var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page, sortParams);
@@ -66,13 +66,13 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping("/cryptos/platforms")
     public ResponseEntity<PageUserCryptosInsightsResponse> retrieveUserCryptosPlatformsInsights(
-            @RequestParam
-            @Min(value = 0, message = "Page must be greater than or equal to 0")
-            int page,
-            @RequestParam(required = false, defaultValue = "PERCENTAGE")
-            SortBy sortBy,
-            @RequestParam(required = false, defaultValue = "DESC")
-            SortType sortType
+        @RequestParam
+        @Min(value = 0, message = "Page must be greater than or equal to 0")
+        int page,
+        @RequestParam(required = false, defaultValue = "PERCENTAGE")
+        SortBy sortBy,
+        @RequestParam(required = false, defaultValue = "DESC")
+        SortType sortType
     ) {
         var sortParams = new SortParams(sortBy, sortType);
         var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page, sortParams);
@@ -107,9 +107,9 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping("/platforms/{platformId}")
     public ResponseEntity<PlatformInsightsResponse> retrievePlatformInsights(
-            @PathVariable
-            @UUID(message = PLATFORM_ID_UUID)
-            String platformId
+        @PathVariable
+        @UUID(message = PLATFORM_ID_UUID)
+        String platformId
     ) {
         var platformsInsights = insightsService.retrievePlatformInsights(platformId);
 

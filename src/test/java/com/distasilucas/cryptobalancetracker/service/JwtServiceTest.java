@@ -38,11 +38,11 @@ class JwtServiceTest {
         var user = new User(UUID.randomUUID().toString(), "admin", "admin", Role.ROLE_ADMIN, LocalDateTime.now());
 
         var apiException = assertThrows(ApiException.class,
-                () -> jwtService.isTokenValid(EXPIRED_TOKEN, user));
+            () -> jwtService.isTokenValid(EXPIRED_TOKEN, user));
 
         assertAll(
-                () -> assertEquals(TOKEN_EXPIRED, apiException.getMessage()),
-                () -> assertEquals(HttpStatus.BAD_REQUEST, apiException.getHttpStatus())
+            () -> assertEquals(TOKEN_EXPIRED, apiException.getMessage()),
+            () -> assertEquals(HttpStatus.BAD_REQUEST, apiException.getHttpStatus())
         );
     }
 
@@ -51,11 +51,11 @@ class JwtServiceTest {
         var user = new User(UUID.randomUUID().toString(), "admin", "admin", Role.ROLE_ADMIN, LocalDateTime.now());
 
         var apiException = assertThrows(ApiException.class,
-                () -> jwtService.isTokenValid(MALFORMED_TOKEN, user));
+            () -> jwtService.isTokenValid(MALFORMED_TOKEN, user));
 
         assertAll(
-                () -> assertEquals(UNKNOWN_ERROR, apiException.getMessage()),
-                () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, apiException.getHttpStatus())
+            () -> assertEquals(UNKNOWN_ERROR, apiException.getMessage()),
+            () -> assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, apiException.getHttpStatus())
         );
     }
 

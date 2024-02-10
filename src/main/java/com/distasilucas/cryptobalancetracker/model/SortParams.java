@@ -5,8 +5,8 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptos
 import java.util.Comparator;
 
 public record SortParams(
-        SortBy sortBy,
-        SortType sortType
+    SortBy sortBy,
+    SortType sortType
 ) {
 
     public Comparator<UserCryptosInsights> cryptosInsightsResponseComparator() {

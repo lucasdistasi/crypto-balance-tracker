@@ -17,8 +17,8 @@ public class RestClientConfig {
     private final String coingeckoUrl;
 
     public RestClientConfig(@Value("${coingecko.api-key.pro}") String proCoingeckoApiKey,
-                           @Value("${coingecko.pro.url}") String coingeckoProUrl,
-                           @Value("${coingecko.url}") String coingeckoUrl) {
+                            @Value("${coingecko.pro.url}") String coingeckoProUrl,
+                            @Value("${coingecko.url}") String coingeckoUrl) {
         this.proCoingeckoApiKey = proCoingeckoApiKey;
         this.coingeckoProUrl = coingeckoProUrl;
         this.coingeckoUrl = coingeckoUrl;
@@ -29,9 +29,9 @@ public class RestClientConfig {
         var baseUrl = StringUtils.hasText(proCoingeckoApiKey) ? coingeckoProUrl : coingeckoUrl;
 
         return RestClient.builder()
-                .baseUrl(baseUrl)
-                .requestFactory(getSimpleClientHttpRequestFactory())
-                .build();
+            .baseUrl(baseUrl)
+            .requestFactory(getSimpleClientHttpRequestFactory())
+            .build();
     }
 
     private static SimpleClientHttpRequestFactory getSimpleClientHttpRequestFactory() {

@@ -54,8 +54,8 @@ class PlatformServiceTest {
         var allPlatforms = platformService.retrieveAllPlatforms();
 
         assertThat(allPlatforms)
-                .usingRecursiveComparison()
-                .isEqualTo(platforms);
+            .usingRecursiveComparison()
+            .isEqualTo(platforms);
     }
 
     @Test
@@ -65,8 +65,8 @@ class PlatformServiceTest {
         var allPlatforms = platformService.retrieveAllPlatforms();
 
         assertThat(allPlatforms)
-                .usingRecursiveComparison()
-                .isEqualTo(Collections.emptyList());
+            .usingRecursiveComparison()
+            .isEqualTo(Collections.emptyList());
     }
 
     @Test
@@ -74,13 +74,13 @@ class PlatformServiceTest {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
         when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-                .thenReturn(Optional.of(platformEntity));
+            .thenReturn(Optional.of(platformEntity));
 
         var platform = platformService.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         assertThat(platform)
-                .usingRecursiveComparison()
-                .isEqualTo(platformEntity);
+            .usingRecursiveComparison()
+            .isEqualTo(platformEntity);
     }
 
     @Test
@@ -89,8 +89,8 @@ class PlatformServiceTest {
 
         when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
         var exception = assertThrows(
-                PlatformNotFoundException.class,
-                () -> platformService.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
+            PlatformNotFoundException.class,
+            () -> platformService.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
         );
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -108,8 +108,8 @@ class PlatformServiceTest {
         verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
         verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
-                .usingRecursiveComparison()
-                .isEqualTo(new Platform(platformArgumentCaptor.getValue().id(), "BINANCE"));
+            .usingRecursiveComparison()
+            .isEqualTo(new Platform(platformArgumentCaptor.getValue().id(), "BINANCE"));
     }
 
     @Test
@@ -138,8 +138,8 @@ class PlatformServiceTest {
         verify(platformRepositoryMock, times(1)).save(platformEntity);
         verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
-                .usingRecursiveComparison()
-                .isEqualTo(platformEntity);
+            .usingRecursiveComparison()
+            .isEqualTo(platformEntity);
     }
 
     @Test
@@ -150,8 +150,8 @@ class PlatformServiceTest {
 
         when(platformRepositoryMock.findByName("BINANCE")).thenReturn(Optional.of(existingPlatform));
         var exception = assertThrows(
-                DuplicatedPlatformException.class,
-                () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
+            DuplicatedPlatformException.class,
+            () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
         );
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -164,8 +164,8 @@ class PlatformServiceTest {
 
         when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
         var exception = assertThrows(
-                PlatformNotFoundException.class,
-                () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
+            PlatformNotFoundException.class,
+            () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
         );
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -190,8 +190,8 @@ class PlatformServiceTest {
 
         when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
         var exception = assertThrows(
-                PlatformNotFoundException.class,
-                () -> platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
+            PlatformNotFoundException.class,
+            () -> platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
         );
 
         assertEquals(expectedMessage, exception.getMessage());
@@ -201,24 +201,24 @@ class PlatformServiceTest {
     void shouldRetrieveAllPlatformsById() {
         var platformsIds = List.of("e86b1068-8635-4606-83fb-a056040d6c9e", "d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8");
         var platforms = List.of(
-                new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
-                new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
+            new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
+            new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
         );
 
         when(platformRepositoryMock.findAllByIdIn(platformsIds)).thenReturn(platforms);
 
         var platformsList = platformService.findAllByIds(
-                List.of("e86b1068-8635-4606-83fb-a056040d6c9e", "d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8")
+            List.of("e86b1068-8635-4606-83fb-a056040d6c9e", "d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8")
         );
 
         assertThat(platformsList)
-                .usingRecursiveComparison()
-                .isEqualTo(
-                        List.of(
-                                new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
-                                new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
-                        )
-                );
+            .usingRecursiveComparison()
+            .isEqualTo(
+                List.of(
+                    new Platform("e86b1068-8635-4606-83fb-a056040d6c9e", "BINANCE"),
+                    new Platform("d6fa4d2a-7760-4e7b-9df3-eabb26a92dd8", "COINBASE")
+                )
+            );
     }
 
 }

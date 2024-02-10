@@ -53,9 +53,9 @@ class PlatformControllerMvcTest {
         when(platformServiceMock.retrieveAllPlatforms()).thenReturn(List.of(platformEntity));
 
         mockMvc.perform(retrieveAllPlatforms())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
-                .andExpect(jsonPath("$[0].name", is("BINANCE")));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
+            .andExpect(jsonPath("$[0].name", is("BINANCE")));
     }
 
     @Test
@@ -63,7 +63,7 @@ class PlatformControllerMvcTest {
         when(platformServiceMock.retrieveAllPlatforms()).thenReturn(Collections.emptyList());
 
         mockMvc.perform(retrieveAllPlatforms())
-                .andExpect(status().isNoContent());
+            .andExpect(status().isNoContent());
     }
 
     @Test
@@ -71,27 +71,27 @@ class PlatformControllerMvcTest {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-                .thenReturn(platformEntity);
+            .thenReturn(platformEntity);
 
         mockMvc.perform(retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
-                .andExpect(jsonPath("$.name", is("BINANCE")));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
+            .andExpect(jsonPath("$.name", is("BINANCE")));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc", "4f66381-7c82-4d0f-a756-cf7d4e2d3bc6", "4f663841-7c82-4d0f-a56-cf7d4e2d3bc6",
-            "4f663841-7c82-4d0f-a756cf7d4e2d3bc6", "4f6638417c82-4d0f-a756-cf7d4e2d3bc6", "4f663841-7c82-4d0fa756-cf7d4e2d3bc6"
+        "4f663841-7c82-4d0f-a756-cf7d4e2d3bc", "4f66381-7c82-4d0f-a756-cf7d4e2d3bc6", "4f663841-7c82-4d0f-a56-cf7d4e2d3bc6",
+        "4f663841-7c82-4d0f-a756cf7d4e2d3bc6", "4f6638417c82-4d0f-a756-cf7d4e2d3bc6", "4f663841-7c82-4d0fa756-cf7d4e2d3bc6"
     })
     void shouldFailWithStatus400WithOneMessageWhenRetrievingPlatformWithInvalidId(String platformId) throws Exception {
         mockMvc.perform(retrievePlatformById(platformId))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("Bad Request")))
-                .andExpect(jsonPath("$[0].status", is(400)))
-                .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title", is("Bad Request")))
+            .andExpect(jsonPath("$[0].status", is(400)))
+            .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
     }
 
     @ParameterizedTest
@@ -100,61 +100,61 @@ class PlatformControllerMvcTest {
         var platformRequest = new PlatformRequest(platformName);
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformName.toUpperCase());
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         when(platformServiceMock.savePlatform(platformRequest)).thenReturn(platformEntity);
 
         mockMvc.perform(savePlatform(content))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
-                .andExpect(jsonPath("$.name", is(platformName.toUpperCase())));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
+            .andExpect(jsonPath("$.name", is(platformName.toUpperCase())));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"123", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e", "Gate  Io", " Gate Io", "Gate Io "})
     void shouldFailWithStatus400WithOneMessageWhenSavingInvalidPlatform(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         mockMvc.perform(savePlatform(content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("Bad Request")))
-                .andExpect(jsonPath("$[0].status", is(400)))
-                .andExpect(jsonPath("$[0].detail", is(INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title", is("Bad Request")))
+            .andExpect(jsonPath("$[0].status", is(400)))
+            .andExpect(jsonPath("$[0].detail", is(INVALID_PLATFORM_NAME)));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"  ", ""})
     void shouldFailWithStatus400WithTwoMessagesWhenSavingBlankOrEmptyPlatform(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         mockMvc.perform(savePlatform(content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
-                .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-                .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
+            .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
+            .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
     }
 
     @Test
     void shouldFailWithStatus400WithTwoMessagesWhenSavingNullPlatform() throws Exception {
         var content = """
-                    {
-                        "name": null
-                    }
-                """;
+                {
+                    "name": null
+                }
+            """;
 
         mockMvc.perform(savePlatform(content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
-                .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-                .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
+            .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
+            .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
     }
 
     @ParameterizedTest
@@ -163,81 +163,81 @@ class PlatformControllerMvcTest {
         var platformRequest = new PlatformRequest(platformName);
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformName.toUpperCase());
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         when(platformServiceMock.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest))
-                .thenReturn(platformEntity);
+            .thenReturn(platformEntity);
 
         mockMvc.perform(updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", content))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
-                .andExpect(jsonPath("$.name", is(platformName.toUpperCase())));
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id", is("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")))
+            .andExpect(jsonPath("$.name", is(platformName.toUpperCase())));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "123e4567-e89b-12d3-a456-4266141740001", "123e4567-e89b-12d3-a456-42661417400",
-            "123e456-e89b-12d3-a456-426614174000", "123e45676-e89b-12d3-a456-426614174000"
+        "123e4567-e89b-12d3-a456-4266141740001", "123e4567-e89b-12d3-a456-42661417400",
+        "123e456-e89b-12d3-a456-426614174000", "123e45676-e89b-12d3-a456-426614174000"
     })
     void shouldFailWithStatus400WithOneMessageWhenUpdatingPlatformWithInvalidId(String platformId) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted("bybit");
+            .formatted("bybit");
 
         mockMvc.perform(updatePlatform(platformId, content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("Bad Request")))
-                .andExpect(jsonPath("$[0].status", is(400)))
-                .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title", is("Bad Request")))
+            .andExpect(jsonPath("$[0].status", is(400)))
+            .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"123", "C01nb453", "NmkwRsgZuYqEPvDbAtIoCfLHX", "Coinba#e", "Gate  Io", " Gate Io", "Gate Io "})
     void shouldFailWithStatus400WithOneMessagesWhenUpdatingInvalidPlatformName(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         mockMvc.perform(updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("Bad Request")))
-                .andExpect(jsonPath("$[0].status", is(400)))
-                .andExpect(jsonPath("$[0].detail", is(INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title", is("Bad Request")))
+            .andExpect(jsonPath("$[0].status", is(400)))
+            .andExpect(jsonPath("$[0].detail", is(INVALID_PLATFORM_NAME)));
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"  ", ""})
     void shouldFailWithStatus400WithTwoMessagesWhenUpdatingBlankOrEmptyPlatform(String platformName) throws Exception {
         var content = getFileContent("/request/platform/save_update_platform_request.json")
-                .formatted(platformName);
+            .formatted(platformName);
 
         mockMvc.perform(updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
-                .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-                .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
+            .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
+            .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
 
     }
 
     @Test
     void shouldFailWithStatus400WithTwoMessagesWhenUpdatingNullPlatform() throws Exception {
         var content = """
-                    {
-                        "name": null
-                    }
-                """;
+                {
+                    "name": null
+                }
+            """;
 
         mockMvc.perform(updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", content))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
-                .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-                .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
+            .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
+            .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder(NULL_BLANK_PLATFORM_NAME, INVALID_PLATFORM_NAME)));
 
     }
 
@@ -246,22 +246,22 @@ class PlatformControllerMvcTest {
         doNothing().when(platformServiceMock).deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         mockMvc.perform(deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-                .andExpect(status().isOk());
+            .andExpect(status().isOk());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {
-            "123e4567-e89b-12d3-a456-4266141740001", "123e4567-e89b-12d3-a456-42661417400",
-            "123e456-e89b-12d3-a456-426614174000", "123e45676-e89b-12d3-a456-426614174000"
+        "123e4567-e89b-12d3-a456-4266141740001", "123e4567-e89b-12d3-a456-42661417400",
+        "123e456-e89b-12d3-a456-426614174000", "123e45676-e89b-12d3-a456-426614174000"
     })
     void shouldFailWithStatus400WithOneMessageWhenDeletingInvalidPlatform(String platformId) throws Exception {
         mockMvc.perform(deletePlatform(platformId))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$", hasSize(1)))
-                .andExpect(jsonPath("$[0].title", is("Bad Request")))
-                .andExpect(jsonPath("$[0].status", is(400)))
-                .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$", hasSize(1)))
+            .andExpect(jsonPath("$[0].title", is("Bad Request")))
+            .andExpect(jsonPath("$[0].status", is(400)))
+            .andExpect(jsonPath("$[0].detail", is(PLATFORM_ID_UUID)));
     }
 
 }

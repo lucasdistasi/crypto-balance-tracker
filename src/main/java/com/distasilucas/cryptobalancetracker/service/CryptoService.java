@@ -54,10 +54,10 @@ public class CryptoService {
         log.info("Retrieving info for coingecko crypto {}", cryptoName);
 
         return coingeckoService.retrieveAllCryptos()
-                .stream()
-                .filter(coingeckoCrypto -> coingeckoCrypto.name().equalsIgnoreCase(cryptoName))
-                .findFirst()
-                .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoName)));
+            .stream()
+            .filter(coingeckoCrypto -> coingeckoCrypto.name().equalsIgnoreCase(cryptoName))
+            .findFirst()
+            .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoName)));
     }
 
     public void saveCryptoIfNotExists(String coingeckoCryptoId) {
@@ -95,8 +95,8 @@ public class CryptoService {
     public void updateCryptos(List<Crypto> cryptosToUpdate) {
         cryptoRepository.saveAll(cryptosToUpdate);
         var cryptosNames = cryptosToUpdate.stream()
-                .map(Crypto::name)
-                .toList();
+            .map(Crypto::name)
+            .toList();
 
         log.info("Updated cryptos: {}", cryptosNames);
     }
@@ -112,25 +112,25 @@ public class CryptoService {
         var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
         var marketData = coingeckoCryptoInfo.marketData();
         var maxSupply = marketData.maxSupply() != null ?
-                marketData.maxSupply() :
-                BigDecimal.ZERO;
+            marketData.maxSupply() :
+            BigDecimal.ZERO;
 
         return new Crypto(
-                coingeckoCryptoId,
-                coingeckoCryptoInfo.name(),
-                coingeckoCryptoInfo.symbol(),
-                coingeckoCryptoInfo.image().large(),
-                marketData.currentPrice().usd(),
-                marketData.currentPrice().eur(),
-                marketData.currentPrice().btc(),
-                marketData.circulatingSupply(),
-                maxSupply,
-                coingeckoCryptoInfo.marketCapRank(),
-                marketData.marketCap().usd(),
-                marketData.changePercentageIn24h(),
-                marketData.changePercentageIn7d(),
-                marketData.changePercentageIn30d(),
-                LocalDateTime.now(clock)
+            coingeckoCryptoId,
+            coingeckoCryptoInfo.name(),
+            coingeckoCryptoInfo.symbol(),
+            coingeckoCryptoInfo.image().large(),
+            marketData.currentPrice().usd(),
+            marketData.currentPrice().eur(),
+            marketData.currentPrice().btc(),
+            marketData.circulatingSupply(),
+            maxSupply,
+            coingeckoCryptoInfo.marketCapRank(),
+            marketData.marketCap().usd(),
+            marketData.changePercentageIn24h(),
+            marketData.changePercentageIn7d(),
+            marketData.changePercentageIn30d(),
+            LocalDateTime.now(clock)
         );
     }
 }

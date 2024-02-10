@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface PlatformRepository extends MongoRepository<Platform, String> {
 
     Optional<Platform> findByName(String name);
+
     List<Platform> findAllByIdIn(Collection<String> ids);
 }

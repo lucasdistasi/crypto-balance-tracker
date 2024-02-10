@@ -69,8 +69,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handlePlatformNotFoundException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -83,8 +83,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleDuplicatedPlatformException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -97,8 +97,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleGoalNotFoundException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -111,8 +111,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleDuplicatedGoalException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -125,8 +125,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleCoingeckoCryptoNotFoundException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -139,8 +139,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleDuplicatedCryptoPlatFormException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -153,8 +153,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleUserCryptoNotFoundException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -166,8 +166,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleTooManyRequestsException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail)));
     }
 
     @Test
@@ -179,8 +179,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleInsufficientBalanceException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -193,8 +193,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleUsernameNotFoundException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.NOT_FOUND).body(List.of(problemDetail)));
     }
 
     @Test
@@ -206,8 +206,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleApiValidationException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
     }
 
     @Test
@@ -219,8 +219,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleApiException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT).body(List.of(problemDetail)));
     }
 
     @Test
@@ -228,32 +228,32 @@ class ExceptionControllerTest {
         var runtimeException = new RuntimeException("Some exception as occurred");
         var exception = new ApiException(UNKNOWN_ERROR, runtimeException);
         var problemDetail = ProblemDetail.forStatusAndDetail(
-                HttpStatus.INTERNAL_SERVER_ERROR,
-                UNKNOWN_ERROR
+            HttpStatus.INTERNAL_SERVER_ERROR,
+            UNKNOWN_ERROR
         );
         problemDetail.setType(URI.create(servletRequest.getRequest().getRequestURL().toString()));
 
         var responseEntity = exceptionController.handleApiException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
     }
 
     @Test
     void shouldHandleConstraintViolationException() {
         var constraintViolation = ConstraintViolationImpl.forBeanValidation(
-                "messageTemplate",
-                Collections.emptyMap(),
-                Collections.emptyMap(),
-                "Some error occurred",
-                Platform.class,
-                new Platform("id", "name"),
-                null,
-                null,
-                null,
-                null,
-                null
+            "messageTemplate",
+            Collections.emptyMap(),
+            Collections.emptyMap(),
+            "Some error occurred",
+            Platform.class,
+            new Platform("id", "name"),
+            null,
+            null,
+            null,
+            null,
+            null
         );
         var constraintViolationException = new ConstraintViolationException("ConstraintViolationException", Set.of(constraintViolation));
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Some error occurred");
@@ -262,8 +262,8 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleConstraintViolationException(constraintViolationException, servletRequest);
 
         assertThat(responseEntity)
-                .usingRecursiveComparison()
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -279,7 +279,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMethodArgumentNotValidException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -295,7 +295,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMethodArgumentNotValidException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -308,7 +308,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMissingServletRequestParameterException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -326,7 +326,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMissingServletRequestParameterException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -344,7 +344,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -362,7 +362,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -380,7 +380,7 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
     }
 
     @Test
@@ -393,13 +393,13 @@ class ExceptionControllerTest {
         var responseEntity = exceptionController.handleException(exception, servletRequest);
 
         assertThat(responseEntity)
-                .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
+            .isEqualTo(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail)));
     }
 
     private MethodParameter createMethodParameter(
-            Class<?> clazz,
-            String methodName,
-            Class<?> ...parameterTypes
+        Class<?> clazz,
+        String methodName,
+        Class<?>... parameterTypes
     ) {
         try {
             Method method = clazz.getDeclaredMethod(methodName, parameterTypes);

@@ -65,8 +65,8 @@ class CoingeckoServiceTest {
         coingeckoService = new CoingeckoService("", "", restClient);
 
         var exception = assertThrows(
-                RestClientResponseException.class,
-                () -> coingeckoService.retrieveCryptoInfo("pipicoin")
+            RestClientResponseException.class,
+            () -> coingeckoService.retrieveCryptoInfo("pipicoin")
         );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());
@@ -80,8 +80,8 @@ class CoingeckoServiceTest {
         coingeckoService = new CoingeckoService("TEST123", "", restClient);
 
         var exception = assertThrows(
-                RestClientResponseException.class,
-                () -> coingeckoService.retrieveCryptoInfo("bitcoin")
+            RestClientResponseException.class,
+            () -> coingeckoService.retrieveCryptoInfo("bitcoin")
         );
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());
@@ -95,8 +95,8 @@ class CoingeckoServiceTest {
         coingeckoService = new CoingeckoService("TEST123", "", restClient);
 
         var exception = assertThrows(
-                RestClientResponseException.class,
-                () -> coingeckoService.retrieveAllCryptos()
+            RestClientResponseException.class,
+            () -> coingeckoService.retrieveAllCryptos()
         );
 
         assertEquals(HttpStatus.BAD_REQUEST, exception.getStatusCode());

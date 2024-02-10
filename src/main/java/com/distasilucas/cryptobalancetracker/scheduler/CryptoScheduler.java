@@ -26,10 +26,10 @@ public class CryptoScheduler {
     private final CoingeckoService coingeckoService;
 
     public CryptoScheduler(
-            @Value("${max-limit-crypto}") int maxLimit,
-            Clock clock,
-            CryptoService cryptoService,
-            CoingeckoService coingeckoService
+        @Value("${max-limit-crypto}") int maxLimit,
+        Clock clock,
+        CryptoService cryptoService,
+        CoingeckoService coingeckoService
     ) {
         this.maxLimit = maxLimit;
         this.clock = clock;
@@ -42,46 +42,46 @@ public class CryptoScheduler {
         log.info("Running cron to update cryptos...");
 
         var cryptosToUpdate = getCryptosToUpdate()
-                .stream()
-                .map(crypto -> {
-                    try {
-                        var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());
-                        var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
-                                coingeckoCrypto.marketData().maxSupply() :
-                                BigDecimal.ZERO;
-                        var marketData = coingeckoCrypto.marketData();
+            .stream()
+            .map(crypto -> {
+                try {
+                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());
+                    var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
+                        coingeckoCrypto.marketData().maxSupply() :
+                        BigDecimal.ZERO;
+                    var marketData = coingeckoCrypto.marketData();
 
-                        return new Crypto(
-                                coingeckoCrypto.id(),
-                                coingeckoCrypto.name(),
-                                coingeckoCrypto.symbol(),
-                                coingeckoCrypto.image().large(),
-                                marketData.currentPrice().usd(),
-                                marketData.currentPrice().eur(),
-                                marketData.currentPrice().btc(),
-                                marketData.circulatingSupply(),
-                                maxSupply,
-                                coingeckoCrypto.marketCapRank(),
-                                marketData.marketCap().usd(),
-                                marketData.changePercentageIn24h(),
-                                marketData.changePercentageIn7d(),
-                                marketData.changePercentageIn30d(),
-                                LocalDateTime.now(clock)
-                        );
-                    } catch (RestClientResponseException exception) {
-                        if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
-                            throw new TooManyRequestsException();
-                        } else {
-                            log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.id(), exception);
-                            return crypto;
-                        }
-                    } catch (Exception exception) {
-                        log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.id(), exception);
-
+                    return new Crypto(
+                        coingeckoCrypto.id(),
+                        coingeckoCrypto.name(),
+                        coingeckoCrypto.symbol(),
+                        coingeckoCrypto.image().large(),
+                        marketData.currentPrice().usd(),
+                        marketData.currentPrice().eur(),
+                        marketData.currentPrice().btc(),
+                        marketData.circulatingSupply(),
+                        maxSupply,
+                        coingeckoCrypto.marketCapRank(),
+                        marketData.marketCap().usd(),
+                        marketData.changePercentageIn24h(),
+                        marketData.changePercentageIn7d(),
+                        marketData.changePercentageIn30d(),
+                        LocalDateTime.now(clock)
+                    );
+                } catch (RestClientResponseException exception) {
+                    if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
+                        throw new TooManyRequestsException();
+                    } else {
+                        log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.id(), exception);
                         return crypto;
                     }
-                })
-                .toList();
+                } catch (Exception exception) {
+                    log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.id(), exception);
+
+                    return crypto;
+                }
+            })
+            .toList();
 
         if (cryptosToUpdate.isEmpty()) {
             log.info("No cryptos to update");

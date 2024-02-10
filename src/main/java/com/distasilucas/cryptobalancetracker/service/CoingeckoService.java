@@ -50,9 +50,10 @@ public class CoingeckoService {
         log.info("Hitting Coingecko API... Retrieving all cryptos...");
 
         return coingeckoRestClient.get()
-                .uri(getCryptosURI())
-                .retrieve()
-                .body(new ParameterizedTypeReference<>() {});
+            .uri(getCryptosURI())
+            .retrieve()
+            .body(new ParameterizedTypeReference<>() {
+            });
     }
 
     @Cacheable(cacheNames = CRYPTO_INFO_CACHE, key = "#coingeckoCryptoId")
@@ -62,19 +63,19 @@ public class CoingeckoService {
         var coinURI = COIN_URI.concat(coingeckoCryptoId);
 
         return coingeckoRestClient.get()
-                .uri(getCoingeckoCryptoInfoURI(coinURI))
-                .retrieve()
-                .body(CoingeckoCryptoInfo.class);
+            .uri(getCoingeckoCryptoInfoURI(coinURI))
+            .retrieve()
+            .body(CoingeckoCryptoInfo.class);
     }
 
     private Function<UriBuilder, URI> getCryptosURI() {
         Function<UriBuilder, URI> proCoingeckoURI = uriBuilder -> uriBuilder.path(COINS_URI)
-                .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)
-                .build();
+            .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)
+            .build();
 
         Function<UriBuilder, URI> freeCoingeckoURI = uriBuilder -> uriBuilder.path(COINS_URI)
-                .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)
-                .build();
+            .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)
+            .build();
 
         return StringUtils.hasText(proCoingeckoApiKey) ? proCoingeckoURI : freeCoingeckoURI;
     }
@@ -86,14 +87,14 @@ public class CoingeckoService {
         commonParams.add("developer_data", "false");
 
         Function<UriBuilder, URI> proCoingeckoURI = uriBuilder -> uriBuilder.path(url)
-                .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)
-                .queryParams(commonParams)
-                .build();
+            .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)
+            .queryParams(commonParams)
+            .build();
 
         Function<UriBuilder, URI> freeCoingeckoURI = uriBuilder -> uriBuilder.path(url)
-                .queryParams(commonParams)
-                .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)
-                .build();
+            .queryParams(commonParams)
+            .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)
+            .build();
 
         return StringUtils.hasText(proCoingeckoApiKey) ? proCoingeckoURI : freeCoingeckoURI;
     }

@@ -36,7 +36,7 @@ public class UserCryptoService {
         log.info("Retrieving user crypto with id {}", userCryptoId);
 
         return userCryptoRepository.findById(userCryptoId)
-                .orElseThrow(() -> new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));
+            .orElseThrow(() -> new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));
     }
 
     public UserCryptoResponse retrieveUserCryptoById(String userCryptoId) {
@@ -56,14 +56,14 @@ public class UserCryptoService {
         var entityUserCryptosPage = userCryptoRepository.findAll(pageRequest);
 
         var userCryptosPage = entityUserCryptosPage.getContent()
-                .stream()
-                .map(userCrypto -> {
-                    var platform = platformService.retrievePlatformById(userCrypto.platformId());
-                    var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());
+            .stream()
+            .map(userCrypto -> {
+                var platform = platformService.retrievePlatformById(userCrypto.platformId());
+                var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());
 
-                    return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());
-                })
-                .toList();
+                return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());
+            })
+            .toList();
 
         return new PageUserCryptoResponse(page, entityUserCryptosPage.getTotalPages(), userCryptosPage);
     }
@@ -73,9 +73,9 @@ public class UserCryptoService {
         var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());
 
         userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
-                coingeckoCrypto.id(),
-                userCryptoRequest.platformId()
-        ).ifPresent(userCrypto ->  {
+            coingeckoCrypto.id(),
+            userCryptoRequest.platformId()
+        ).ifPresent(userCrypto -> {
             String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.name());
             throw new DuplicatedCryptoPlatFormException(message);
         });
@@ -97,9 +97,9 @@ public class UserCryptoService {
 
         if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {
             userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
-                    coingeckoCrypto.id(),
-                    userCryptoRequest.platformId()
-            ).ifPresent(uc ->  {
+                coingeckoCrypto.id(),
+                userCryptoRequest.platformId()
+            ).ifPresent(uc -> {
                 String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.name());
                 throw new DuplicatedCryptoPlatFormException(message);
             });
