@@ -50,14 +50,15 @@ public class CryptoService {
         return cryptoRepository.save(cryptoToSave);
     }
 
-    public CoingeckoCrypto retrieveCoingeckoCryptoInfoByName(String cryptoName) {
-        log.info("Retrieving info for coingecko crypto {}", cryptoName);
+    public CoingeckoCrypto retrieveCoingeckoCryptoInfoByNameOrId(String cryptoNameOrId) {
+        log.info("Retrieving info for coingecko crypto {}", cryptoNameOrId);
 
         return coingeckoService.retrieveAllCryptos()
             .stream()
-            .filter(coingeckoCrypto -> coingeckoCrypto.name().equalsIgnoreCase(cryptoName))
+            .filter(coingeckoCrypto -> coingeckoCrypto.name().equalsIgnoreCase(cryptoNameOrId) ||
+                coingeckoCrypto.id().equalsIgnoreCase(cryptoNameOrId))
             .findFirst()
-            .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoName)));
+            .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));
     }
 
     public void saveCryptoIfNotExists(String coingeckoCryptoId) {

@@ -199,7 +199,7 @@ class UserCryptoServiceTest {
         var platformEntity = getPlatformEntity();
 
         var captor = ArgumentCaptor.forClass(UserCrypto.class);
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
             "bitcoin",
@@ -229,7 +229,7 @@ class UserCryptoServiceTest {
         var platformEntity = getPlatformEntity();
         var userCrypto = getUserCrypto();
 
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
             "bitcoin",
@@ -262,7 +262,7 @@ class UserCryptoServiceTest {
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
             "bitcoin",
             "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
@@ -295,7 +295,7 @@ class UserCryptoServiceTest {
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
             "bitcoin",
             "123e4567-e89b-12d3-a456-426614174333"
@@ -322,7 +322,7 @@ class UserCryptoServiceTest {
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
             "bitcoin",
             "123e4567-e89b-12d3-a456-426614174333"

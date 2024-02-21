@@ -50,6 +50,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_NOT_BLANK;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.USER_CRYPTO_ID_UUID;
 import static java.util.Collections.emptyList;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
@@ -258,10 +259,10 @@ class UserCryptoControllerMvcTest {
         mockMvc.perform(saveUserCrypto(content))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
             .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-            .andExpect(jsonPath("$[*].detail").value(containsInAnyOrder("Invalid crypto name", CRYPTO_NAME_SIZE)));
+            .andExpect(jsonPath("$[*].detail").value(contains(CRYPTO_NAME_SIZE)));
     }
 
     @Test
@@ -281,7 +282,7 @@ class UserCryptoControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin", "bit!coin"})
+    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin"})
     void shouldFailWithStatus400WithOneMessageWhenSavingUserCryptoWithInvalidCryptoName(String cryptoName) throws Exception {
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted(cryptoName, new BigDecimal("1"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
@@ -502,7 +503,7 @@ class UserCryptoControllerMvcTest {
     }
 
     @Test
-    void shouldFailWithStatus400WithTwoMessagesWwhenUpdatingUserCryptoWwithLongCryptoName() throws Exception {
+    void shouldFailWithStatus400WithTwoMessagesWhenUpdatingUserCryptoWithLongCryptoName() throws Exception {
         var cryptoName = "reallyLoooooooooooooooooooooooooooooooooooooooooooooooooooongName";
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted(cryptoName, new BigDecimal("1"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
@@ -510,11 +511,10 @@ class UserCryptoControllerMvcTest {
         mockMvc.perform(updateUserCrypto("123e4567-e89b-12d3-a456-426614174222", content))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
             .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-            .andExpect(jsonPath("$[*].detail")
-                .value(containsInAnyOrder("Invalid crypto name", CRYPTO_NAME_SIZE)));
+            .andExpect(jsonPath("$[*].detail").value(contains(CRYPTO_NAME_SIZE)));
     }
 
     @Test
@@ -533,7 +533,7 @@ class UserCryptoControllerMvcTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin", "bit!coin"})
+    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin"})
     void shouldFailWithStatus400WithOneMessageWhenUpdatingUserCryptoWithInvalidCryptoName(String cryptoName) throws Exception {
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted(cryptoName, new BigDecimal("1"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
