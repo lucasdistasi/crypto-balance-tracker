@@ -49,7 +49,7 @@ public class GoalService {
     }
 
     public GoalResponse saveGoal(GoalRequest goalRequest) {
-<span class="fc" id="L52">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(goalRequest.cryptoName());</span>
+<span class="fc" id="L52">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(goalRequest.cryptoName());</span>
 <span class="fc" id="L53">        var existingGoal = goalRepository.findByCoingeckoCryptoId(coingeckoCrypto.id());</span>
 
 <span class="fc bfc" id="L55" title="All 2 branches covered.">        if (existingGoal.isPresent()) {</span>

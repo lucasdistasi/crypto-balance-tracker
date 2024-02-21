@@ -69,7 +69,7 @@ public class UserCryptoService {
     }
 
     public UserCryptoResponse saveUserCrypto(UserCryptoRequest userCryptoRequest) {
-<span class="fc" id="L72">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());</span>
+<span class="fc" id="L72">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());</span>
 <span class="fc" id="L73">        var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
 
 <span class="fc" id="L75">        userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
@@ -93,7 +93,7 @@ public class UserCryptoService {
     public UserCryptoResponse updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
 <span class="fc" id="L94">        var userCrypto = findUserCryptoById(userCryptoId);</span>
 <span class="fc" id="L95">        var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
-<span class="fc" id="L96">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());</span>
+<span class="fc" id="L96">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());</span>
 
 <span class="fc bfc" id="L98" title="All 2 branches covered.">        if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {</span>
 <span class="fc" id="L99">            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
