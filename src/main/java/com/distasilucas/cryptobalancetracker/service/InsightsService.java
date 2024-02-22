@@ -3,12 +3,15 @@ package com.distasilucas.cryptobalancetracker.service;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
@@ -19,6 +22,7 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.Plat
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
+import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +30,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -47,15 +55,18 @@ public class InsightsService {
     private final PlatformService platformService;
     private final UserCryptoService userCryptoService;
     private final CryptoService cryptoService;
+    private final DateBalanceRepository dateBalanceRepository;
 
     public InsightsService(@Value("${insights.cryptos}") int max,
                            PlatformService platformService,
                            UserCryptoService userCryptoService,
-                           CryptoService cryptoService) {
+                           CryptoService cryptoService,
+                           DateBalanceRepository dateBalanceRepository) {
         this.max = max;
         this.platformService = platformService;
         this.userCryptoService = userCryptoService;
         this.cryptoService = cryptoService;
+        this.dateBalanceRepository = dateBalanceRepository;
     }
 
     public Optional<BalancesResponse> retrieveTotalBalancesInsights() {
@@ -73,6 +84,35 @@ public class InsightsService {
         var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
 
         return Optional.of(totalBalances);
+    }
+
+    public Optional<DatesBalanceResponse> retrieveDatesBalances(DateBalancesInsightsRange dateBalancesInsightsRange) {
+        log.info("Retrieving balances from {} to {}", dateBalancesInsightsRange.from(), dateBalancesInsightsRange.to());
+        var from = dateBalancesInsightsRange.from().toLocalDate().atTime(LocalTime.MAX);
+        var to = dateBalancesInsightsRange.to().toLocalDate().atTime(LocalTime.MAX);
+
+        var datesBalances = dateBalanceRepository.findDateBalancesByDateBetween(from, to)
+            .stream()
+            .map(dateBalance -> {
+                String formattedDate = dateBalance.date().format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
+                return new DatesBalances(formattedDate, dateBalance.balance());
+            })
+            .toList();
+
+        if (datesBalances.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var newValue = new BigDecimal(datesBalances.getLast().balance());
+        var oldValue = new BigDecimal(datesBalances.getFirst().balance());
+        var change = newValue
+            .subtract(oldValue)
+            .divide(oldValue, 4, RoundingMode.HALF_UP)
+            .multiply(new BigDecimal("100"))
+            .setScale(2, RoundingMode.HALF_UP)
+            .floatValue();
+
+        return Optional.of(new DatesBalanceResponse(datesBalances, change));
     }
 
     public Optional<PlatformInsightsResponse> retrievePlatformInsights(String platformId) {

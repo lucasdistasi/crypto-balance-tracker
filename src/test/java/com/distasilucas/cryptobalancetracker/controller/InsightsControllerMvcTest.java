@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
@@ -8,6 +9,8 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.Circulating
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
@@ -31,12 +34,14 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBalances;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveCryptoInsights;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveCryptosBalancesInsights;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveDatesBalances;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrievePlatformInsights;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrievePlatformsBalancesInsights;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveTotalBalancesInsights;
@@ -71,6 +76,35 @@ class InsightsControllerMvcTest {
             .andExpect(jsonPath("$.totalUSDBalance", is("100")))
             .andExpect(jsonPath("$.totalBTCBalance", is("0.1")))
             .andExpect(jsonPath("$.totalEURBalance", is("70")));
+    }
+
+    @Test
+    void shouldRetrieveZeroTotalBalancesWithStatus200() throws Exception {
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.empty());
+
+        mockMvc.perform(retrieveTotalBalancesInsights())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.totalUSDBalance", is("0")))
+            .andExpect(jsonPath("$.totalBTCBalance", is("0")))
+            .andExpect(jsonPath("$.totalEURBalance", is("0")));
+    }
+
+    @Test
+    void shouldRetrieveDatesBalancesResponseWithStatus200() throws Exception {
+        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
+        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
+        var datesBalances = new DatesBalances("22 February 2024", "1000");
+        var datesBalanceResponse = new DatesBalanceResponse(List.of(datesBalances), 5);
+
+        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+            .thenReturn(Optional.of(datesBalanceResponse));
+
+        mockMvc.perform(retrieveDatesBalances())
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.datesBalances[0].date", is("22 February 2024")))
+            .andExpect(jsonPath("$.datesBalances[0].balance", is("1000")))
+            .andExpect(jsonPath("$.change", is(5.0)));
     }
 
     @Test

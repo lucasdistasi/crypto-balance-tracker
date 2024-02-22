@@ -1,9 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
@@ -15,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBalances;
@@ -60,6 +65,40 @@ class InsightsControllerTest {
         assertThat(totalBalancesInsights)
             .usingRecursiveComparison()
             .isEqualTo(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+    }
+
+    @Test
+    void shouldRetrieveDatesBalancesWithStatus200() {
+        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
+        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
+        var datesBalances = new DatesBalances("22 February 2024", "1000");
+        var datesBalancesResponse = new DatesBalanceResponse(List.of(datesBalances), 5);
+
+        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+            .thenReturn(Optional.of(datesBalancesResponse));
+
+        var optionalDatesBalances = insightsController.retrieveDatesBalancesResponse(from, to);
+
+        assertThat(optionalDatesBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.ok(datesBalancesResponse));
+    }
+
+    @Test
+    void shouldRetrieveDatesBalancesWithStatus204() {
+        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
+        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
+
+        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+            .thenReturn(Optional.empty());
+
+        var datesBalances = insightsController.retrieveDatesBalancesResponse(from, to);
+
+        assertThat(datesBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test

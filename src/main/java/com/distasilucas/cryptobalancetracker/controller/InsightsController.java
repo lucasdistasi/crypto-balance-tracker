@@ -1,10 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.InsightsControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
@@ -23,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
@@ -44,6 +47,17 @@ public class InsightsController implements InsightsControllerAPI {
 
         return totalBalances.map(ResponseEntity::ok)
             .orElse(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+    }
+
+    @GetMapping("/dates-balances")
+    public ResponseEntity<DatesBalanceResponse> retrieveDatesBalancesResponse(
+        @RequestParam LocalDateTime from,
+        @RequestParam LocalDateTime to
+    ) {
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
+        var datesBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);
+
+        return okOrNoContent(datesBalances);
     }
 
     @Override
