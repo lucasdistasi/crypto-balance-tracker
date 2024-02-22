@@ -33,6 +33,7 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -194,16 +195,15 @@ class GoalControllerMvcTest {
         mockMvc.perform(saveGoal(content))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
             .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-            .andExpect(jsonPath("$[*].detail")
-                .value(containsInAnyOrder(CRYPTO_NAME_SIZE, "Invalid crypto name"))
+            .andExpect(jsonPath("$[*].detail").value(CRYPTO_NAME_SIZE)
             );
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin", "bit!coin"})
+    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin"})
     void shouldFailWithStatus400WithOneMessageWhenSavingGoalWithInvalidCryptoName(String cryptoName) throws Exception {
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted(cryptoName, new BigDecimal("1"));
@@ -391,15 +391,14 @@ class GoalControllerMvcTest {
         mockMvc.perform(updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", content))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$", hasSize(1)))
             .andExpect(jsonPath("$[*].title").value(everyItem(is("Bad Request"))))
             .andExpect(jsonPath("$[*].status").value(everyItem(is(400))))
-            .andExpect(jsonPath("$[*].detail")
-                .value(containsInAnyOrder(CRYPTO_NAME_SIZE, "Invalid crypto name")));
+            .andExpect(jsonPath("$[*].detail").value(CRYPTO_NAME_SIZE));
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin", "bit!coin"})
+    @ValueSource(strings = {" bitcoin", "bitcoin ", "bit  coin"})
     void shouldFailWithStatus400WithOneMessageWhenUpdatingGoalWithInvalidCryptoName(String cryptoName) throws Exception {
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted(cryptoName, new BigDecimal("1"));

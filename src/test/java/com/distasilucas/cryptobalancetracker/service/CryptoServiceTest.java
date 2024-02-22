@@ -195,11 +195,25 @@ class CryptoServiceTest {
 
         when(coingeckoServiceMock.retrieveAllCryptos()).thenReturn(List.of(coingeckoCrypto));
 
-        var crypto = cryptoService.retrieveCoingeckoCryptoInfoByName("bitcoin");
+        var crypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin");
 
         assertThat(crypto)
             .usingRecursiveComparison()
             .isEqualTo(new CoingeckoCrypto("bitcoin", "btc", "Bitcoin"));
+    }
+
+    @Test
+    void shouldRetrieveCoingeckoCryptoInfoById() {
+        var coingeckoCrypto = new CoingeckoCrypto("wen-4", "wen", "WEN");
+        var coingeckoCrypto2 = new CoingeckoCrypto("wen", "wen", "WEN");
+
+        when(coingeckoServiceMock.retrieveAllCryptos()).thenReturn(List.of(coingeckoCrypto, coingeckoCrypto2));
+
+        var crypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId("wen-4");
+
+        assertThat(crypto)
+            .usingRecursiveComparison()
+            .isEqualTo(coingeckoCrypto);
     }
 
     @Test
@@ -210,7 +224,7 @@ class CryptoServiceTest {
 
         var exception = assertThrows(
             CoingeckoCryptoNotFoundException.class,
-            () -> cryptoService.retrieveCoingeckoCryptoInfoByName("dogecoin")
+            () -> cryptoService.retrieveCoingeckoCryptoInfoByNameOrId("dogecoin")
         );
 
         assertEquals(COINGECKO_CRYPTO_NOT_FOUND.formatted("dogecoin"), exception.getMessage());

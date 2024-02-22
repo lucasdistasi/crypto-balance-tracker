@@ -208,7 +208,7 @@ class GoalServiceTest {
 
         var captor = ArgumentCaptor.forClass(Goal.class);
 
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.empty());
         doNothing().when(cryptoServiceMock).saveCryptoIfNotExists("bitcoin");
         when(goalRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
@@ -231,7 +231,7 @@ class GoalServiceTest {
         var existingGoal = getGoalEntity();
         var coingeckoCrypto = getCoingeckoCrypto();
 
-        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByName("bitcoin")).thenReturn(coingeckoCrypto);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(existingGoal));
 
         var exception = assertThrows(

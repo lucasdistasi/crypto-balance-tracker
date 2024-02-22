@@ -69,7 +69,7 @@ public class UserCryptoService {
     }
 
     public UserCryptoResponse saveUserCrypto(UserCryptoRequest userCryptoRequest) {
-        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());
+        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());
         var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());
 
         userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
@@ -93,7 +93,7 @@ public class UserCryptoService {
     public UserCryptoResponse updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
         var userCrypto = findUserCryptoById(userCryptoId);
         var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());
-        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByName(userCryptoRequest.cryptoName());
+        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());
 
         if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {
             userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
