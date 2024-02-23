@@ -9,7 +9,7 @@ import java.time.LocalTime;
 import java.util.UUID;
 
 @Document(&quot;DateBalances&quot;)
-<span class="nc" id="L12">public record DateBalance(</span>
+<span class="fc" id="L12">public record DateBalance(</span>
 
     @Id
     String id,
@@ -17,8 +17,8 @@ import java.util.UUID;
     String balance
 ) {
 
-    public DateBalance(String balance) {
-<span class="nc" id="L21">        this(UUID.randomUUID().toString(), LocalDateTime.now().toLocalDate().atTime(LocalTime.of(23, 59, 59, 0)), balance);</span>
-<span class="nc" id="L22">    }</span>
+    public DateBalance(LocalDateTime date, String balance) {
+<span class="fc" id="L21">        this(UUID.randomUUID().toString(), date, balance);</span>
+<span class="fc" id="L22">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
