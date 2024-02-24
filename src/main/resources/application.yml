@@ -28,6 +28,7 @@ logging:
 
 max-limit-crypto: 10
 update-crypto-info-cron: "0 */5 * ? * *"
+save-day-balance-cron: "0 */30 * ? * *"
 
 insights:
   cryptos: 15

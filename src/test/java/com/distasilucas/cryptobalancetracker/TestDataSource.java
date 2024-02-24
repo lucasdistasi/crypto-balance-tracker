@@ -152,6 +152,16 @@ public class TestDataSource {
             .contentType(MediaType.APPLICATION_JSON);
     }
 
+    public static MockHttpServletRequestBuilder retrieveDatesBalances() {
+        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
+        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
+
+        var url = INSIGHTS_ENDPOINT.concat("/dates-balances?from=%s&to=%s".formatted(from, to));
+
+        return MockMvcRequestBuilders.get(url)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
     public static MockHttpServletRequestBuilder retrieveUserCryptosInsights(int page) {
         var url = INSIGHTS_ENDPOINT.concat("/cryptos?page=%s".formatted(page));
 

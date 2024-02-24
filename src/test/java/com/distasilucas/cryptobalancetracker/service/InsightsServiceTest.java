@@ -1,8 +1,10 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.DateBalance;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
@@ -11,6 +13,8 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.Circulating
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
@@ -21,12 +25,14 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.Plat
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
+import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +57,9 @@ class InsightsServiceTest {
     @Mock
     private CryptoService cryptoServiceMock;
 
+    @Mock
+    private DateBalanceRepository dateBalanceRepositoryMock;
+
     private InsightsService insightsService;
 
     private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
@@ -58,7 +67,7 @@ class InsightsServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        insightsService = new InsightsService(12, platformServiceMock, userCryptoServiceMock, cryptoServiceMock);
+        insightsService = new InsightsService(12, platformServiceMock, userCryptoServiceMock, cryptoServiceMock, dateBalanceRepositoryMock);
     }
 
     @Test
@@ -84,6 +93,46 @@ class InsightsServiceTest {
         var balances = insightsService.retrieveTotalBalancesInsights();
 
         assertThat(balances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.empty());
+    }
+
+    @Test
+    void shouldRetrieveDatesBalances() {
+        var dateFrom = LocalDateTime.of(2024, 2, 1, 23, 59, 59, 999999999);
+        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 999999999);
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(dateFrom, dateTo);
+        var dateBalance = new DateBalance(
+            "fdd399a7-d820-49c7-ba23-36f005aca2ae",
+            LocalDateTime.of(2024, 2, 5, 23, 59, 59, 0),
+            "1250.75"
+        );
+        var datesBalances = new DatesBalances("5 February 2024", "1250.75");
+
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(dateFrom, dateTo))
+            .thenReturn(List.of(dateBalance));
+
+        var dateBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(List.of(datesBalances), 0)
+            ));
+    }
+
+    @Test
+    void shouldRetrieveEmptyDatesBalances() {
+        var dateFrom = LocalDateTime.of(2024, 2, 1, 23, 59, 59, 0);
+        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var dateBalancesInsightsRange = new DateBalancesInsightsRange(dateFrom, dateTo);
+
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(dateFrom, dateTo))
+            .thenReturn(Collections.emptyList());
+
+        var dateBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);
+
+        assertThat(dateBalances)
             .usingRecursiveComparison()
             .isEqualTo(Optional.empty());
     }
