@@ -16,7 +16,6 @@ import com.distasilucas.cryptobalancetracker.service.InsightsService;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,7 +34,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @Validated
 @RestController
 @RequestMapping(INSIGHTS_ENDPOINT)
-<span class="fc" id="L38">@RequiredArgsConstructor</span>
+<span class="fc" id="L37">@RequiredArgsConstructor</span>
 @CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class InsightsController implements InsightsControllerAPI {
 
@@ -44,10 +43,10 @@ public class InsightsController implements InsightsControllerAPI {
     @Override
     @GetMapping(&quot;/balances&quot;)
     public ResponseEntity&lt;BalancesResponse&gt; retrieveTotalBalancesInsights() {
-<span class="fc" id="L47">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
+<span class="fc" id="L46">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
 
-<span class="fc" id="L49">        return totalBalances.map(ResponseEntity::ok)</span>
-<span class="fc" id="L50">            .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
+<span class="fc" id="L48">        return totalBalances.map(ResponseEntity::ok)</span>
+<span class="fc" id="L49">            .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
     }
 
     @GetMapping(&quot;/dates-balances&quot;)
@@ -55,10 +54,10 @@ public class InsightsController implements InsightsControllerAPI {
         @RequestParam LocalDateTime from,
         @RequestParam LocalDateTime to
     ) {
-<span class="nc" id="L58">        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);</span>
-<span class="nc" id="L59">        var datesBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);</span>
+<span class="fc" id="L57">        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);</span>
+<span class="fc" id="L58">        var datesBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);</span>
 
-<span class="nc" id="L61">        return okOrNoContent(datesBalances);</span>
+<span class="fc" id="L60">        return okOrNoContent(datesBalances);</span>
     }
 
     @Override
@@ -72,10 +71,10 @@ public class InsightsController implements InsightsControllerAPI {
         @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
         SortType sortType
     ) {
-<span class="fc" id="L75">        var sortParams = new SortParams(sortBy, sortType);</span>
-<span class="fc" id="L76">        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page, sortParams);</span>
+<span class="fc" id="L74">        var sortParams = new SortParams(sortBy, sortType);</span>
+<span class="fc" id="L75">        var userCryptosInsights = insightsService.retrieveUserCryptosInsights(page, sortParams);</span>
 
-<span class="fc" id="L78">        return okOrNoContent(userCryptosInsights);</span>
+<span class="fc" id="L77">        return okOrNoContent(userCryptosInsights);</span>
     }
 
     @Override
@@ -89,34 +88,34 @@ public class InsightsController implements InsightsControllerAPI {
         @RequestParam(required = false, defaultValue = &quot;DESC&quot;)
         SortType sortType
     ) {
-<span class="fc" id="L92">        var sortParams = new SortParams(sortBy, sortType);</span>
-<span class="fc" id="L93">        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page, sortParams);</span>
+<span class="fc" id="L91">        var sortParams = new SortParams(sortBy, sortType);</span>
+<span class="fc" id="L92">        var userCryptosPlatformsInsights = insightsService.retrieveUserCryptosPlatformsInsights(page, sortParams);</span>
 
-<span class="fc" id="L95">        return okOrNoContent(userCryptosPlatformsInsights);</span>
+<span class="fc" id="L94">        return okOrNoContent(userCryptosPlatformsInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/cryptos/balances&quot;)
     public ResponseEntity&lt;CryptosBalancesInsightsResponse&gt; retrieveCryptosBalancesInsights() {
-<span class="fc" id="L101">        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();</span>
+<span class="fc" id="L100">        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();</span>
 
-<span class="fc" id="L103">        return okOrNoContent(cryptosBalancesInsights);</span>
+<span class="fc" id="L102">        return okOrNoContent(cryptosBalancesInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/platforms/balances&quot;)
     public ResponseEntity&lt;PlatformsBalancesInsightsResponse&gt; retrievePlatformsBalancesInsights() {
-<span class="fc" id="L109">        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();</span>
+<span class="fc" id="L108">        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();</span>
 
-<span class="fc" id="L111">        return okOrNoContent(platformsBalancesInsights);</span>
+<span class="fc" id="L110">        return okOrNoContent(platformsBalancesInsights);</span>
     }
 
     @Override
     @GetMapping(&quot;/cryptos/{coingeckoCryptoId}&quot;)
     public ResponseEntity&lt;CryptoInsightResponse&gt; retrieveCryptoInsights(@PathVariable String coingeckoCryptoId) {
-<span class="fc" id="L117">        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);</span>
+<span class="fc" id="L116">        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);</span>
 
-<span class="fc" id="L119">        return okOrNoContent(cryptoInsights);</span>
+<span class="fc" id="L118">        return okOrNoContent(cryptoInsights);</span>
     }
 
     @Override
@@ -126,13 +125,13 @@ public class InsightsController implements InsightsControllerAPI {
         @UUID(message = PLATFORM_ID_UUID)
         String platformId
     ) {
-<span class="fc" id="L129">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
+<span class="fc" id="L128">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
 
-<span class="fc" id="L131">        return okOrNoContent(platformsInsights);</span>
+<span class="fc" id="L130">        return okOrNoContent(platformsInsights);</span>
     }
 
     private &lt;T&gt; ResponseEntity&lt;T&gt; okOrNoContent(Optional&lt;T&gt; body) {
-<span class="fc" id="L135">        return body.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.noContent().build());</span>
+<span class="fc" id="L134">        return body.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.noContent().build());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
