@@ -96,13 +96,13 @@ public class InsightsService {
 <span class="fc" id="L96">        List&lt;DateBalance&gt; dateBalances = new ArrayList&lt;&gt;();</span>
 <span class="fc" id="L97">        var now = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.of(23, 59, 59, 0));</span>
 
-<span class="pc bpc" id="L99" title="4 of 8 branches missed.">        switch (dateRange) {</span>
+<span class="pc bpc" id="L99" title="2 of 8 branches missed.">        switch (dateRange) {</span>
 <span class="fc" id="L100">            case ONE_DAY -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusDays(2), now));</span>
 <span class="fc" id="L101">            case THREE_DAYS -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusDays(3), now));</span>
 <span class="fc" id="L102">            case ONE_WEEK -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusWeeks(1), now));</span>
 <span class="fc" id="L103">            case ONE_MONTH -&gt; dateBalances.addAll(retrieveDatesBalances(2, 4, now.minusMonths(1), now));</span>
-<span class="nc" id="L104">            case THREE_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(6, 5, now.minusMonths(3), now));</span>
-<span class="nc" id="L105">            case SIX_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(10, 6, now.minusMonths(6), now));</span>
+<span class="fc" id="L104">            case THREE_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(6, 5, now.minusMonths(3), now));</span>
+<span class="fc" id="L105">            case SIX_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(10, 6, now.minusMonths(6), now));</span>
 <span class="nc" id="L106">            case ONE_YEAR -&gt; dateBalances.addAll(retrieveDatesBalances(now));</span>
         }
 
