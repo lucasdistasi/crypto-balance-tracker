@@ -4,6 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
@@ -153,10 +154,7 @@ public class TestDataSource {
     }
 
     public static MockHttpServletRequestBuilder retrieveDatesBalances() {
-        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
-        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
-
-        var url = INSIGHTS_ENDPOINT.concat("/dates-balances?from=%s&to=%s".formatted(from, to));
+        var url = INSIGHTS_ENDPOINT.concat("/dates-balances?dateRange=%s".formatted(DateRange.ONE_WEEK));
 
         return MockMvcRequestBuilders.get(url)
             .contentType(MediaType.APPLICATION_JSON);

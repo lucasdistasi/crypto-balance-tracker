@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface DateBalanceRepository extends MongoRepository<DateBalance, String> {
 
     List<DateBalance> findDateBalancesByDateBetween(LocalDateTime from, LocalDateTime to);
+    List<DateBalance> findAllByDateIn(List<LocalDateTime> date);
     Optional<DateBalance> findDateBalanceByDate(LocalDateTime date);
 }

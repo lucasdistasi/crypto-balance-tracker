@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
@@ -69,16 +69,13 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveDatesBalancesWithStatus200() {
-        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
-        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
-        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
         var datesBalances = new DatesBalances("22 February 2024", "1000");
-        var datesBalancesResponse = new DatesBalanceResponse(List.of(datesBalances), 5);
+        var datesBalancesResponse = new DatesBalanceResponse(List.of(datesBalances), 5, "0");
 
-        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
             .thenReturn(Optional.of(datesBalancesResponse));
 
-        var optionalDatesBalances = insightsController.retrieveDatesBalancesResponse(from, to);
+        var optionalDatesBalances = insightsController.retrieveDatesBalancesResponse(DateRange.ONE_WEEK);
 
         assertThat(optionalDatesBalances)
             .usingRecursiveComparison()
@@ -87,14 +84,10 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveDatesBalancesWithStatus204() {
-        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
-        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
-        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
-
-        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
             .thenReturn(Optional.empty());
 
-        var datesBalances = insightsController.retrieveDatesBalancesResponse(from, to);
+        var datesBalances = insightsController.retrieveDatesBalancesResponse(DateRange.ONE_WEEK);
 
         assertThat(datesBalances)
             .usingRecursiveComparison()
