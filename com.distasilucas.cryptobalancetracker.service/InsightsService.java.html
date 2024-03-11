@@ -96,14 +96,14 @@ public class InsightsService {
 <span class="fc" id="L96">        List&lt;DateBalance&gt; dateBalances = new ArrayList&lt;&gt;();</span>
 <span class="fc" id="L97">        var now = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.of(23, 59, 59, 0));</span>
 
-<span class="pc bpc" id="L99" title="2 of 8 branches missed.">        switch (dateRange) {</span>
+<span class="pc bpc" id="L99" title="1 of 8 branches missed.">        switch (dateRange) {</span>
 <span class="fc" id="L100">            case ONE_DAY -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusDays(2), now));</span>
 <span class="fc" id="L101">            case THREE_DAYS -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusDays(3), now));</span>
 <span class="fc" id="L102">            case ONE_WEEK -&gt; dateBalances.addAll(retrieveDatesBalances(now.minusWeeks(1), now));</span>
 <span class="fc" id="L103">            case ONE_MONTH -&gt; dateBalances.addAll(retrieveDatesBalances(2, 4, now.minusMonths(1), now));</span>
 <span class="fc" id="L104">            case THREE_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(6, 5, now.minusMonths(3), now));</span>
 <span class="fc" id="L105">            case SIX_MONTHS -&gt; dateBalances.addAll(retrieveDatesBalances(10, 6, now.minusMonths(6), now));</span>
-<span class="nc" id="L106">            case ONE_YEAR -&gt; dateBalances.addAll(retrieveDatesBalances(now));</span>
+<span class="fc" id="L106">            case ONE_YEAR -&gt; dateBalances.addAll(retrieveYearDatesBalances(now));</span>
         }
 
 <span class="fc" id="L109">        var datesBalances = dateBalances</span>
@@ -119,15 +119,15 @@ public class InsightsService {
 <span class="fc" id="L119">            return Optional.empty();</span>
         }
 
-<span class="fc" id="L122">        var newValue = new BigDecimal(datesBalances.getLast().balance());</span>
-<span class="fc" id="L123">        var oldValue = new BigDecimal(datesBalances.getFirst().balance());</span>
-<span class="fc" id="L124">        var change = newValue</span>
-<span class="fc" id="L125">            .subtract(oldValue)</span>
-<span class="fc" id="L126">            .divide(oldValue, 4, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L122">        var newestValue = new BigDecimal(datesBalances.getLast().balance());</span>
+<span class="fc" id="L123">        var oldestValue = new BigDecimal(datesBalances.getFirst().balance());</span>
+<span class="fc" id="L124">        var change = newestValue</span>
+<span class="fc" id="L125">            .subtract(oldestValue)</span>
+<span class="fc" id="L126">            .divide(oldestValue, 4, RoundingMode.HALF_UP)</span>
 <span class="fc" id="L127">            .multiply(new BigDecimal(&quot;100&quot;))</span>
 <span class="fc" id="L128">            .setScale(2, RoundingMode.HALF_UP)</span>
 <span class="fc" id="L129">            .floatValue();</span>
-<span class="fc" id="L130">        var priceDifference = newValue.subtract(oldValue).toPlainString();</span>
+<span class="fc" id="L130">        var priceDifference = newestValue.subtract(oldestValue).toPlainString();</span>
 
 <span class="fc" id="L132">        return Optional.of(new DatesBalanceResponse(datesBalances, change, priceDifference));</span>
     }
@@ -628,12 +628,12 @@ public class InsightsService {
     }
 
     private List&lt;DateBalance&gt; retrieveDatesBalances(long daysSubtraction, int minRequired,
-                                                    LocalDateTime from, LocalDateTime now) {
+                                                    LocalDateTime from, LocalDateTime to) {
 <span class="fc" id="L632">        List&lt;LocalDateTime&gt; dates = new ArrayList&lt;&gt;();</span>
 
-<span class="fc bfc" id="L634" title="All 2 branches covered.">        while (from.isBefore(now)) {</span>
-<span class="fc" id="L635">            dates.add(now);</span>
-<span class="fc" id="L636">            now = now.minusDays(daysSubtraction);</span>
+<span class="fc bfc" id="L634" title="All 2 branches covered.">        while (from.isBefore(to)) {</span>
+<span class="fc" id="L635">            dates.add(to);</span>
+<span class="fc" id="L636">            to = to.minusDays(daysSubtraction);</span>
         }
 
 <span class="fc" id="L639">        log.info(&quot;Searching balances for dates {}&quot;, dates);</span>
@@ -641,38 +641,33 @@ public class InsightsService {
 <span class="fc" id="L641">        var datesBalances = dateBalanceRepository.findAllByDateIn(dates);</span>
 <span class="fc" id="L642">        log.info(&quot;Found dates balances {}&quot;, datesBalances.stream().map(DateBalance::date).toList());</span>
 
-<span class="pc bpc" id="L644" title="1 of 2 branches missed.">        if (datesBalances.size() &gt;= minRequired) {</span>
-<span class="fc" id="L645">            return datesBalances;</span>
-        } else {
-<span class="nc" id="L647">            log.info(&quot;Retrieving balances from {} to {}&quot;, now.minusDays(12), now);</span>
-<span class="nc" id="L648">            return retrieveLastTwelveDaysBalances(now);</span>
-        }
+<span class="fc bfc" id="L644" title="All 2 branches covered.">        return datesBalances.size() &gt;= minRequired ?</span>
+<span class="fc" id="L645">            datesBalances :</span>
+<span class="fc" id="L646">            retrieveLastTwelveDaysBalances();</span>
     }
 
-    private List&lt;DateBalance&gt; retrieveDatesBalances(LocalDateTime now) {
-<span class="nc" id="L653">        List&lt;LocalDateTime&gt; dates = new ArrayList&lt;&gt;();</span>
-<span class="nc" id="L654">        dates.add(now);</span>
+    private List&lt;DateBalance&gt; retrieveYearDatesBalances(LocalDateTime now) {
+<span class="fc" id="L650">        List&lt;LocalDateTime&gt; dates = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L651">        dates.add(now);</span>
 
-        /*IntStream.range(1, 12)
-            .forEach(n -&gt; dates.add(now.minusMonths(n)));*/
+<span class="fc" id="L653">        IntStream.range(1, 12)</span>
+<span class="fc" id="L654">            .forEach(n -&gt; dates.add(now.minusMonths(n)));</span>
 
-<span class="nc bnc" id="L659" title="All 2 branches missed.">        for (var i = 1; i &lt;= 12; i++) {</span>
-<span class="nc" id="L660">            dates.add(now.minusMonths(i));</span>
-        }
+<span class="fc" id="L656">        log.info(&quot;Searching balances for dates {}&quot;, dates);</span>
 
-<span class="nc" id="L663">        log.info(&quot;Searching balances for dates {}&quot;, dates);</span>
+<span class="fc" id="L658">        var datesBalances = dateBalanceRepository.findAllByDateIn(dates);</span>
 
-<span class="nc" id="L665">        var datesBalances = dateBalanceRepository.findAllByDateIn(dates);</span>
-
-<span class="nc bnc" id="L667" title="All 2 branches missed.">        if (datesBalances.size() &gt; 3) {</span>
-<span class="nc" id="L668">            return datesBalances;</span>
-        } else {
-<span class="nc" id="L670">            return retrieveLastTwelveDaysBalances(now);</span>
-        }
+<span class="fc bfc" id="L660" title="All 2 branches covered.">        return datesBalances.size() &gt; 3 ?</span>
+<span class="fc" id="L661">            datesBalances :</span>
+<span class="fc" id="L662">            retrieveLastTwelveDaysBalances();</span>
     }
 
-    private List&lt;DateBalance&gt; retrieveLastTwelveDaysBalances(LocalDateTime to) {
-<span class="nc" id="L675">        return dateBalanceRepository.findDateBalancesByDateBetween(to.minusDays(12), to);</span>
+    private List&lt;DateBalance&gt; retrieveLastTwelveDaysBalances() {
+<span class="fc" id="L666">        var to = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.MAX);</span>
+<span class="fc" id="L667">        var from = to.toLocalDate().minusDays(12).atTime(23, 59, 59, 0);</span>
+
+<span class="fc" id="L669">        log.info(&quot;Not enough balances. Retrieving balances for the last twelve days from {} to {}&quot;, from, to);</span>
+<span class="fc" id="L670">        return dateBalanceRepository.findDateBalancesByDateBetween(from, to);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
