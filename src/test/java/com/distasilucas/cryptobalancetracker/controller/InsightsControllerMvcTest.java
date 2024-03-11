@@ -1,6 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
@@ -91,13 +91,10 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveDatesBalancesResponseWithStatus200() throws Exception {
-        var from = LocalDateTime.of(2024, 2, 21, 23, 59, 59);
-        var to = LocalDateTime.of(2024, 2, 28, 23, 59, 59);
-        var dateBalancesInsightsRange = new DateBalancesInsightsRange(from, to);
         var datesBalances = new DatesBalances("22 February 2024", "1000");
-        var datesBalanceResponse = new DatesBalanceResponse(List.of(datesBalances), 5);
+        var datesBalanceResponse = new DatesBalanceResponse(List.of(datesBalances), 5, "0");
 
-        when(insightsServiceMock.retrieveDatesBalances(dateBalancesInsightsRange))
+        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
             .thenReturn(Optional.of(datesBalanceResponse));
 
         mockMvc.perform(retrieveDatesBalances())

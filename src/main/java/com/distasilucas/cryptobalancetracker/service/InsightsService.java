@@ -1,9 +1,10 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.DateBalance;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
-import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.LocalDate;
+import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static java.lang.Math.ceil;
 
@@ -56,17 +58,20 @@ public class InsightsService {
     private final UserCryptoService userCryptoService;
     private final CryptoService cryptoService;
     private final DateBalanceRepository dateBalanceRepository;
+    private final Clock clock;
 
     public InsightsService(@Value("${insights.cryptos}") int max,
                            PlatformService platformService,
                            UserCryptoService userCryptoService,
                            CryptoService cryptoService,
-                           DateBalanceRepository dateBalanceRepository) {
+                           DateBalanceRepository dateBalanceRepository,
+                           Clock clock) {
         this.max = max;
         this.platformService = platformService;
         this.userCryptoService = userCryptoService;
         this.cryptoService = cryptoService;
         this.dateBalanceRepository = dateBalanceRepository;
+        this.clock = clock;
     }
 
     public Optional<BalancesResponse> retrieveTotalBalancesInsights() {
@@ -86,33 +91,45 @@ public class InsightsService {
         return Optional.of(totalBalances);
     }
 
-    public Optional<DatesBalanceResponse> retrieveDatesBalances(DateBalancesInsightsRange dateBalancesInsightsRange) {
-        log.info("Retrieving balances from {} to {}", dateBalancesInsightsRange.from(), dateBalancesInsightsRange.to());
-        var from = dateBalancesInsightsRange.from().toLocalDate().atTime(LocalTime.MAX);
-        var to = dateBalancesInsightsRange.to().toLocalDate().atTime(LocalTime.MAX);
+    public Optional<DatesBalanceResponse> retrieveDatesBalances(DateRange dateRange) {
+        log.info("Retrieving balances for date range: {}", dateRange);
+        List<DateBalance> dateBalances = new ArrayList<>();
+        var now = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.of(23, 59, 59, 0));
 
-        var datesBalances = dateBalanceRepository.findDateBalancesByDateBetween(from, to)
+        switch (dateRange) {
+            case ONE_DAY -> dateBalances.addAll(retrieveDatesBalances(now.minusDays(2), now));
+            case THREE_DAYS -> dateBalances.addAll(retrieveDatesBalances(now.minusDays(3), now));
+            case ONE_WEEK -> dateBalances.addAll(retrieveDatesBalances(now.minusWeeks(1), now));
+            case ONE_MONTH -> dateBalances.addAll(retrieveDatesBalances(2, 4, now.minusMonths(1), now));
+            case THREE_MONTHS -> dateBalances.addAll(retrieveDatesBalances(6, 5, now.minusMonths(3), now));
+            case SIX_MONTHS -> dateBalances.addAll(retrieveDatesBalances(10, 6, now.minusMonths(6), now));
+            case ONE_YEAR -> dateBalances.addAll(retrieveYearDatesBalances(now));
+        }
+
+        var datesBalances = dateBalances
             .stream()
             .map(dateBalance -> {
                 String formattedDate = dateBalance.date().format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
                 return new DatesBalances(formattedDate, dateBalance.balance());
             })
             .toList();
+        log.info("Balances found: {}", datesBalances.size());
 
         if (datesBalances.isEmpty()) {
             return Optional.empty();
         }
 
-        var newValue = new BigDecimal(datesBalances.getLast().balance());
-        var oldValue = new BigDecimal(datesBalances.getFirst().balance());
-        var change = newValue
-            .subtract(oldValue)
-            .divide(oldValue, 4, RoundingMode.HALF_UP)
+        var newestValue = new BigDecimal(datesBalances.getLast().balance());
+        var oldestValue = new BigDecimal(datesBalances.getFirst().balance());
+        var change = newestValue
+            .subtract(oldestValue)
+            .divide(oldestValue, 4, RoundingMode.HALF_UP)
             .multiply(new BigDecimal("100"))
             .setScale(2, RoundingMode.HALF_UP)
             .floatValue();
+        var priceDifference = newestValue.subtract(oldestValue).toPlainString();
 
-        return Optional.of(new DatesBalanceResponse(datesBalances, change));
+        return Optional.of(new DatesBalanceResponse(datesBalances, change, priceDifference));
     }
 
     public Optional<PlatformInsightsResponse> retrievePlatformInsights(String platformId) {
@@ -601,5 +618,55 @@ public class InsightsService {
 
     private boolean isLastPage(int page, int totalPages) {
         return page + 1 >= totalPages;
+    }
+
+    private List<DateBalance> retrieveDatesBalances(LocalDateTime from, LocalDateTime to) {
+        var toMax = to.toLocalDate().atTime(LocalTime.MAX);
+        log.info("Retrieving date balances from {} to {}", from, toMax);
+
+        return dateBalanceRepository.findDateBalancesByDateBetween(from, toMax);
+    }
+
+    private List<DateBalance> retrieveDatesBalances(long daysSubtraction, int minRequired,
+                                                    LocalDateTime from, LocalDateTime to) {
+        List<LocalDateTime> dates = new ArrayList<>();
+
+        while (from.isBefore(to)) {
+            dates.add(to);
+            to = to.minusDays(daysSubtraction);
+        }
+
+        log.info("Searching balances for dates {}", dates);
+
+        var datesBalances = dateBalanceRepository.findAllByDateIn(dates);
+        log.info("Found dates balances {}", datesBalances.stream().map(DateBalance::date).toList());
+
+        return datesBalances.size() >= minRequired ?
+            datesBalances :
+            retrieveLastTwelveDaysBalances();
+    }
+
+    private List<DateBalance> retrieveYearDatesBalances(LocalDateTime now) {
+        List<LocalDateTime> dates = new ArrayList<>();
+        dates.add(now);
+
+        IntStream.range(1, 12)
+            .forEach(n -> dates.add(now.minusMonths(n)));
+
+        log.info("Searching balances for dates {}", dates);
+
+        var datesBalances = dateBalanceRepository.findAllByDateIn(dates);
+
+        return datesBalances.size() > 3 ?
+            datesBalances :
+            retrieveLastTwelveDaysBalances();
+    }
+
+    private List<DateBalance> retrieveLastTwelveDaysBalances() {
+        var to = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.MAX);
+        var from = to.toLocalDate().minusDays(12).atTime(23, 59, 59, 0);
+
+        log.info("Not enough balances. Retrieving balances for the last twelve days from {} to {}", from, to);
+        return dateBalanceRepository.findDateBalancesByDateBetween(from, to);
     }
 }

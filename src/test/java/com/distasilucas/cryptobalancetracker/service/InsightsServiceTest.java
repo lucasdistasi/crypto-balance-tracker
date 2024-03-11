@@ -4,7 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
-import com.distasilucas.cryptobalancetracker.model.DateBalancesInsightsRange;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
@@ -28,14 +28,21 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.platform.Pl
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
@@ -60,6 +67,9 @@ class InsightsServiceTest {
     @Mock
     private DateBalanceRepository dateBalanceRepositoryMock;
 
+    @Mock
+    private Clock clockMock;
+
     private InsightsService insightsService;
 
     private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
@@ -67,7 +77,8 @@ class InsightsServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        insightsService = new InsightsService(12, platformServiceMock, userCryptoServiceMock, cryptoServiceMock, dateBalanceRepositoryMock);
+        insightsService = new InsightsService(12, platformServiceMock, userCryptoServiceMock, cryptoServiceMock,
+            dateBalanceRepositoryMock, clockMock);
     }
 
     @Test
@@ -98,39 +109,324 @@ class InsightsServiceTest {
     }
 
     @Test
-    void shouldRetrieveDatesBalances() {
-        var dateFrom = LocalDateTime.of(2024, 2, 1, 23, 59, 59, 999999999);
-        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 999999999);
-        var dateBalancesInsightsRange = new DateBalancesInsightsRange(dateFrom, dateTo);
-        var dateBalance = new DateBalance(
-            "fdd399a7-d820-49c7-ba23-36f005aca2ae",
-            LocalDateTime.of(2024, 2, 5, 23, 59, 59, 0),
-            "1250.75"
+    void shouldRetrieveDateBalancesForOneDay() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var nowMax = now.toLocalDate().atTime(LocalTime.MAX);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(1), "900"),
+            new DateBalance("", now, "1000")
         );
-        var datesBalances = new DatesBalances("5 February 2024", "1250.75");
 
-        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(dateFrom, dateTo))
-            .thenReturn(List.of(dateBalance));
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(2), nowMax)).thenReturn(balances);
 
-        var dateBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);
+        var datesBalances = insightsService.retrieveDatesBalances(DateRange.ONE_DAY);
+
+        assertThat(datesBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("7 February 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    11.11F,
+                    "100"
+                )
+            ));
+    }
+
+    @Test
+    void shouldRetrieveDateBalancesForThreeDays() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var nowMax = now.toLocalDate().atTime(LocalTime.MAX);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(2), "1100"),
+            new DateBalance("", now.minusDays(1), "900"),
+            new DateBalance("", now, "1000")
+        );
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(3), nowMax)).thenReturn(balances);
+
+        var datesBalances = insightsService.retrieveDatesBalances(DateRange.THREE_DAYS);
+
+        assertThat(datesBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("6 February 2024", "1100"),
+                        new DatesBalances("7 February 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    -9.09F,
+                    "-100"
+                )
+            ));
+    }
+
+    @Test
+    void shouldRetrieveDatesBalancesForOneWeek() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(5), "1500"),
+            new DateBalance("", now.minusDays(4), "1250.75"),
+            new DateBalance("", now.minusDays(3), "900"),
+            new DateBalance("", now, "1000")
+        );
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusWeeks(1), now.toLocalDate().atTime(LocalTime.MAX)))
+            .thenReturn(balances);
+
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.ONE_WEEK);
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
             .isEqualTo(Optional.of(
-                new DatesBalanceResponse(List.of(datesBalances), 0)
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("3 February 2024", "1500"),
+                        new DatesBalances("4 February 2024", "1250.75"),
+                        new DatesBalances("5 February 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    -33.33F,
+                    "-500"
+                )
             ));
+    }
+
+    @Test
+    void shouldRetrieveDateBalancesForOneMonth() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(14), "1350"),
+            new DateBalance("", now.minusDays(12), "1450"),
+            new DateBalance("", now.minusDays(10), "1250"),
+            new DateBalance("", now.minusDays(8), "1450"),
+            new DateBalance("", now.minusDays(6), "1500"),
+            new DateBalance("", now.minusDays(4), "1500"),
+            new DateBalance("", now.minusDays(2), "900"),
+            new DateBalance("", now, "1000")
+        );
+        var dates = getMockDates(now, 16, 2);
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
+
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.ONE_MONTH);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("25 January 2024", "1350"),
+                        new DatesBalances("27 January 2024", "1450"),
+                        new DatesBalances("29 January 2024", "1250"),
+                        new DatesBalances("31 January 2024", "1450"),
+                        new DatesBalances("2 February 2024", "1500"),
+                        new DatesBalances("4 February 2024", "1500"),
+                        new DatesBalances("6 February 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    -25.93F,
+                    "-350"
+                )
+            ));
+    }
+
+    @Test
+    void shouldRetrieveDateBalancesForThreeMonths() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(42), "1400"),
+            new DateBalance("", now.minusDays(36), "1350"),
+            new DateBalance("", now.minusDays(30), "1250"),
+            new DateBalance("", now.minusDays(24), "1150"),
+            new DateBalance("", now.minusDays(18), "1200"),
+            new DateBalance("", now.minusDays(12), "1100"),
+            new DateBalance("", now.minusDays(6), "900"),
+            new DateBalance("", now, "1000")
+        );
+        var dates = getMockDates(now, 16, 6);
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
+
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.THREE_MONTHS);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("28 December 2023", "1400"),
+                        new DatesBalances("3 January 2024", "1350"),
+                        new DatesBalances("9 January 2024", "1250"),
+                        new DatesBalances("15 January 2024", "1150"),
+                        new DatesBalances("21 January 2024", "1200"),
+                        new DatesBalances("27 January 2024", "1100"),
+                        new DatesBalances("2 February 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    -28.57F,
+                    "-400"
+                )
+            ));
+    }
+
+    @Test
+    void shouldRetrieveDateBalancesForSixMonths() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(70), "1400"),
+            new DateBalance("", now.minusDays(60), "1350"),
+            new DateBalance("", now.minusDays(50), "1250"),
+            new DateBalance("", now.minusDays(40), "1150"),
+            new DateBalance("", now.minusDays(30), "1200"),
+            new DateBalance("", now.minusDays(20), "1100"),
+            new DateBalance("", now.minusDays(10), "900"),
+            new DateBalance("", now, "1000")
+        );
+        var dates = getMockDates(now, 19, 10);
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
+
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.SIX_MONTHS);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("30 November 2023", "1400"),
+                        new DatesBalances("10 December 2023", "1350"),
+                        new DatesBalances("20 December 2023", "1250"),
+                        new DatesBalances("30 December 2023", "1150"),
+                        new DatesBalances("9 January 2024", "1200"),
+                        new DatesBalances("19 January 2024", "1100"),
+                        new DatesBalances("29 January 2024", "900"),
+                        new DatesBalances("8 February 2024", "1000")
+                    ),
+                    -28.57F,
+                    "-400"
+                )
+            ));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS", "ONE_YEAR"})
+    void shouldRetrieveLastTwelveDaysBalancesIfRequiredLengthIsNotMeet(String range) {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var dateRange = DateRange.valueOf(range);
+        var balances = List.of(
+            new DateBalance("", now.minusDays(2), "1100"),
+            new DateBalance("", now.minusDays(1), "900"),
+            new DateBalance("", now, "1000")
+        );
+        var dates = getMockDates(now, 19, 10);
+        var nowEndOfDay = now.toLocalDate().atTime(LocalTime.MAX);
+        var twelveDaysBefore = now.toLocalDate().minusDays(12).atTime(23, 59, 59, 0);
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(twelveDaysBefore, nowEndOfDay))
+            .thenReturn(retrieveLastTwelveDaysBalances());
+
+        var dateBalances = insightsService.retrieveDatesBalances(dateRange);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("5 March 2024", "1000"),
+                        new DatesBalances("6 March 2024", "850"),
+                        new DatesBalances("7 March 2024", "900"),
+                        new DatesBalances("8 March 2024", "1150"),
+                        new DatesBalances("9 March 2024", "1050"),
+                        new DatesBalances("10 March 2024", "1200"),
+                        new DatesBalances("11 March 2024", "1150")
+                    ),
+                    15F,
+                    "150"
+                )
+            ));
+    }
+
+    @Test
+    void shouldRetrieveDateBalancesForOneYear() {
+        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
+        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var dates = getMockDates(now);
+        var balances = List.of(
+            new DateBalance("", now.minusMonths(7), "1000"),
+            new DateBalance("", now.minusMonths(6), "1300"),
+            new DateBalance("", now.minusMonths(5), "1400"),
+            new DateBalance("", now.minusMonths(4), "950"),
+            new DateBalance("", now.minusMonths(3), "1110"),
+            new DateBalance("", now.minusMonths(2), "1250"),
+            new DateBalance("", now.minusMonths(1), "900"),
+            new DateBalance("", now, "1400")
+        );
+
+        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
+        when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
+
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.ONE_YEAR);
+
+        assertThat(dateBalances)
+            .usingRecursiveComparison()
+            .isEqualTo(Optional.of(
+                new DatesBalanceResponse(
+                    List.of(
+                        new DatesBalances("8 July 2023", "1000"),
+                        new DatesBalances("8 August 2023", "1300"),
+                        new DatesBalances("8 September 2023", "1400"),
+                        new DatesBalances("8 October 2023", "950"),
+                        new DatesBalances("8 November 2023", "1110"),
+                        new DatesBalances("8 December 2023", "1250"),
+                        new DatesBalances("8 January 2024", "900"),
+                        new DatesBalances("8 February 2024", "1400")
+                    ),
+                    40,
+                    "400"
+                )
+            ));
+
     }
 
     @Test
     void shouldRetrieveEmptyDatesBalances() {
         var dateFrom = LocalDateTime.of(2024, 2, 1, 23, 59, 59, 0);
-        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var dateBalancesInsightsRange = new DateBalancesInsightsRange(dateFrom, dateTo);
+        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 999_999_999);
+        var zonedDateTime = dateFrom.atZone(ZoneOffset.UTC);
 
+        when(clockMock.instant()).thenReturn(dateFrom.toInstant(ZoneOffset.UTC));
+        when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(dateFrom, dateTo))
             .thenReturn(Collections.emptyList());
 
-        var dateBalances = insightsService.retrieveDatesBalances(dateBalancesInsightsRange);
+        var dateBalances = insightsService.retrieveDatesBalances(DateRange.ONE_WEEK);
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
@@ -2312,6 +2608,42 @@ class InsightsServiceTest {
                 new BigDecimal("3.00"),
                 localDateTime
             )
+        );
+    }
+
+    private List<LocalDateTime> getMockDates(LocalDateTime now, int iteration, int daysSubtraction) {
+        List<LocalDateTime> dates = new ArrayList<>();
+        dates.add(now);
+
+        for (int i = 1; i < iteration; i++) {
+            dates.add(now.minusDays(daysSubtraction));
+            now = now.minusDays(daysSubtraction);
+        }
+
+        return dates;
+    }
+
+    private List<LocalDateTime> getMockDates(LocalDateTime now) {
+        List<LocalDateTime> dates = new ArrayList<>();
+        dates.add(now);
+
+        IntStream.range(1, 12)
+            .forEach(n -> dates.add(now.minusMonths(n)));
+
+        return dates;
+    }
+
+    private List<DateBalance> retrieveLastTwelveDaysBalances() {
+        var now = LocalDateTime.of(2024, 3, 11, 23, 59, 59, 0);
+
+        return List.of(
+            new DateBalance("", now.minusDays(6), "1000"),
+            new DateBalance("", now.minusDays(5), "850"),
+            new DateBalance("", now.minusDays(4), "900"),
+            new DateBalance("", now.minusDays(3), "1150"),
+            new DateBalance("", now.minusDays(2), "1050"),
+            new DateBalance("", now.minusDays(1), "1200"),
+            new DateBalance("", now, "1150")
         );
     }
 
