@@ -21,6 +21,7 @@ public class ValidationConstants {
     public static final String INVALID_PAGE_NUMBER = "Page must be greater than or equal to 0";
     public static final String USER_CRYPTO_ID_UUID = "User crypto id must be a valid UUID";
     public static final String INVALID_GOAL_UUID = "Goal id must be a valid UUID";
+    public static final String INVALID_PRICE_TARGET_UUID = "Price target id must be a valid UUID";
     public static final String USER_CRYPTO_ID_NOT_BLANK = "User crypto id can not be null or blank";
     public static final String QUANTITY_TO_TRANSFER_NOT_NULL = "Quantity to transfer can not be null";
     public static final String QUANTITY_TO_TRANSFER_DIGITS = "Quantity to transfer must have up to {integer} digits in the integer part and up to {fraction} digits in the decimal part";
