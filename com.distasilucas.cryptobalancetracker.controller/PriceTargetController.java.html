@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PriceTargetController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.controller</a> &gt; <span class="el_source">PriceTargetController.java</span></div><h1>PriceTargetController.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.controller;
+
+import com.distasilucas.cryptobalancetracker.controller.swagger.PriceTargetControllerAPI;
+import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
+import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
+import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
+import com.distasilucas.cryptobalancetracker.service.PriceTargetService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
+import org.hibernate.validator.constraints.UUID;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PRICE_TARGET_UUID;
+
+@Validated
+@RestController
+<span class="nc" id="L31">@AllArgsConstructor</span>
+@RequestMapping(&quot;/api/v1/price-targets&quot;)
+@CrossOrigin(origins = &quot;${allowed-origins}&quot;)
+public class PriceTargetController implements PriceTargetControllerAPI {
+
+    private PriceTargetService priceTargetService;
+
+    @Override
+    @GetMapping(&quot;/{priceTargetId}&quot;)
+    public ResponseEntity&lt;PriceTargetResponse&gt; retrievePriceTarget(
+        @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
+    ) {
+<span class="nc" id="L43">        var priceTarget = priceTargetService.retrievePriceTarget(priceTargetId);</span>
+
+<span class="nc" id="L45">        return ResponseEntity.ok(priceTarget);</span>
+    }
+
+    @Override
+    @GetMapping
+    public ResponseEntity&lt;PagePriceTargetResponse&gt; retrievePriceTargetsByPage(
+        @RequestParam @Min(value = 0, message = INVALID_PAGE_NUMBER) int page
+    ) {
+<span class="nc" id="L53">        var priceTargets = priceTargetService.retrievePriceTargetsByPage(page);</span>
+
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        return priceTargets.targets().isEmpty() ?</span>
+<span class="nc" id="L56">            ResponseEntity.noContent().build() :</span>
+<span class="nc" id="L57">            ResponseEntity.ok(priceTargets);</span>
+    }
+
+    @Override
+    @PostMapping
+    public ResponseEntity&lt;PriceTargetResponse&gt; savePriceTarget(
+        @Valid @RequestBody PriceTargetRequest priceTargetRequest
+    ) {
+<span class="nc" id="L65">        var priceTarget = priceTargetService.savePriceTarget(priceTargetRequest);</span>
+
+<span class="nc" id="L67">        return ResponseEntity.status(HttpStatus.CREATED).body(priceTarget);</span>
+    }
+
+    @Override
+    @PutMapping(&quot;/{priceTargetId}&quot;)
+    public ResponseEntity&lt;PriceTargetResponse&gt; updatePriceTarget(
+        @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId,
+        @Valid @RequestBody PriceTargetRequest priceTargetRequest
+    ) {
+<span class="nc" id="L76">        var priceTarget = priceTargetService.updatePriceTarget(priceTargetId, priceTargetRequest);</span>
+
+<span class="nc" id="L78">        return ResponseEntity.ok(priceTarget);</span>
+    }
+
+    @Override
+    @DeleteMapping(&quot;/{priceTargetId}&quot;)
+    public ResponseEntity&lt;Void&gt; deletePriceTarget(
+        @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
+    ) {
+<span class="nc" id="L86">        priceTargetService.deletePriceTarget(priceTargetId);</span>
+
+<span class="nc" id="L88">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

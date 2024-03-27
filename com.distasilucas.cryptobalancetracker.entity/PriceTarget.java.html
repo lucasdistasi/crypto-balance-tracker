@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PriceTarget.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.entity</a> &gt; <span class="el_source">PriceTarget.java</span></div><h1>PriceTarget.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.entity;
+
+import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.UUID;
+
+@Document(&quot;PriceTargets&quot;)
+<span class="nc" id="L13">public record PriceTarget(</span>
+    @Id
+    String id,
+
+    @Field(&quot;crypto_id&quot;)
+    String coingeckoCryptoId,
+
+    BigDecimal target
+) {
+
+    public PriceTarget withTarget(BigDecimal target) {
+<span class="nc" id="L24">        return new PriceTarget(id(), coingeckoCryptoId(), target);</span>
+    }
+
+    public PriceTarget(String coingeckoCryptoId, BigDecimal target) {
+<span class="nc" id="L28">        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);</span>
+<span class="nc" id="L29">    }</span>
+
+    public PriceTargetResponse toPriceTargetResponse(String cryptoName, BigDecimal currentPrice, float change) {
+<span class="nc" id="L32">        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);</span>
+    }
+
+    public float calculateChangeNeeded(BigDecimal currentPrice) {
+<span class="nc" id="L36">        return target.subtract(currentPrice)</span>
+<span class="nc" id="L37">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
+<span class="nc" id="L38">            .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="nc" id="L39">            .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="nc" id="L40">            .floatValue();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PriceTargetRequest.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.model.request.pricetarget</a> &gt; <span class="el_source">PriceTargetRequest.java</span></div><h1>PriceTargetRequest.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.model.request.pricetarget;
+
+import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
+import com.distasilucas.cryptobalancetracker.validation.ValidCryptoName;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+
+import java.math.BigDecimal;
+
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.CRYPTO_NAME_NOT_BLANK;
+import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.CRYPTO_NAME_SIZE;
+
+<span class="nc" id="L17">public record PriceTargetRequest(</span>
+    @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
+    @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
+    @ValidCryptoName
+    String cryptoNameOrId,
+
+    @NotNull(message = &quot;Price target can not be null&quot;)
+    @Digits(
+        integer = 16,
+        fraction = 12,
+        message = &quot;Price target must have up to {integer} digits in the integer part and up to {fraction} digits in the decimal part&quot;
+    )
+    @DecimalMax(
+        value = &quot;9999999999999999.999999999999&quot;,
+        message = &quot;Price target must be less than or equal to 9999999999999999.999999999999&quot;
+    )
+    @Positive(message = &quot;Price target must be greater than 0&quot;)
+    BigDecimal priceTarget
+) {
+
+    public PriceTarget toEntity(String coingeckoCryptoId) {
+<span class="nc" id="L38">        return new PriceTarget(coingeckoCryptoId, priceTarget);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
