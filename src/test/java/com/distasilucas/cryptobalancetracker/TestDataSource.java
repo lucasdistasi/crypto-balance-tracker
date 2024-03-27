@@ -16,6 +16,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -31,6 +32,7 @@ import java.util.List;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_ENDPOINT;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_ENDPOINT;
 
 public class TestDataSource {
@@ -199,6 +201,41 @@ public class TestDataSource {
         var url = INSIGHTS_ENDPOINT.concat("/platforms/%s".formatted(platformId));
 
         return MockMvcRequestBuilders.get(url)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePriceTargetById(String priceTargetId) {
+        var url = PRICE_TARGET_ENDPOINT.concat("/%s".formatted(priceTargetId));
+
+        return MockMvcRequestBuilders.get(url)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder retrievePriceTargetsForPage(int page) {
+        var url = PRICE_TARGET_ENDPOINT.concat("?page=%s".formatted(page));
+
+        return MockMvcRequestBuilders.get(url)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder savePriceTarget(String content) {
+        return MockMvcRequestBuilders.post(PRICE_TARGET_ENDPOINT)
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder updatePriceTarget(String priceTargetId, String content) {
+        var url = PRICE_TARGET_ENDPOINT.concat("/%s".formatted(priceTargetId));
+
+        return MockMvcRequestBuilders.put(url)
+            .content(content)
+            .contentType(MediaType.APPLICATION_JSON);
+    }
+
+    public static MockHttpServletRequestBuilder deletePriceTarget(String priceTargetId) {
+        var url = PRICE_TARGET_ENDPOINT.concat("/%s".formatted(priceTargetId));
+
+        return MockMvcRequestBuilders.delete(url)
             .contentType(MediaType.APPLICATION_JSON);
     }
 

@@ -12,6 +12,7 @@ public class Constants {
     public static final String USER_CRYPTOS_ENDPOINT = API_V1 + "/cryptos";
     public static final String GOALS_ENDPOINT = API_V1 + "/goals";
     public static final String INSIGHTS_ENDPOINT = API_V1 + "/insights";
+    public static final String PRICE_TARGET_ENDPOINT = API_V1 + "/price-targets";
     public static final String COINGECKO_CRYPTOS_CACHE = "COINGECKO_CRYPTOS_CACHE";
     public static final String CRYPTO_INFO_CACHE = "CRYPTO_INFO_CACHE";
     public static final String USER_CRYPTOS_CACHE = "USER_CRYPTOS_CACHE";
