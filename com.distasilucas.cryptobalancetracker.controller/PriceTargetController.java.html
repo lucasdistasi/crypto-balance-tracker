@@ -23,13 +23,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PAGE_NUMBER;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.INVALID_PRICE_TARGET_UUID;
 
 @Validated
 @RestController
-<span class="nc" id="L31">@AllArgsConstructor</span>
-@RequestMapping(&quot;/api/v1/price-targets&quot;)
+<span class="fc" id="L32">@AllArgsConstructor</span>
+@RequestMapping(PRICE_TARGET_ENDPOINT)
 @CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class PriceTargetController implements PriceTargetControllerAPI {
 
@@ -40,9 +41,9 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     public ResponseEntity&lt;PriceTargetResponse&gt; retrievePriceTarget(
         @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
     ) {
-<span class="nc" id="L43">        var priceTarget = priceTargetService.retrievePriceTarget(priceTargetId);</span>
+<span class="fc" id="L44">        var priceTarget = priceTargetService.retrievePriceTarget(priceTargetId);</span>
 
-<span class="nc" id="L45">        return ResponseEntity.ok(priceTarget);</span>
+<span class="fc" id="L46">        return ResponseEntity.ok(priceTarget);</span>
     }
 
     @Override
@@ -50,11 +51,11 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     public ResponseEntity&lt;PagePriceTargetResponse&gt; retrievePriceTargetsByPage(
         @RequestParam @Min(value = 0, message = INVALID_PAGE_NUMBER) int page
     ) {
-<span class="nc" id="L53">        var priceTargets = priceTargetService.retrievePriceTargetsByPage(page);</span>
+<span class="fc" id="L54">        var priceTargets = priceTargetService.retrievePriceTargetsByPage(page);</span>
 
-<span class="nc bnc" id="L55" title="All 2 branches missed.">        return priceTargets.targets().isEmpty() ?</span>
-<span class="nc" id="L56">            ResponseEntity.noContent().build() :</span>
-<span class="nc" id="L57">            ResponseEntity.ok(priceTargets);</span>
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        return priceTargets.targets().isEmpty() ?</span>
+<span class="fc" id="L57">            ResponseEntity.noContent().build() :</span>
+<span class="fc" id="L58">            ResponseEntity.ok(priceTargets);</span>
     }
 
     @Override
@@ -62,9 +63,9 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     public ResponseEntity&lt;PriceTargetResponse&gt; savePriceTarget(
         @Valid @RequestBody PriceTargetRequest priceTargetRequest
     ) {
-<span class="nc" id="L65">        var priceTarget = priceTargetService.savePriceTarget(priceTargetRequest);</span>
+<span class="fc" id="L66">        var priceTarget = priceTargetService.savePriceTarget(priceTargetRequest);</span>
 
-<span class="nc" id="L67">        return ResponseEntity.status(HttpStatus.CREATED).body(priceTarget);</span>
+<span class="fc" id="L68">        return ResponseEntity.status(HttpStatus.CREATED).body(priceTarget);</span>
     }
 
     @Override
@@ -73,9 +74,9 @@ public class PriceTargetController implements PriceTargetControllerAPI {
         @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId,
         @Valid @RequestBody PriceTargetRequest priceTargetRequest
     ) {
-<span class="nc" id="L76">        var priceTarget = priceTargetService.updatePriceTarget(priceTargetId, priceTargetRequest);</span>
+<span class="fc" id="L77">        var priceTarget = priceTargetService.updatePriceTarget(priceTargetId, priceTargetRequest);</span>
 
-<span class="nc" id="L78">        return ResponseEntity.ok(priceTarget);</span>
+<span class="fc" id="L79">        return ResponseEntity.ok(priceTarget);</span>
     }
 
     @Override
@@ -83,9 +84,9 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     public ResponseEntity&lt;Void&gt; deletePriceTarget(
         @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
     ) {
-<span class="nc" id="L86">        priceTargetService.deletePriceTarget(priceTargetId);</span>
+<span class="fc" id="L87">        priceTargetService.deletePriceTarget(priceTargetId);</span>
 
-<span class="nc" id="L88">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L89">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

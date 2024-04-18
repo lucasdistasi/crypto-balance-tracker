@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.CRYPTO_NAME_NOT_BLANK;
 import static com.distasilucas.cryptobalancetracker.constants.ValidationConstants.CRYPTO_NAME_SIZE;
 
-<span class="nc" id="L17">public record PriceTargetRequest(</span>
+<span class="fc" id="L17">public record PriceTargetRequest(</span>
     @NotBlank(message = CRYPTO_NAME_NOT_BLANK)
     @Size(min = 1, max = 64, message = CRYPTO_NAME_SIZE)
     @ValidCryptoName
@@ -35,7 +35,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 ) {
 
     public PriceTarget toEntity(String coingeckoCryptoId) {
-<span class="nc" id="L38">        return new PriceTarget(coingeckoCryptoId, priceTarget);</span>
+<span class="fc" id="L38">        return new PriceTarget(coingeckoCryptoId, priceTarget);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

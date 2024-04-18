@@ -10,7 +10,7 @@ import java.math.RoundingMode;
 import java.util.UUID;
 
 @Document(&quot;PriceTargets&quot;)
-<span class="nc" id="L13">public record PriceTarget(</span>
+<span class="fc" id="L13">public record PriceTarget(</span>
     @Id
     String id,
 
@@ -21,23 +21,23 @@ import java.util.UUID;
 ) {
 
     public PriceTarget withTarget(BigDecimal target) {
-<span class="nc" id="L24">        return new PriceTarget(id(), coingeckoCryptoId(), target);</span>
+<span class="fc" id="L24">        return new PriceTarget(id(), coingeckoCryptoId(), target);</span>
     }
 
     public PriceTarget(String coingeckoCryptoId, BigDecimal target) {
-<span class="nc" id="L28">        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);</span>
-<span class="nc" id="L29">    }</span>
+<span class="fc" id="L28">        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);</span>
+<span class="fc" id="L29">    }</span>
 
     public PriceTargetResponse toPriceTargetResponse(String cryptoName, BigDecimal currentPrice, float change) {
-<span class="nc" id="L32">        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);</span>
+<span class="fc" id="L32">        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);</span>
     }
 
     public float calculateChangeNeeded(BigDecimal currentPrice) {
-<span class="nc" id="L36">        return target.subtract(currentPrice)</span>
-<span class="nc" id="L37">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
-<span class="nc" id="L38">            .multiply(new BigDecimal(&quot;100&quot;))</span>
-<span class="nc" id="L39">            .setScale(2, RoundingMode.HALF_UP)</span>
-<span class="nc" id="L40">            .floatValue();</span>
+<span class="fc" id="L36">        return target.subtract(currentPrice)</span>
+<span class="fc" id="L37">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L38">            .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L39">            .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L40">            .floatValue();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
