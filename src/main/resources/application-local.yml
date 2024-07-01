@@ -1,5 +1,5 @@
 spring:
-  data:
-    mongodb:
-      uri: mongodb://${MONGODB_USERNAME}:${MONGODB_PASSWORD}@localhost:27017
-      database: ${MONGODB_DATABASE}
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crypto_db
+    username: postgres
+    password: postgres

@@ -1,20 +1,22 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.UUID;
 
-@Document("PriceTargets")
+@Entity
+@Table(name = "PriceTargets")
 public record PriceTarget(
     @Id
     String id,
 
-    @Field("crypto_id")
+    @Column(name = "crypto_id")
     String coingeckoCryptoId,
 
     BigDecimal target

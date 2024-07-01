@@ -1,9 +1,10 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.Role;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,7 +13,8 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-@Document("Users")
+@Entity
+@Table(name = "Users")
 public record User(
     @Id
     String id,
@@ -20,7 +22,7 @@ public record User(
     String password,
     Role role,
 
-    @Field("created_at")
+    @Column(name = "created_at")
     LocalDateTime createdAt
 
 ) implements UserDetails {

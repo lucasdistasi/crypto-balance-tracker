@@ -97,7 +97,7 @@ public class GoalService {
         var remainingQuantity = getRemainingQuantity(goal.goalQuantity(), actualQuantity);
         var moneyNeeded = getMoneyNeeded(remainingQuantity, crypto);
 
-        return goal.toGoalResponse(goal.id(), crypto.name(), actualQuantity, progress, remainingQuantity, moneyNeeded);
+        return goal.toGoalResponse(goal.id(), crypto.getName(), actualQuantity, progress, remainingQuantity, moneyNeeded);
     }
 
     private Float getProgress(BigDecimal goalQuantity, BigDecimal actualQuantity) {
@@ -112,6 +112,6 @@ public class GoalService {
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity, Crypto crypto) {
-        return crypto.lastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
+        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
     }
 }

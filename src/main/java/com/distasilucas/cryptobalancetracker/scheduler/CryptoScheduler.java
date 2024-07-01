@@ -45,7 +45,7 @@ public class CryptoScheduler {
             .stream()
             .map(crypto -> {
                 try {
-                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());
+                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.getId());
                     var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
                         coingeckoCrypto.marketData().maxSupply() :
                         BigDecimal.ZERO;
@@ -72,11 +72,11 @@ public class CryptoScheduler {
                     if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
                         throw new TooManyRequestsException();
                     } else {
-                        log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.id(), exception);
+                        log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.getId(), exception);
                         return crypto;
                     }
                 } catch (Exception exception) {
-                    log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.id(), exception);
+                    log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.getId(), exception);
 
                     return crypto;
                 }

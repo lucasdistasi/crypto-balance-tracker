@@ -1,22 +1,24 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.util.UUID;
 
-@Document("Goals")
+@Entity
+@Table(name = "Goals")
 public record Goal(
     @Id
     String id,
 
-    @Field("crypto_id")
+    @Column(name = "crypto_id")
     String coingeckoCryptoId,
 
-    @Field("goal_quantity")
+    @Column(name = "goal_quantity")
     BigDecimal goalQuantity
 ) {
 

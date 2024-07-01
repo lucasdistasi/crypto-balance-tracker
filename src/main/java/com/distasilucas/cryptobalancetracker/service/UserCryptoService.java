@@ -44,9 +44,9 @@ public class UserCryptoService {
 
         var userCrypto = findUserCryptoById(userCryptoId);
         var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());
-        var platform = platformService.retrievePlatformById(userCrypto.platformId());
+        var platform = platformService.retrievePlatformById(userCrypto.platform().getId());
 
-        return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());
+        return userCrypto.toUserCryptoResponse(crypto.getName(), platform.getName());
     }
 
     public PageUserCryptoResponse retrieveUserCryptosByPage(int page) {
@@ -58,10 +58,10 @@ public class UserCryptoService {
         var userCryptosPage = entityUserCryptosPage.getContent()
             .stream()
             .map(userCrypto -> {
-                var platform = platformService.retrievePlatformById(userCrypto.platformId());
+                var platform = platformService.retrievePlatformById(userCrypto.platform().getId());
                 var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.coingeckoCryptoId());
 
-                return userCrypto.toUserCryptoResponse(crypto.name(), platform.name());
+                return userCrypto.toUserCryptoResponse(crypto.getName(), platform.getName());
             })
             .toList();
 
@@ -76,42 +76,43 @@ public class UserCryptoService {
             coingeckoCrypto.id(),
             userCryptoRequest.platformId()
         ).ifPresent(userCrypto -> {
-            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.name());
+            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.getName());
             throw new DuplicatedCryptoPlatFormException(message);
         });
 
-        var userCrypto = userCryptoRequest.toEntity(coingeckoCrypto.id());
+        var userCrypto = userCryptoRequest.toEntity(coingeckoCrypto.id(), platform);
 
         cryptoService.saveCryptoIfNotExists(coingeckoCrypto.id());
         userCryptoRepository.save(userCrypto);
         log.info("Saved user crypto {}", userCrypto);
         cacheService.invalidateUserCryptosCaches();
 
-        return userCrypto.toUserCryptoResponse(coingeckoCrypto.name(), platform.name());
+        return userCrypto.toUserCryptoResponse(coingeckoCrypto.name(), platform.getName());
     }
 
     public UserCryptoResponse updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
         var userCrypto = findUserCryptoById(userCryptoId);
+        var platform = userCrypto.platform();
         var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());
 
-        if (didChangePlatform(requestPlatform.id(), userCrypto.platformId())) {
+        if (didChangePlatform(requestPlatform.getId(), platform.getId())) {
             userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
                 coingeckoCrypto.id(),
                 userCryptoRequest.platformId()
             ).ifPresent(uc -> {
-                String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.name());
+                String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.getName());
                 throw new DuplicatedCryptoPlatFormException(message);
             });
         }
 
-        var updatedUserCrypto = userCryptoRequest.toEntity(userCrypto.id(), userCrypto.coingeckoCryptoId());
+        var updatedUserCrypto = userCryptoRequest.toEntity(userCrypto.id(), userCrypto.coingeckoCryptoId(), requestPlatform);
 
         userCryptoRepository.save(updatedUserCrypto);
         cacheService.invalidateUserCryptosCaches();
         log.info("Updated user crypto. Before: {} | After: {}", userCrypto, updatedUserCrypto);
 
-        return updatedUserCrypto.toUserCryptoResponse(coingeckoCrypto.name(), requestPlatform.name());
+        return updatedUserCrypto.toUserCryptoResponse(coingeckoCrypto.name(), requestPlatform.getName());
     }
 
     public void deleteUserCrypto(String userCryptoId) {
