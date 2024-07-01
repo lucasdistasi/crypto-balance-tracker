@@ -1,21 +1,25 @@
 version: '3.9'
 
 services:
-  mongo-crypto-db:
-    image: 'mongo:latest'
-    container_name: 'mongo-crypto-db'
+  postgresql-crypto-db:
+    image: 'postgres:16.3-alpine'
+    container_name: 'postgresql-crypto-db'
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - '27017:27017'
+      - '5432:5432'
     volumes:
-      - crypto-db-volume:/data/db
+      - postgres-crypto-db-volume:/var/lib/postgresql/data
 
   crypto-balance-tracker:
     image: 'crypto-balance-tracker:latest'
     container_name: 'crypto-balance-tracker'
     depends_on:
-      - mongo-crypto-db
+      - postgresql-crypto-db
     environment:
-      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - POSTGRESQL_DATABASE=postgres
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
       - DEMO_COINGECKO_API_KEY=${DEMO_COINGECKO_API_KEY}
       - PRO_COINGECKO_API_KEY=${PRO_COINGECKO_API_KEY}
@@ -32,4 +36,4 @@ services:
       - '5173:5173'
 
 volumes:
-  crypto-db-volume:
+  postgres-crypto-db-volume:

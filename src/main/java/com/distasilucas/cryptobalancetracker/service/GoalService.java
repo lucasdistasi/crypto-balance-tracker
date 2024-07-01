@@ -68,7 +68,7 @@ public class GoalService {
     public GoalResponse updateGoal(String goalId, GoalRequest goalRequest) {
         var goal = goalRepository.findById(goalId)
             .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
-        var updatedGoal = new Goal(goal.id(), goal.coingeckoCryptoId(), goalRequest.goalQuantity());
+        var updatedGoal = new Goal(goal.getId(), goal.getCoingeckoCryptoId(), goalRequest.goalQuantity());
 
         goalRepository.save(updatedGoal);
 
@@ -82,22 +82,22 @@ public class GoalService {
             .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
 
         goalRepository.deleteById(goalId);
-        cryptoService.deleteCryptoIfNotUsed(goal.coingeckoCryptoId());
+        cryptoService.deleteCryptoIfNotUsed(goal.getCoingeckoCryptoId());
 
         log.info("Deleted goal {}", goal);
     }
 
     private GoalResponse mapToGoalResponse(Goal goal) {
-        var crypto = cryptoService.retrieveCryptoInfoById(goal.coingeckoCryptoId());
-        var actualQuantity = userCryptoService.findAllByCoingeckoCryptoId(goal.coingeckoCryptoId())
+        var crypto = cryptoService.retrieveCryptoInfoById(goal.getCoingeckoCryptoId());
+        var actualQuantity = userCryptoService.findAllByCoingeckoCryptoId(goal.getCoingeckoCryptoId())
             .stream()
-            .map(UserCrypto::quantity)
+            .map(UserCrypto::getQuantity)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var progress = getProgress(goal.goalQuantity(), actualQuantity);
-        var remainingQuantity = getRemainingQuantity(goal.goalQuantity(), actualQuantity);
+        var progress = getProgress(goal.getGoalQuantity(), actualQuantity);
+        var remainingQuantity = getRemainingQuantity(goal.getGoalQuantity(), actualQuantity);
         var moneyNeeded = getMoneyNeeded(remainingQuantity, crypto);
 
-        return goal.toGoalResponse(goal.id(), crypto.name(), actualQuantity, progress, remainingQuantity, moneyNeeded);
+        return goal.toGoalResponse(goal.getId(), crypto.getName(), actualQuantity, progress, remainingQuantity, moneyNeeded);
     }
 
     private Float getProgress(BigDecimal goalQuantity, BigDecimal actualQuantity) {
@@ -112,6 +112,6 @@ public class GoalService {
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity, Crypto crypto) {
-        return crypto.lastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
+        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
     }
 }

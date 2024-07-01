@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
@@ -81,11 +82,12 @@ class GoalServiceTest {
     void shouldRetrieveCompletedGoal() {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", "bitcoin", new BigDecimal("1"));
         var cryptoEntity = getBitcoinCryptoEntity();
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
         var userCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("1"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity
         );
         var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0.00");
 
@@ -221,7 +223,7 @@ class GoalServiceTest {
         assertThat(goalResponse)
             .usingRecursiveComparison()
             .isEqualTo(
-                new GoalResponse(captor.getValue().id(), "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00")
+                new GoalResponse(captor.getValue().getId(), "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00")
             );
     }
 

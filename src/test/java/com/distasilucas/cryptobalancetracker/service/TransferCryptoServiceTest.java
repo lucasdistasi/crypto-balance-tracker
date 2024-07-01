@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.model.response.usercrypto.TransferC
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.never;
@@ -39,6 +41,9 @@ class TransferCryptoServiceTest {
     private final UUID RANDOM_UUID = UUID.fromString("60560fe6-8be2-460f-89ba-ef2e1c2e405b");
 
     private final MockedStatic<UUID> UUID_MOCK = mockStatic(UUID.class);
+
+    private final Platform BYBIT_PLATFORM = new Platform("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9", "BYBIT");
+    private final Platform BINANCE_PLATFORM = new Platform("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b", "BINANCE");
 
     @Mock
     private UserCryptoService userCryptoServiceMock;
@@ -77,6 +82,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithExistingCryptoAndFullQuantityDisabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = getTransferCryptoRequest(false);
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatformUserCrypto = getToPlatformUserCrypto();
@@ -91,15 +98,11 @@ class TransferCryptoServiceTest {
             .thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.of(toPlatformUserCrypto));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1))
-            .saveOrUpdateAll(
-                List.of(
-                    new UserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479", "bitcoin", new BigDecimal("1.865321283"), "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"),
-                    new UserCrypto("a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d", "bitcoin", new BigDecimal("2.261938292"), "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b")
-                ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -120,34 +123,24 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = getTransferCryptoRequest(false);
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
 
-        when(platformServiceMock.retrievePlatformById("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b")).thenReturn(fromPlatform);
-        when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(toPlatform);
+        when(platformServiceMock.retrievePlatformById("b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b")).thenReturn(toPlatform);
+        when(platformServiceMock.retrievePlatformById("d5f63c4d-98e7-4d26-b380-e7d0f5c423e9")).thenReturn(fromPlatform);
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.865321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-            ),
-            new UserCrypto(
-                "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
-                "bitcoin",
-                new BigDecimal("0.5095"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -168,6 +161,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithExistingCryptoAndFullQuantityEnabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = getTransferCryptoRequest(true);
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatformUserCrypto = getToPlatformUserCrypto();
@@ -179,23 +174,11 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.of(toPlatformUserCrypto));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.864821283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-            ),
-            new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("2.262438292"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -216,6 +199,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithoutExistingCryptoAndFullQuantityEnabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = getTransferCryptoRequest(true);
         var userCryptoToTransfer = getUserCryptoToTransfer();
         var toPlatform = getToPlatform();
@@ -227,23 +212,11 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.864821283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-            ),
-            new UserCrypto(
-                "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
-                "bitcoin",
-                new BigDecimal("0.51"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -264,6 +237,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabledAndUpdateOnlyOneCrypto() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = new TransferCryptoRequest(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             new BigDecimal("0.51"),
@@ -275,7 +250,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("2.375321283"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -286,17 +261,11 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.865321283"),
-                "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -325,6 +294,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithExistingCryptoAndFullQuantityEnabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = new TransferCryptoRequest(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             new BigDecimal("1.105734142"),
@@ -336,13 +307,13 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("1.105734142"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatformUserCrypto = new UserCrypto(
             "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
             "bitcoin",
             new BigDecimal("0.2512"),
-            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            BINANCE_PLATFORM
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -352,18 +323,12 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.of(toPlatformUserCrypto));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("1.356434142"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -384,6 +349,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityEnabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = new TransferCryptoRequest(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             new BigDecimal("1.105734142"),
@@ -395,7 +362,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("1.105734142"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -405,25 +372,11 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.empty());
-        doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.105234142"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("1.105234142"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -444,6 +397,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithExistingCryptoAndFullQuantityDisabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = new TransferCryptoRequest(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             new BigDecimal("1.105734142"),
@@ -455,7 +410,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("1.105734142"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatformUserCrypto = getToPlatformUserCrypto();
         var toPlatform = getToPlatform();
@@ -466,28 +421,13 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.of(toPlatformUserCrypto));
-
         doNothing().when(userCryptoServiceMock).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
-        doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("2.857672434"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
         verify(userCryptoServiceMock, times(1)).deleteUserCrypto("f47ac10b-58cc-4372-a567-0e02b2c3d479");
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-                "bitcoin",
-                new BigDecimal("2.857672434"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -508,6 +448,8 @@ class TransferCryptoServiceTest {
 
     @Test
     void shouldTransferFromPlatformWithoutRemainingToPlatformWithoutExistingCryptoAndFullQuantityDisabled() {
+        Class<List<UserCrypto>> listClass = (Class<List<UserCrypto>>)(Class)List.class;
+        ArgumentCaptor<List<UserCrypto>> captor = ArgumentCaptor.forClass(listClass);
         var transferCryptoRequest = new TransferCryptoRequest(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             new BigDecimal("2.375321283"),
@@ -524,25 +466,11 @@ class TransferCryptoServiceTest {
         when(userCryptoServiceMock.findUserCryptoById("f47ac10b-58cc-4372-a567-0e02b2c3d479")).thenReturn(userCryptoToTransfer);
         when(userCryptoServiceMock.findByCoingeckoCryptoIdAndPlatformId("bitcoin", "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"))
             .thenReturn(Optional.empty());
-        doNothing().when(userCryptoServiceMock).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.374821283"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        doAnswer(answer -> captor.getValue()).when(userCryptoServiceMock).saveOrUpdateAll(captor.capture());
 
         var transferCryptoResponse = transferCryptoService.transferCrypto(transferCryptoRequest);
 
-        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(List.of(
-            new UserCrypto(
-                "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-                "bitcoin",
-                new BigDecimal("2.374821283"),
-                "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
-            )
-        ));
+        verify(userCryptoServiceMock, times(1)).saveOrUpdateAll(captor.getValue());
         assertThat(transferCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -641,7 +569,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("2.375321283"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -671,7 +599,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("2.375321283"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -703,7 +631,7 @@ class TransferCryptoServiceTest {
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
             "bitcoin",
             new BigDecimal("2.375321283"),
-            "d5f63c4d-98e7-4d26-b380-e7d0f5c423e9"
+            BYBIT_PLATFORM
         );
     }
 
@@ -712,7 +640,7 @@ class TransferCryptoServiceTest {
             "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
             "bitcoin",
             new BigDecimal("1.752438292"),
-            "b8e8c277-e4b4-4b7e-9c5d-7885ef04b71b"
+            BINANCE_PLATFORM
         );
     }
 

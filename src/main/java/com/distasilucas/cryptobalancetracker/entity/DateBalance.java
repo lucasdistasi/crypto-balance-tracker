@@ -1,23 +1,30 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.UUID;
 
-@Document("DateBalances")
-public record DateBalance(
+@Entity
+@Table(name = "DateBalances")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class DateBalance {
 
     @Id
-    String id,
-    LocalDateTime date,
-    String balance
-) {
+    private String id;
+    private LocalDate date;
+    private String balance;
 
-    public DateBalance(LocalDateTime date, String balance) {
-        this(UUID.randomUUID().toString(), date, balance);
+    public DateBalance(LocalDate date, String balance) {
+        this.id = UUID.randomUUID().toString();
+        this.date = date;
+        this.balance = balance;
     }
 }

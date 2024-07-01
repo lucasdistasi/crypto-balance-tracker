@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.view.NonUsedCryptosView;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
@@ -9,8 +10,7 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketCap;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.view.NonUsedCryptosViewRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -22,21 +22,17 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -52,10 +48,7 @@ class CryptoServiceTest {
     private CryptoRepository cryptoRepositoryMock;
 
     @Mock
-    private UserCryptoRepository userCryptoRepositoryMock;
-
-    @Mock
-    private GoalRepository goalRepositoryMock;
+    private NonUsedCryptosViewRepository nonUsedCryptosViewRepositoryMock;
 
     @Mock
     private CacheService cacheServiceMock;
@@ -68,8 +61,8 @@ class CryptoServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, userCryptoRepositoryMock,
-            goalRepositoryMock, cacheServiceMock, clockMock);
+        cryptoService = new CryptoService(coingeckoServiceMock, cryptoRepositoryMock, nonUsedCryptosViewRepositoryMock,
+            cacheServiceMock, clockMock);
     }
 
     @Test
@@ -104,6 +97,7 @@ class CryptoServiceTest {
 
     @Test
     void shouldCallRetrieveCryptoInfoAndSaveCryptoWhenRetrievingCryptoInfoById() {
+        var captor = ArgumentCaptor.forClass(Crypto.class);
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
@@ -129,11 +123,11 @@ class CryptoServiceTest {
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(cryptoRepositoryMock.save(cryptoEntity)).thenReturn(cryptoEntity);
+        when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
         var crypto = cryptoService.retrieveCryptoInfoById("bitcoin");
 
-        verify(cryptoRepositoryMock, times(1)).save(crypto);
+        verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
 
         assertThat(crypto)
             .usingRecursiveComparison()
@@ -142,6 +136,7 @@ class CryptoServiceTest {
 
     @Test
     void shouldCallRetrieveCryptoInfoAndSaveCryptoWithZeroMaxSupplyWhenRetrievingCryptoInfoById() {
+        var captor = ArgumentCaptor.forClass(Crypto.class);
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
@@ -178,11 +173,11 @@ class CryptoServiceTest {
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(cryptoRepositoryMock.save(cryptoEntity)).thenReturn(cryptoEntity);
+        when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
         var crypto = cryptoService.retrieveCryptoInfoById("bitcoin");
 
-        verify(cryptoRepositoryMock, times(1)).save(crypto);
+        verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
 
         assertThat(crypto)
             .usingRecursiveComparison()
@@ -335,35 +330,23 @@ class CryptoServiceTest {
 
     @Test
     void shouldDeleteCryptoIfItIsNotBeingUsed() {
-        when(userCryptoRepositoryMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(Collections.emptyList());
-        doNothing().when(cryptoRepositoryMock).deleteById("bitcoin");
+        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.empty());
+
+        cryptoService.deleteCryptoIfNotUsed("bitcoin");
+
+        verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
+    }
+
+    @Test
+    void shouldNotDeleteCryptoIfItsBeingUsedByUserCryptosTable() {
+        var nonUsedCryptosView = new NonUsedCryptosView("bitcoin", "Bitcoin", "btc");
+
+        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(nonUsedCryptosView));
 
         cryptoService.deleteCryptoIfNotUsed("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).deleteById("bitcoin");
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
-    }
-
-    @Test
-    void shouldNotDeleteCryptoIfItsBeingUsedByUserCryptosTable() {
-        var userCrypto = getUserCrypto();
-
-        when(userCryptoRepositoryMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
-
-        cryptoService.deleteCryptoIfNotUsed("bitcoin");
-
-        verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
-    }
-
-    @Test
-    void shouldNotDeleteCryptoIfItsBeingUsedByGoalsTable() {
-        var goalEntity = getGoalEntity();
-
-        when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(goalEntity));
-
-        cryptoService.deleteCryptoIfNotUsed("bitcoin");
-
-        verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
     }
 
     @Test

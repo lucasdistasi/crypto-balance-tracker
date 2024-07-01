@@ -34,6 +34,7 @@ import org.mockito.Mock;
 
 import java.math.BigDecimal;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
@@ -45,7 +46,7 @@ import java.util.Set;
 import java.util.stream.IntStream;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,8 +85,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveTotalBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
 
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
         when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum", "litecoin"))).thenReturn(cryptosEntities);
@@ -110,17 +111,16 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForOneDay() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var nowMax = now.toLocalDate().atTime(LocalTime.MAX);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(1), "900"),
             new DateBalance("", now, "1000")
         );
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(2), nowMax)).thenReturn(balances);
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(2), now)).thenReturn(balances);
 
         var datesBalances = insightsService.retrieveDatesBalances(DateRange.ONE_DAY);
 
@@ -140,18 +140,17 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForThreeDays() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var nowMax = now.toLocalDate().atTime(LocalTime.MAX);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(2), "1100"),
             new DateBalance("", now.minusDays(1), "900"),
             new DateBalance("", now, "1000")
         );
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(3), nowMax)).thenReturn(balances);
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusDays(3), now)).thenReturn(balances);
 
         var datesBalances = insightsService.retrieveDatesBalances(DateRange.THREE_DAYS);
 
@@ -172,8 +171,8 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDatesBalancesForOneWeek() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(5), "1500"),
             new DateBalance("", now.minusDays(4), "1250.75"),
@@ -181,9 +180,9 @@ class InsightsServiceTest {
             new DateBalance("", now, "1000")
         );
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusWeeks(1), now.toLocalDate().atTime(LocalTime.MAX)))
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(now.minusWeeks(1), now))
             .thenReturn(balances);
 
         var dateBalances = insightsService.retrieveDatesBalances(DateRange.ONE_WEEK);
@@ -206,8 +205,8 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForOneMonth() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(14), "1350"),
             new DateBalance("", now.minusDays(12), "1450"),
@@ -220,7 +219,7 @@ class InsightsServiceTest {
         );
         var dates = getMockDates(now, 16, 2);
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
 
@@ -248,8 +247,8 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForThreeMonths() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(42), "1400"),
             new DateBalance("", now.minusDays(36), "1350"),
@@ -262,7 +261,7 @@ class InsightsServiceTest {
         );
         var dates = getMockDates(now, 16, 6);
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
 
@@ -290,8 +289,8 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForSixMonths() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
             new DateBalance("", now.minusDays(70), "1400"),
             new DateBalance("", now.minusDays(60), "1350"),
@@ -304,7 +303,7 @@ class InsightsServiceTest {
         );
         var dates = getMockDates(now, 19, 10);
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
 
@@ -333,8 +332,8 @@ class InsightsServiceTest {
     @ParameterizedTest
     @ValueSource(strings = {"ONE_MONTH", "THREE_MONTHS", "SIX_MONTHS", "ONE_YEAR"})
     void shouldRetrieveLastTwelveDaysBalancesIfRequiredLengthIsNotMeet(String range) {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var dateRange = DateRange.valueOf(range);
         var balances = List.of(
             new DateBalance("", now.minusDays(2), "1100"),
@@ -342,13 +341,12 @@ class InsightsServiceTest {
             new DateBalance("", now, "1000")
         );
         var dates = getMockDates(now, 19, 10);
-        var nowEndOfDay = now.toLocalDate().atTime(LocalTime.MAX);
-        var twelveDaysBefore = now.toLocalDate().minusDays(12).atTime(23, 59, 59, 0);
+        var twelveDaysBefore = now.minusDays(12);
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
-        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(twelveDaysBefore, nowEndOfDay))
+        when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(twelveDaysBefore, now))
             .thenReturn(retrieveLastTwelveDaysBalances());
 
         var dateBalances = insightsService.retrieveDatesBalances(dateRange);
@@ -374,8 +372,8 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveDateBalancesForOneYear() {
-        var now = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 0);
-        var zonedDateTime = now.atZone(ZoneOffset.UTC);
+        var now = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var dates = getMockDates(now);
         var balances = List.of(
             new DateBalance("", now.minusMonths(7), "1000"),
@@ -388,7 +386,7 @@ class InsightsServiceTest {
             new DateBalance("", now, "1400")
         );
 
-        when(clockMock.instant()).thenReturn(now.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findAllByDateIn(dates)).thenReturn(balances);
 
@@ -417,11 +415,11 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveEmptyDatesBalances() {
-        var dateFrom = LocalDateTime.of(2024, 2, 1, 23, 59, 59, 0);
-        var dateTo = LocalDateTime.of(2024, 2, 8, 23, 59, 59, 999_999_999);
-        var zonedDateTime = dateFrom.atZone(ZoneOffset.UTC);
+        var dateFrom = LocalDate.of(2024, 2, 1);
+        var dateTo = LocalDate.of(2024, 2, 8);
+        var zonedDateTime = dateFrom.atStartOfDay().atZone(ZoneOffset.UTC);
 
-        when(clockMock.instant()).thenReturn(dateFrom.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalanceRepositoryMock.findDateBalancesByDateBetween(dateFrom, dateTo))
             .thenReturn(Collections.emptyList());
@@ -435,7 +433,7 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrievePlatformInsightsWithOneCrypto() {
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
         var userCryptos = getUserCrypto();
         var bitcoinCryptoEntity = getBitcoinCryptoEntity();
 
@@ -467,9 +465,9 @@ class InsightsServiceTest {
     @Test
     void shouldRetrievePlatformInsightsWithMultipleCryptos() {
         var localDateTime = LocalDateTime.now();
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
         var bitcoinUserCrypto = getUserCrypto();
-        var polkadotUserCrypto = new UserCrypto("polkadot", new BigDecimal("100"), "123e4567-e89b-12d3-a456-426614174111");
+        var polkadotUserCrypto = new UserCrypto("polkadot", new BigDecimal("100"), getBinancePlatformEntity());
         var bitcoinCryptoEntity = getBitcoinCryptoEntity();
         var polkadotCryptoEntity = new Crypto(
             "polkadot",
@@ -510,7 +508,7 @@ class InsightsServiceTest {
                     94.64f
                 ),
                 new CryptoInsights(
-                    polkadotUserCrypto.id(),
+                    polkadotUserCrypto.getId(),
                     "Polkadot",
                     "polkadot",
                     "100",
@@ -564,17 +562,17 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrieveCoingeckoCryptoIdInsightsWithMultiplePlatforms() {
+        var binancePlatform = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var coinbasePlatform = new Platform("fa3db02d-4d43-416a-951b-e7ea3a4fe386", "COINBASE");
         var bitcoinUserCrypto = List.of(
             getUserCrypto(),
             new UserCrypto(
                 "ed34425b-d9f7-4244-bd16-0212621848c6",
                 "bitcoin",
                 new BigDecimal("0.03455"),
-                "fa3db02d-4d43-416a-951b-e7ea3a4fe386"
+                coinbasePlatform
             )
         );
-        var binancePlatform = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
-        var coinbasePlatform = new Platform("fa3db02d-4d43-416a-951b-e7ea3a4fe386", "COINBASE");
         var bitcoinCryptoEntity = getBitcoinCryptoEntity();
 
         when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(bitcoinUserCrypto);
@@ -620,8 +618,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrievePlatformsBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -664,8 +662,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveCryptosBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
 
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
         when(cryptoServiceMock.findAllByIds(Set.of("bitcoin", "tether", "ethereum", "litecoin"))).thenReturn(cryptosEntities);
@@ -864,8 +862,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsights() {
         var cryptos = List.of("bitcoin", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -954,8 +952,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForPageForRetrieveUserCryptosInsightsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1261,8 +1259,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosPlatformsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1364,8 +1362,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByCurrentPriceAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1467,8 +1465,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByMaxSupplyAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1570,8 +1568,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn24hDescending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1673,8 +1671,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn7dDescending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -1776,8 +1774,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn30dAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -2317,8 +2315,8 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForPageForRetrieveUserCryptosPlatformsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.coingeckoCryptoId())).toList();
-        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.id())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
 
@@ -2333,51 +2331,54 @@ class InsightsServiceTest {
     }
 
     private List<UserCrypto> userCryptos() {
+        var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
+        var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
+
         return List.of(
             new UserCrypto(
-                "676fb38a-556e-11ee-b56e-325096b39f47", "bitcoin", new BigDecimal("0.15"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb38a-556e-11ee-b56e-325096b39f47", "bitcoin", new BigDecimal("0.15"), binancePlatform
             ),
             new UserCrypto(
-                "676fb600-556e-11ee-83b6-325096b39f47", "tether", new BigDecimal("200"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb600-556e-11ee-83b6-325096b39f47", "tether", new BigDecimal("200"), binancePlatform
             ),
             new UserCrypto(
-                "676fb696-556e-11ee-aa1c-325096b39f47", "ethereum", new BigDecimal("0.26"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb696-556e-11ee-aa1c-325096b39f47", "ethereum", new BigDecimal("0.26"), binancePlatform
             ),
             new UserCrypto(
-                "676fba74-556e-11ee-9bff-325096b39f47", "ethereum", new BigDecimal("1.112"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fba74-556e-11ee-9bff-325096b39f47", "ethereum", new BigDecimal("1.112"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb70e-556e-11ee-8c2c-325096b39f47", "litecoin", new BigDecimal("3.125"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fb70e-556e-11ee-8c2c-325096b39f47", "litecoin", new BigDecimal("3.125"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb768-556e-11ee-8b42-325096b39f47", "binancecoin", new BigDecimal("1"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb768-556e-11ee-8b42-325096b39f47", "binancecoin", new BigDecimal("1"), binancePlatform
             ),
             new UserCrypto(
-                "676fb7c2-556e-11ee-9800-325096b39f47", "ripple", new BigDecimal("50"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fb7c2-556e-11ee-9800-325096b39f47", "ripple", new BigDecimal("50"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb83a-556e-11ee-9731-325096b39f47", "cardano", new BigDecimal("150"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb83a-556e-11ee-9731-325096b39f47", "cardano", new BigDecimal("150"), binancePlatform
             ),
             new UserCrypto(
-                "676fb89e-556e-11ee-b0b8-325096b39f47", "polkadot", new BigDecimal("40"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fb89e-556e-11ee-b0b8-325096b39f47", "polkadot", new BigDecimal("40"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb8e4-556e-11ee-883e-325096b39f47", "solana", new BigDecimal("10"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb8e4-556e-11ee-883e-325096b39f47", "solana", new BigDecimal("10"), binancePlatform
             ),
             new UserCrypto(
-                "676fb92a-556e-11ee-9de1-325096b39f47", "matic-network", new BigDecimal("100"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fb92a-556e-11ee-9de1-325096b39f47", "matic-network", new BigDecimal("100"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb966-556e-11ee-81d6-325096b39f47", "chainlink", new BigDecimal("35"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb966-556e-11ee-81d6-325096b39f47", "chainlink", new BigDecimal("35"), binancePlatform
             ),
             new UserCrypto(
-                "676fb9ac-556e-11ee-b4fa-325096b39f47", "dogecoin", new BigDecimal("500"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fb9ac-556e-11ee-b4fa-325096b39f47", "dogecoin", new BigDecimal("500"), coinbasePlatform
             ),
             new UserCrypto(
-                "676fb9f2-556e-11ee-a929-325096b39f47", "avalanche-2", new BigDecimal("25"), "163b1731-7a24-4e23-ac90-dc95ad8cb9e8"
+                "676fb9f2-556e-11ee-a929-325096b39f47", "avalanche-2", new BigDecimal("25"), binancePlatform
             ),
             new UserCrypto(
-                "676fba2e-556e-11ee-a181-325096b39f47", "uniswap", new BigDecimal("30"), "a76b400e-8ffc-42d6-bf47-db866eb20153"
+                "676fba2e-556e-11ee-a181-325096b39f47", "uniswap", new BigDecimal("30"), coinbasePlatform
             )
         );
     }
@@ -2611,8 +2612,8 @@ class InsightsServiceTest {
         );
     }
 
-    private List<LocalDateTime> getMockDates(LocalDateTime now, int iteration, int daysSubtraction) {
-        List<LocalDateTime> dates = new ArrayList<>();
+    private List<LocalDate> getMockDates(LocalDate now, int iteration, int daysSubtraction) {
+        List<LocalDate> dates = new ArrayList<>();
         dates.add(now);
 
         for (int i = 1; i < iteration; i++) {
@@ -2623,8 +2624,8 @@ class InsightsServiceTest {
         return dates;
     }
 
-    private List<LocalDateTime> getMockDates(LocalDateTime now) {
-        List<LocalDateTime> dates = new ArrayList<>();
+    private List<LocalDate> getMockDates(LocalDate now) {
+        List<LocalDate> dates = new ArrayList<>();
         dates.add(now);
 
         IntStream.range(1, 12)
@@ -2634,7 +2635,7 @@ class InsightsServiceTest {
     }
 
     private List<DateBalance> retrieveLastTwelveDaysBalances() {
-        var now = LocalDateTime.of(2024, 3, 11, 23, 59, 59, 0);
+        var now = LocalDate.of(2024, 3, 11);
 
         return List.of(
             new DateBalance("", now.minusDays(6), "1000"),

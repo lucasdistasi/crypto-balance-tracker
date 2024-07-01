@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.repository.PriceTargetRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.springframework.data.domain.PageImpl;
@@ -62,8 +63,8 @@ class PriceTargetServiceTest {
     void shouldRetrievePriceTargetById() {
         var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
 
-        when(priceTargetRepositoryMock.findById(priceTarget.id())).thenReturn(Optional.of(priceTarget));
-        when(cryptoServiceMock.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId())).thenReturn(getBitcoinCryptoEntity());
+        when(priceTargetRepositoryMock.findById(priceTarget.getId())).thenReturn(Optional.of(priceTarget));
+        when(cryptoServiceMock.retrieveCryptoInfoById(priceTarget.getCoingeckoCryptoId())).thenReturn(getBitcoinCryptoEntity());
 
         var priceTargetResponse = priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
@@ -132,9 +133,9 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldSavePriceTarget() {
+        var captor = ArgumentCaptor.forClass(PriceTarget.class);
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("120000"));
         var coingeckoCrypto = new CoingeckoCrypto("bitcoin", "btc", "Bitcoin");
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId()))
             .thenReturn(coingeckoCrypto);
@@ -142,7 +143,7 @@ class PriceTargetServiceTest {
             .thenReturn(Optional.empty());
         when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(getBitcoinCryptoEntity());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
-        when(priceTargetRepositoryMock.save(priceTargetEntity)).thenReturn(priceTargetEntity);
+        when(priceTargetRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
         var priceTargetResponse = priceTargetService.savePriceTarget(priceTargetRequest);
 
@@ -157,7 +158,7 @@ class PriceTargetServiceTest {
                     300F
                 )
             );
-        verify(priceTargetRepositoryMock, times(1)).save(priceTargetEntity);
+        verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
     }
 
     @Test
@@ -180,15 +181,16 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldUpdatePriceTarget() {
+        var captor = ArgumentCaptor.forClass(PriceTarget.class);
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.empty());
         when(cryptoServiceMock.retrieveCryptoInfoById(priceTargetRequest.cryptoNameOrId()))
             .thenReturn(getBitcoinCryptoEntity());
-        when(priceTargetRepositoryMock.save(priceTargetEntity)).thenReturn(priceTargetEntity);
+        when(priceTargetRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
         var priceTargetResponse = priceTargetService.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest);
 
@@ -203,7 +205,7 @@ class PriceTargetServiceTest {
                     233.30F
                 )
             );
-        verify(priceTargetRepositoryMock, times(1)).save(priceTargetEntity);
+        verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
     }
 
     @Test
@@ -212,7 +214,7 @@ class PriceTargetServiceTest {
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
         var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", "bitcoin", priceTargetRequest.priceTarget());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.of(anotherSamePriceTargetEntity));
 
@@ -243,7 +245,7 @@ class PriceTargetServiceTest {
     void shouldDeletePriceTarget() {
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
 
         priceTargetService.deletePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 

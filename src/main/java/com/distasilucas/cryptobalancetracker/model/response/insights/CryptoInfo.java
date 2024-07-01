@@ -1,5 +1,7 @@
 package com.distasilucas.cryptobalancetracker.model.response.insights;
 
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,5 +18,15 @@ public record CryptoInfo(
 
     public CryptoInfo(String cryptoName, String coingeckoCryptoId, String symbol, String image) {
         this(null, cryptoName, coingeckoCryptoId, symbol, image);
+    }
+
+    public CryptoInfo(UserCrypto userCrypto, Crypto crypto) {
+        this(
+            userCrypto.getId(),
+            crypto.getName(),
+            crypto.getId(),
+            crypto.getTicker(),
+            crypto.getImage()
+        );
     }
 }

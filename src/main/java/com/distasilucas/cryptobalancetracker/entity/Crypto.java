@@ -1,52 +1,60 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-@Document("Cryptos")
-public record Crypto(
+@Getter
+@Entity
+@Table(name = "Cryptos")
+@NoArgsConstructor
+@AllArgsConstructor
+public class Crypto implements Serializable {
+
     @Id
-    String id,
-    String name,
-    String ticker,
-    String image,
+    private String id;
+    private String name;
+    private String ticker;
+    private String image;
 
-    @Field("last_known_price")
-    BigDecimal lastKnownPrice,
+    @Column(name = "last_known_price")
+    private BigDecimal lastKnownPrice;
 
-    @Field("last_known_price_in_eur")
-    BigDecimal lastKnownPriceInEUR,
+    @Column(name = "last_known_price_in_eur")
+    private BigDecimal lastKnownPriceInEUR;
 
-    @Field("last_known_price_in_btc")
-    BigDecimal lastKnownPriceInBTC,
+    @Column(name = "last_known_price_in_btc")
+    private BigDecimal lastKnownPriceInBTC;
 
-    @Field("circulating_supply")
-    BigDecimal circulatingSupply,
+    @Column(name = "circulating_supply")
+    private BigDecimal circulatingSupply;
 
-    @Field("max_supply")
-    BigDecimal maxSupply,
+    @Column(name = "max_supply")
+    private BigDecimal maxSupply;
 
-    @Field("market_cap_rank")
-    int marketCapRank,
+    @Column(name = "market_cap_rank")
+    private int marketCapRank;
 
-    @Field("market_cap")
-    BigDecimal marketCap,
+    @Column(name = "market_cap")
+    private BigDecimal marketCap;
 
-    @Field("change_percentage_in_24h")
-    BigDecimal changePercentageIn24h,
+    @Column(name = "change_percentage_in_24h")
+    private BigDecimal changePercentageIn24h;
 
-    @Field("change_percentage_in_7d")
-    BigDecimal changePercentageIn7d,
+    @Column(name = "change_percentage_in_7d")
+    private BigDecimal changePercentageIn7d;
 
-    @Field("change_percentage_in_30d")
-    BigDecimal changePercentageIn30d,
+    @Column(name = "change_percentage_in_30d")
+    private BigDecimal changePercentageIn30d;
 
-    @Field("last_updated_at")
-    LocalDateTime lastUpdatedAt
-) implements Serializable {
+    @Column(name = "last_updated_at")
+    private LocalDateTime lastUpdatedAt;
 }

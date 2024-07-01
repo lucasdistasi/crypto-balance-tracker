@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create-cryptos-table" author="distasilucas">
+        <createTable tableName="cryptos">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR2(255)"/>
+            <column name="ticker" type="VARCHAR2(255)"/>
+            <column name="image" type="VARCHAR2(255)"/>
+            <column name="last_known_price" type="DECIMAL"/>
+            <column name="last_known_price_in_eur" type="DECIMAL"/>
+            <column name="last_known_price_in_btc" type="DECIMAL"/>
+            <column name="circulating_supply" type="DECIMAL"/>
+            <column name="max_supply" type="DECIMAL"/>
+            <column name="market_cap_rank" type="INTEGER"/>
+            <column name="market_cap" type="DECIMAL"/>
+            <column name="change_percentage_in_24h" type="DECIMAL"/>
+            <column name="change_percentage_in_7d" type="DECIMAL"/>
+            <column name="change_percentage_in_30d" type="DECIMAL"/>
+            <column name="last_updated_at" type="TIMESTAMP"/>
+        </createTable>
+        <createIndex tableName="cryptos" indexName="cryptos_name_index">
+            <column name="name"/>
+        </createIndex>
+        <createIndex tableName="cryptos" indexName="cryptos_last_updated_at_index">
+            <column name="last_updated_at"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-date-balances-table" author="distasilucas">
+        <createTable tableName="date_balances">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="date" type="TIMESTAMP"/>
+            <column name="balance" type="VARCHAR2(255)"/>
+        </createTable>
+        <createIndex tableName="date_balances" indexName="date_balances_date_index">
+            <column name="date"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-goals-table" author="distasilucas">
+        <createTable tableName="goals">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="crypto_id" type="VARCHAR2(255)"/>
+            <column name="goal_quantity" type="DECIMAL"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet id="create-platforms-table" author="distasilucas">
+        <createTable tableName="platforms">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="name" type="VARCHAR2(24)"/>
+        </createTable>
+        <createIndex tableName="platforms" indexName="platforms_name_index">
+            <column name="name"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-user-cryptos-table" author="distasilucas">
+        <createTable tableName="user_cryptos">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="crypto_id" type="VARCHAR2(255)"/>
+            <column name="quantity" type="DECIMAL"/>
+            <column name="platform_id" type="VARCHAR2(255)">
+                <constraints nullable="false"
+                             foreignKeyName="fk_platform_user_crypto"
+                             referencedTableName="platforms"
+                             referencedColumnNames="id"/>
+            </column>
+        </createTable>
+        <createIndex tableName="user_cryptos" indexName="user_cryptos_crypto_id_index">
+            <column name="crypto_id"/>
+        </createIndex>
+        <createIndex tableName="user_cryptos" indexName="user_cryptos_platform_id_index">
+            <column name="platform_id"/>
+        </createIndex>
+        <createIndex tableName="user_cryptos" indexName="user_cryptos_crypto_id_platform_id_index">
+            <column name="crypto_id"/>
+            <column name="platform_id"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-price-targets-table" author="distasilucas">
+        <createTable tableName="price_targets">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="crypto_id" type="VARCHAR2(255)"/>
+            <column name="target" type="DECIMAL"/>
+        </createTable>
+        <createIndex tableName="price_targets" indexName="price_targets_crypto_id_target_index">
+            <column name="crypto_id"/>
+            <column name="target"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="create-users-table" author="distasilucas">
+        <createTable tableName="users">
+            <column name="id" type="VARCHAR2(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="username" type="VARCHAR2(255)"/>
+            <column name="password" type="VARCHAR2(255)"/>
+            <column name="role" type="VARCHAR2(50)"/>
+            <column name="created_at" type="TIMESTAMP"/>
+        </createTable>
+        <createIndex tableName="users" indexName="users_username_index">
+            <column name="username"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

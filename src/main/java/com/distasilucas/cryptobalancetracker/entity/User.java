@@ -1,9 +1,13 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.Role;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,18 +16,21 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
-@Document("Users")
-public record User(
+@Entity
+@Table(name = "Users")
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class User implements UserDetails {
+
     @Id
-    String id,
-    String username,
-    String password,
-    Role role,
+    private String id;
+    private String username;
+    private String password;
+    private Role role;
 
-    @Field("created_at")
-    LocalDateTime createdAt
-
-) implements UserDetails {
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

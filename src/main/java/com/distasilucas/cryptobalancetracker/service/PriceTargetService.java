@@ -26,10 +26,10 @@ public class PriceTargetService {
         log.info("Retrieving price target for id {}", priceTargetId);
 
         var priceTarget = findById(priceTargetId);
-        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());
+        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.getCoingeckoCryptoId());
+        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice());
 
-        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);
+        return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), changeNeeded);
     }
 
     public PagePriceTargetResponse retrievePriceTargetsByPage(int page) {
@@ -40,8 +40,8 @@ public class PriceTargetService {
         var priceTargetsResponse = priceTargets.getContent()
             .stream()
             .map(priceTarget -> {
-                var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-                return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));
+                var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.getCoingeckoCryptoId());
+                return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice()));
             })
             .toList();
 
@@ -54,23 +54,24 @@ public class PriceTargetService {
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());
         validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());
         var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());
-        var priceTarget = priceTargetRepository.save(priceTargetRequest.toEntity(crypto.id()));
+        var priceTargetEntity = priceTargetRequest.toEntity(crypto.getId());
+        var priceTarget = priceTargetRepository.save(priceTargetEntity);
 
-        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));
+        return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice()));
     }
 
     public PriceTargetResponse updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
         log.info("Updating price target for id {}. New value: {}", priceTargetId, priceTargetRequest);
 
-        var priceTarget = findById(priceTargetId)
-            .withTarget(priceTargetRequest.priceTarget());
+        var priceTarget = findById(priceTargetId);
+        priceTarget.setTarget(priceTargetRequest.priceTarget());
 
-        validatePriceTargetIsNotDuplicated(priceTarget.coingeckoCryptoId(), priceTargetRequest.priceTarget());
-        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());
+        validatePriceTargetIsNotDuplicated(priceTarget.getCoingeckoCryptoId(), priceTargetRequest.priceTarget());
+        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.getCoingeckoCryptoId());
+        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice());
         var newPriceTarget = priceTargetRepository.save(priceTarget);
 
-        return newPriceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);
+        return newPriceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), changeNeeded);
     }
 
     public void deletePriceTarget(String priceTargetId) {
@@ -78,7 +79,7 @@ public class PriceTargetService {
         var priceTarget = findById(priceTargetId);
 
         priceTargetRepository.delete(priceTarget);
-        cryptoService.deleteCryptoIfNotUsed(priceTarget.coingeckoCryptoId());
+        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCoingeckoCryptoId());
     }
 
     private PriceTarget findById(String priceTargetId) {

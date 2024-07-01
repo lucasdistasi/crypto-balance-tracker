@@ -16,7 +16,6 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
-import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -28,6 +27,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
@@ -285,11 +285,13 @@ public class TestDataSource {
     }
 
     public static UserCrypto getUserCrypto() {
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+
         return new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("0.25"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity
         );
     }
 
@@ -314,14 +316,14 @@ public class TestDataSource {
     }
 
     public static Goal getGoalEntity() {
-        return new Goal("bitcoin", new BigDecimal("1"));
+        return new Goal(UUID.randomUUID().toString(), "bitcoin", new BigDecimal("1"));
     }
 
     public static BalancesResponse getBalances() {
         return new BalancesResponse("100", "70", "0.1");
     }
 
-    public static Platform getPlatformEntity() {
+    public static Platform getBinancePlatformEntity() {
         return new Platform(
             "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
             "BINANCE"

@@ -7,17 +7,21 @@ import com.distasilucas.cryptobalancetracker.service.InsightsService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -53,41 +57,40 @@ class DateBalanceSchedulerTest {
 
     @Test
     void shouldSaveDateBalance() {
-        var localDateTime = LocalDateTime.of(2024, 2, 22, 23, 59, 59);
-        var zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("UTC"));
+        var captor = ArgumentCaptor.forClass(DateBalance.class);
+        var localDate = LocalDate.of(2024, 2, 22);
+        var zonedDateTime = ZonedDateTime.of(localDate, LocalTime.MAX, ZoneId.of("UTC"));
         var balancesResponse = new BalancesResponse("1000", "800", "0.001");
-        var dateBalance = new DateBalance(
-            "60560fe6-8be2-460f-89ba-ef2e1c2e405b",
-            localDateTime,
-            "1000"
-        );
 
-        when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(balancesResponse));
-        when(dateBalancesRepositoryMock.findDateBalanceByDate(localDateTime)).thenReturn(Optional.empty());
+        when(dateBalancesRepositoryMock.findDateBalanceByDate(localDate)).thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
+        doAnswer(answer -> captor.getValue()).when(dateBalancesRepositoryMock).save(captor.capture());
 
         dateBalanceScheduler.saveDateBalance();
 
-        verify(dateBalancesRepositoryMock, times(1)).save(dateBalance);
+        verify(dateBalancesRepositoryMock, times(1)).save(captor.getValue());
     }
 
     @Test
     void shouldUpdateDateBalance() {
-        var localDateTime = LocalDateTime.of(2024, 2, 22, 23, 59, 59, 0);
-        var zonedDateTime = ZonedDateTime.of(localDateTime, ZoneId.of("UTC"));
+        var captor = ArgumentCaptor.forClass(DateBalance.class);
+        var localDate = LocalDate.of(2024, 2, 22);
+        var zonedDateTime = ZonedDateTime.of(localDate, LocalTime.MAX, ZoneId.of("UTC"));
         var balancesResponse = new BalancesResponse("1050", "850", "0.00105");
-        var dateBalance = new DateBalance("48793270-ff28-4a0f-98a5-8b43ed3df0d4", localDateTime, "1050");
+        var dateBalance = new DateBalance("48793270-ff28-4a0f-98a5-8b43ed3df0d4", localDate, "1050");
 
-        when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
+        when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(dateBalancesRepositoryMock.findDateBalanceByDate(localDateTime)).thenReturn(Optional.of(dateBalance));
+        when(dateBalancesRepositoryMock.findDateBalanceByDate(localDate)).thenReturn(Optional.of(dateBalance));
         when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(balancesResponse));
+        doAnswer(answer -> captor.getValue()).when(dateBalancesRepositoryMock).save(captor.capture());
 
         dateBalanceScheduler.saveDateBalance();
 
-        verify(dateBalancesRepositoryMock, times(1)).save(dateBalance);
+        verify(dateBalancesRepositoryMock, times(1)).save(captor.getValue());
     }
 
 }
