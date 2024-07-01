@@ -27,9 +27,9 @@ public class PriceTargetService {
 
 <span class="fc" id="L28">        var priceTarget = findById(priceTargetId);</span>
 <span class="fc" id="L29">        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());</span>
-<span class="fc" id="L30">        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());</span>
+<span class="fc" id="L30">        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice());</span>
 
-<span class="fc" id="L32">        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);</span>
+<span class="fc" id="L32">        return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), changeNeeded);</span>
     }
 
     public PagePriceTargetResponse retrievePriceTargetsByPage(int page) {
@@ -41,7 +41,7 @@ public class PriceTargetService {
 <span class="fc" id="L41">            .stream()</span>
 <span class="fc" id="L42">            .map(priceTarget -&gt; {</span>
 <span class="fc" id="L43">                var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());</span>
-<span class="fc" id="L44">                return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));</span>
+<span class="fc" id="L44">                return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice()));</span>
             })
 <span class="fc" id="L46">            .toList();</span>
 
@@ -54,9 +54,9 @@ public class PriceTargetService {
 <span class="fc" id="L54">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());</span>
 <span class="fc" id="L55">        validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());</span>
 <span class="fc" id="L56">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
-<span class="fc" id="L57">        var priceTarget = priceTargetRepository.save(priceTargetRequest.toEntity(crypto.id()));</span>
+<span class="fc" id="L57">        var priceTarget = priceTargetRepository.save(priceTargetRequest.toEntity(crypto.getId()));</span>
 
-<span class="fc" id="L59">        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));</span>
+<span class="fc" id="L59">        return priceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice()));</span>
     }
 
     public PriceTargetResponse updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
@@ -67,10 +67,10 @@ public class PriceTargetService {
 
 <span class="fc" id="L68">        validatePriceTargetIsNotDuplicated(priceTarget.coingeckoCryptoId(), priceTargetRequest.priceTarget());</span>
 <span class="fc" id="L69">        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());</span>
-<span class="fc" id="L70">        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());</span>
+<span class="fc" id="L70">        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.getLastKnownPrice());</span>
 <span class="fc" id="L71">        var newPriceTarget = priceTargetRepository.save(priceTarget);</span>
 
-<span class="fc" id="L73">        return newPriceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);</span>
+<span class="fc" id="L73">        return newPriceTarget.toPriceTargetResponse(crypto.getName(), crypto.getLastKnownPrice(), changeNeeded);</span>
     }
 
     public void deletePriceTarget(String priceTargetId) {

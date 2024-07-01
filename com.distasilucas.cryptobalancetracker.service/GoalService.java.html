@@ -97,7 +97,7 @@ public class GoalService {
 <span class="fc" id="L97">        var remainingQuantity = getRemainingQuantity(goal.goalQuantity(), actualQuantity);</span>
 <span class="fc" id="L98">        var moneyNeeded = getMoneyNeeded(remainingQuantity, crypto);</span>
 
-<span class="fc" id="L100">        return goal.toGoalResponse(goal.id(), crypto.name(), actualQuantity, progress, remainingQuantity, moneyNeeded);</span>
+<span class="fc" id="L100">        return goal.toGoalResponse(goal.id(), crypto.getName(), actualQuantity, progress, remainingQuantity, moneyNeeded);</span>
     }
 
     private Float getProgress(BigDecimal goalQuantity, BigDecimal actualQuantity) {
@@ -112,7 +112,7 @@ public class GoalService {
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity, Crypto crypto) {
-<span class="fc" id="L115">        return crypto.lastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L115">        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

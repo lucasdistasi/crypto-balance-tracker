@@ -45,7 +45,7 @@ public class CryptoScheduler {
 <span class="fc" id="L45">            .stream()</span>
 <span class="fc" id="L46">            .map(crypto -&gt; {</span>
                 try {
-<span class="fc" id="L48">                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.id());</span>
+<span class="fc" id="L48">                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.getId());</span>
 <span class="fc bfc" id="L49" title="All 2 branches covered.">                    var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?</span>
 <span class="fc" id="L50">                        coingeckoCrypto.marketData().maxSupply() :</span>
 <span class="fc" id="L51">                        BigDecimal.ZERO;</span>
@@ -72,11 +72,11 @@ public class CryptoScheduler {
 <span class="fc bfc" id="L72" title="All 2 branches covered.">                    if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {</span>
 <span class="fc" id="L73">                        throw new TooManyRequestsException();</span>
                     } else {
-<span class="fc" id="L75">                        log.warn(&quot;A RestClientResponseException occurred while retrieving info for {}&quot;, crypto.id(), exception);</span>
+<span class="fc" id="L75">                        log.warn(&quot;A RestClientResponseException occurred while retrieving info for {}&quot;, crypto.getId(), exception);</span>
 <span class="fc" id="L76">                        return crypto;</span>
                     }
 <span class="fc" id="L78">                } catch (Exception exception) {</span>
-<span class="fc" id="L79">                    log.error(&quot;An exception occurred while retrieving info for {}, therefore crypto info might be outdated&quot;, crypto.id(), exception);</span>
+<span class="fc" id="L79">                    log.error(&quot;An exception occurred while retrieving info for {}, therefore crypto info might be outdated&quot;, crypto.getId(), exception);</span>
 
 <span class="fc" id="L81">                    return crypto;</span>
                 }

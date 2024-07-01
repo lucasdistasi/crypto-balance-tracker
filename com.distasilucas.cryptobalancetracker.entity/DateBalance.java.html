@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DateBalance.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.entity</a> &gt; <span class="el_source">DateBalance.java</span></div><h1>DateBalance.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.UUID;
 
-@Document(&quot;DateBalances&quot;)
+@Entity
+@Table(name = &quot;DateBalances&quot;)
 <span class="fc" id="L12">public record DateBalance(</span>
 
     @Id
     String id,
-    LocalDateTime date,
+    LocalDate date,
     String balance
 ) {
 
-    public DateBalance(LocalDateTime date, String balance) {
+    public DateBalance(LocalDate date, String balance) {
 <span class="fc" id="L21">        this(UUID.randomUUID().toString(), date, balance);</span>
 <span class="fc" id="L22">    }</span>
 }
