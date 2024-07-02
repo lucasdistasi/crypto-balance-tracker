@@ -75,9 +75,9 @@ public class CryptoService {
 <span class="fc" id="L75">        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoId(coingeckoCryptoId);</span>
 
 <span class="fc" id="L77">        nonUsedCryptos.ifPresent(nonUsedCrypto -&gt; {</span>
-<span class="fc" id="L78">            cryptoRepository.deleteById(nonUsedCrypto.id());</span>
+<span class="fc" id="L78">            cryptoRepository.deleteById(nonUsedCrypto.getId());</span>
 <span class="fc" id="L79">            cacheService.invalidateCryptosCache();</span>
-<span class="fc" id="L80">            log.info(&quot;Deleted crypto [{}] - ({}){} because it was not used&quot;, nonUsedCrypto.id(), nonUsedCrypto.ticker(), nonUsedCrypto.name());</span>
+<span class="fc" id="L80">            log.info(&quot;Deleted crypto [{}] - ({}){} because it was not used&quot;, nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());</span>
 <span class="fc" id="L81">        });</span>
 <span class="fc" id="L82">    }</span>
 

@@ -3,14 +3,19 @@
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = &quot;NonUsedCryptosView&quot;)
-<span class="fc" id="L9">public record NonUsedCryptosView(</span>
+@Getter
+<span class="nc" id="L13">@NoArgsConstructor</span>
+<span class="fc" id="L14">@AllArgsConstructor</span>
+public class NonUsedCryptosView {
     @Id
-    String id,
-    String name,
-    String ticker
-) {
+<span class="fc" id="L17">    private String id;</span>
+<span class="fc" id="L18">    private String name;</span>
+<span class="fc" id="L19">    private String ticker;</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

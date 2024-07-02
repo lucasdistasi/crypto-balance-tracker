@@ -5,6 +5,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -12,21 +15,26 @@ import java.util.List;
 
 @Entity
 @Table(name = &quot;Platforms&quot;)
-<span class="fc" id="L15">public record Platform(</span>
+@Getter
+<span class="nc" id="L19">@NoArgsConstructor</span>
+<span class="nc" id="L20">@AllArgsConstructor</span>
+public class Platform implements Serializable {
+
     @Id
-    String id,
-    String name,
+<span class="fc" id="L24">    private String id;</span>
+<span class="fc" id="L25">    private String name;</span>
 
     @OneToMany(mappedBy = &quot;platform&quot;)
-    List&lt;UserCrypto&gt; userCryptos
-) implements Serializable {
+<span class="fc" id="L28">    private List&lt;UserCrypto&gt; userCryptos;</span>
 
-    public Platform(String id, String name) {
-<span class="fc" id="L25">        this(id, name, Collections.emptyList());</span>
-<span class="fc" id="L26">    }</span>
+<span class="fc" id="L30">    public Platform(String id, String name) {</span>
+<span class="fc" id="L31">        this.id = id;</span>
+<span class="fc" id="L32">        this.name = name;</span>
+<span class="fc" id="L33">        this.userCryptos = Collections.emptyList();</span>
+<span class="fc" id="L34">    }</span>
 
     public PlatformResponse toPlatformResponse() {
-<span class="fc" id="L29">        return new PlatformResponse(id, name);</span>
+<span class="fc" id="L37">        return new PlatformResponse(id, name);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

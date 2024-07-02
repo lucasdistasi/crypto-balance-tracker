@@ -166,7 +166,7 @@ public class InsightsService {
 <span class="fc" id="L166">            .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))</span>
 <span class="fc" id="L167">            .toList();</span>
 
-<span class="fc" id="L169">        return Optional.of(new PlatformInsightsResponse(platformResponse.name(), totalBalances, cryptosInsights));</span>
+<span class="fc" id="L169">        return Optional.of(new PlatformInsightsResponse(platformResponse.getName(), totalBalances, cryptosInsights));</span>
     }
 
     public Optional&lt;CryptoInsightResponse&gt; retrieveCryptoInsights(String coingeckoCryptoId) {
@@ -178,12 +178,12 @@ public class InsightsService {
 <span class="fc" id="L178">            return Optional.empty();</span>
         }
 
-<span class="fc" id="L181">        var platformsIds = userCryptos.stream().map(userCrypto -&gt; userCrypto.platform().id()).toList();</span>
+<span class="fc" id="L181">        var platformsIds = userCryptos.stream().map(userCrypto -&gt; userCrypto.platform().getId()).toList();</span>
 <span class="fc" id="L182">        var platforms = platformService.findAllByIds(platformsIds);</span>
 <span class="fc" id="L183">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCryptoId);</span>
 
 <span class="fc" id="L185">        var platformUserCryptoQuantity = userCryptos.stream()</span>
-<span class="fc" id="L186">            .collect(Collectors.toMap(userCrypto -&gt; userCrypto.platform().id(), UserCrypto::quantity));</span>
+<span class="fc" id="L186">            .collect(Collectors.toMap(userCrypto -&gt; userCrypto.platform().getId(), UserCrypto::quantity));</span>
 <span class="fc" id="L187">        var totalCryptoQuantity = userCryptos.stream()</span>
 <span class="fc" id="L188">            .map(UserCrypto::quantity)</span>
 <span class="fc" id="L189">            .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
@@ -191,14 +191,14 @@ public class InsightsService {
 
 <span class="fc" id="L192">        var platformInsights = platforms.stream()</span>
 <span class="fc" id="L193">            .map(platform -&gt; {</span>
-<span class="fc" id="L194">                var quantity = platformUserCryptoQuantity.get(platform.id());</span>
+<span class="fc" id="L194">                var quantity = platformUserCryptoQuantity.get(platform.getId());</span>
 <span class="fc" id="L195">                var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);</span>
 
 <span class="fc" id="L197">                return new PlatformInsight(</span>
 <span class="fc" id="L198">                    quantity.toPlainString(),</span>
                     cryptoTotalBalances,
 <span class="fc" id="L200">                    calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),</span>
-<span class="fc" id="L201">                    platform.name()</span>
+<span class="fc" id="L201">                    platform.getName()</span>
                 );
             })
 <span class="fc" id="L204">            .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))</span>
@@ -217,7 +217,7 @@ public class InsightsService {
         }
 
 <span class="fc" id="L219">        var platformsIds = userCryptos.stream()</span>
-<span class="fc" id="L220">            .map(userCrypto -&gt; userCrypto.platform().id())</span>
+<span class="fc" id="L220">            .map(userCrypto -&gt; userCrypto.platform().getId())</span>
 <span class="fc" id="L221">            .collect(Collectors.toSet());</span>
 <span class="fc" id="L222">        var platforms = platformService.findAllByIds(platformsIds);</span>
 <span class="fc" id="L223">        var userCryptoQuantity = getUserCryptoQuantity(userCryptos);</span>
@@ -321,7 +321,7 @@ public class InsightsService {
 
 <span class="fc" id="L322">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
 <span class="fc" id="L323">        var platformsIds = userCryptos.stream()</span>
-<span class="fc" id="L324">            .map(userCrypto -&gt; userCrypto.platform().id())</span>
+<span class="fc" id="L324">            .map(userCrypto -&gt; userCrypto.platform().getId())</span>
 <span class="fc" id="L325">            .collect(Collectors.toSet());</span>
 <span class="fc" id="L326">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
 <span class="fc" id="L327">        var platforms = platformService.findAllByIds(platformsIds);</span>
@@ -336,7 +336,7 @@ public class InsightsService {
 <span class="fc" id="L336">                .findFirst()</span>
 <span class="fc" id="L337">                .orElseThrow();</span>
 <span class="fc" id="L338">            var platform = platforms.stream()</span>
-<span class="fc" id="L339">                .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platform().id()))</span>
+<span class="fc" id="L339">                .filter(p -&gt; p.getId().equalsIgnoreCase(userCrypto.platform().getId()))</span>
 <span class="fc" id="L340">                .findFirst()</span>
 <span class="fc" id="L341">                .orElseThrow();</span>
 <span class="fc" id="L342">            var balances = getCryptoTotalBalances(crypto, userCrypto.quantity());</span>
@@ -355,7 +355,7 @@ public class InsightsService {
                 balances,
 <span class="fc" id="L356">                crypto.getMarketCapRank(),</span>
                 new MarketData(circulatingSupply, crypto),
-<span class="fc" id="L358">                List.of(platform.name())</span>
+<span class="fc" id="L358">                List.of(platform.getName())</span>
             );
 
 <span class="fc" id="L361">            userCryptosInsights.add(userCryptosInsight);</span>
@@ -398,7 +398,7 @@ public class InsightsService {
 <span class="fc" id="L398">        var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());</span>
 <span class="fc" id="L399">        var cryptos = cryptoService.findAllByIds(cryptosIds);</span>
 <span class="fc" id="L400">        var platformsIds = userCryptos.stream()</span>
-<span class="fc" id="L401">            .map(userCrypto -&gt; userCrypto.platform().id())</span>
+<span class="fc" id="L401">            .map(userCrypto -&gt; userCrypto.platform().getId())</span>
 <span class="fc" id="L402">            .collect(Collectors.toSet());</span>
 <span class="fc" id="L403">        var platforms = platformService.findAllByIds(platformsIds);</span>
 <span class="fc" id="L404">        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);</span>
@@ -519,16 +519,16 @@ public class InsightsService {
 
 <span class="fc" id="L520">        userCryptos.forEach(userCrypto -&gt; {</span>
 <span class="fc" id="L521">            var platform = platforms.stream()</span>
-<span class="fc" id="L522">                .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platform().id()))</span>
+<span class="fc" id="L522">                .filter(p -&gt; p.getId().equalsIgnoreCase(userCrypto.platform().getId()))</span>
 <span class="fc" id="L523">                .findFirst()</span>
 <span class="fc" id="L524">                .orElseThrow();</span>
 
-<span class="fc bfc" id="L526" title="All 2 branches covered.">            if (platformsUserCryptos.containsKey(platform.name())) {</span>
-<span class="fc" id="L527">                var cryptos = new ArrayList&lt;&gt;(platformsUserCryptos.get(platform.name()));</span>
+<span class="fc bfc" id="L526" title="All 2 branches covered.">            if (platformsUserCryptos.containsKey(platform.getName())) {</span>
+<span class="fc" id="L527">                var cryptos = new ArrayList&lt;&gt;(platformsUserCryptos.get(platform.getName()));</span>
 <span class="fc" id="L528">                cryptos.add(userCrypto);</span>
-<span class="fc" id="L529">                platformsUserCryptos.put(platform.name(), cryptos);</span>
+<span class="fc" id="L529">                platformsUserCryptos.put(platform.getName(), cryptos);</span>
 <span class="fc" id="L530">            } else {</span>
-<span class="fc" id="L531">                platformsUserCryptos.put(platform.name(), List.of(userCrypto));</span>
+<span class="fc" id="L531">                platformsUserCryptos.put(platform.getName(), List.of(userCrypto));</span>
             }
 <span class="fc" id="L533">        });</span>
 
@@ -571,10 +571,10 @@ public class InsightsService {
 
 <span class="fc" id="L572">        userCryptos.forEach(userCrypto -&gt; {</span>
 <span class="fc" id="L573">            var platformName = platforms.stream()</span>
-<span class="fc" id="L574">                .filter(p -&gt; p.id().equalsIgnoreCase(userCrypto.platform().id()))</span>
+<span class="fc" id="L574">                .filter(p -&gt; p.getId().equalsIgnoreCase(userCrypto.platform().getId()))</span>
 <span class="fc" id="L575">                .findFirst()</span>
 <span class="fc" id="L576">                .orElseThrow()</span>
-<span class="fc" id="L577">                .name();</span>
+<span class="fc" id="L577">                .getName();</span>
 
 <span class="fc bfc" id="L579" title="All 2 branches covered.">            if (map.containsKey(userCrypto.coingeckoCryptoId())) {</span>
 <span class="fc" id="L580">                var crypto = map.get(userCrypto.coingeckoCryptoId());</span>

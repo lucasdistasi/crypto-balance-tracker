@@ -27,9 +27,9 @@ public class TransferCryptoService {
     public TransferCryptoResponse transferCrypto(TransferCryptoRequest transferCryptoRequest) {
 <span class="fc" id="L28">        var toPlatform = platformService.retrievePlatformById(transferCryptoRequest.toPlatformId());</span>
 <span class="fc" id="L29">        var userCryptoToTransfer = userCryptoService.findUserCryptoById(transferCryptoRequest.userCryptoId());</span>
-<span class="fc" id="L30">        var fromPlatform = platformService.retrievePlatformById(userCryptoToTransfer.platform().id());</span>
+<span class="fc" id="L30">        var fromPlatform = platformService.retrievePlatformById(userCryptoToTransfer.platform().getId());</span>
 
-<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (isToAndFromSamePlatform(toPlatform.id(), fromPlatform.id())) {</span>
+<span class="fc bfc" id="L32" title="All 2 branches covered.">        if (isToAndFromSamePlatform(toPlatform.getId(), fromPlatform.getId())) {</span>
 <span class="fc" id="L33">            throw new ApiValidationException(HttpStatus.BAD_REQUEST, SAME_FROM_TO_PLATFORM);</span>
         }
 
@@ -128,7 +128,7 @@ public class TransferCryptoService {
             );
         }
 
-<span class="fc" id="L131">        log.info(&quot;Transferred {} of {} from platform {} to {}&quot;, quantityToTransfer, userCryptoToTransfer.coingeckoCryptoId(), fromPlatform.name(), toPlatform.name());</span>
+<span class="fc" id="L131">        log.info(&quot;Transferred {} of {} from platform {} to {}&quot;, quantityToTransfer, userCryptoToTransfer.coingeckoCryptoId(), fromPlatform.getName(), toPlatform.getName());</span>
 
 <span class="fc" id="L133">        return transferCryptoResponse;</span>
     }
