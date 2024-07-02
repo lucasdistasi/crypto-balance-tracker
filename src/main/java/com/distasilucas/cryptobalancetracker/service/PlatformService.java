@@ -61,7 +61,7 @@ public class PlatformService {
     public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
         validatePlatformDoesNotExist(platformRequest.name());
         var platform = retrievePlatformById(platformId);
-        var updatedPlatform = new Platform(platform.id(), platformRequest.name().toUpperCase());
+        var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());
         platformRepository.save(updatedPlatform);
         cacheService.invalidatePlatformsCaches();
 

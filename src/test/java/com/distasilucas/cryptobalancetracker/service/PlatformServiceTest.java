@@ -109,7 +109,7 @@ class PlatformServiceTest {
         verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
             .usingRecursiveComparison()
-            .isEqualTo(new Platform(platformArgumentCaptor.getValue().id(), "BINANCE"));
+            .isEqualTo(new Platform(platformArgumentCaptor.getValue().getId(), "BINANCE"));
     }
 
     @Test
@@ -126,16 +126,17 @@ class PlatformServiceTest {
 
     @Test
     void shouldUpdatePlatformSuccessfully() {
+        var platformArgumentCaptor = ArgumentCaptor.forClass(Platform.class);
         var platformRequest = new PlatformRequest("bybit");
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BYBIT");
         var existingPlatform = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
         when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.of(existingPlatform));
-        when(platformRepositoryMock.save(platformEntity)).thenReturn(platformEntity);
+        when(platformRepositoryMock.save(platformArgumentCaptor.capture())).thenAnswer(answer -> platformArgumentCaptor.getValue());
 
         var platform = platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
 
-        verify(platformRepositoryMock, times(1)).save(platformEntity);
+        verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
         verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
         assertThat(platform)
             .usingRecursiveComparison()

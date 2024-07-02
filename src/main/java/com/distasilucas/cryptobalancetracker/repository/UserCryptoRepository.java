@@ -1,12 +1,12 @@
 package com.distasilucas.cryptobalancetracker.repository;
 
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
 
-public interface UserCryptoRepository extends MongoRepository<UserCrypto, String> {
+public interface UserCryptoRepository extends JpaRepository<UserCrypto, String> {
 
     List<UserCrypto> findAllByCoingeckoCryptoId(String coingeckoCryptoId);
 

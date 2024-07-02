@@ -4,8 +4,7 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.view.NonUsedCryptosViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,8 +27,7 @@ public class CryptoService {
 
     private final CoingeckoService coingeckoService;
     private final CryptoRepository cryptoRepository;
-    private final UserCryptoRepository userCryptoRepository;
-    private final GoalRepository goalRepository;
+    private final NonUsedCryptosViewRepository nonUsedCryptosViewRepository;
     private final CacheService cacheService;
     private final Clock clock;
 
@@ -74,17 +72,13 @@ public class CryptoService {
     }
 
     public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {
-        var userCryptos = userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);
+        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoId(coingeckoCryptoId);
 
-        if (userCryptos.isEmpty()) {
-            var goal = goalRepository.findByCoingeckoCryptoId(coingeckoCryptoId);
-
-            if (goal.isEmpty()) {
-                cryptoRepository.deleteById(coingeckoCryptoId);
-                cacheService.invalidateCryptosCache();
-                log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
-            }
-        }
+        nonUsedCryptos.ifPresent(nonUsedCrypto -> {
+            cryptoRepository.deleteById(nonUsedCrypto.getId());
+            cacheService.invalidateCryptosCache();
+            log.info("Deleted crypto [{}] - ({}){} because it was not used", nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());
+        });
     }
 
     public List<Crypto> findOldestNCryptosByLastPriceUpdate(LocalDateTime localDateTime, int limit) {
@@ -96,7 +90,7 @@ public class CryptoService {
     public void updateCryptos(List<Crypto> cryptosToUpdate) {
         cryptoRepository.saveAll(cryptosToUpdate);
         var cryptosNames = cryptosToUpdate.stream()
-            .map(Crypto::name)
+            .map(Crypto::getName)
             .toList();
 
         log.info("Updated cryptos: {}", cryptosNames);

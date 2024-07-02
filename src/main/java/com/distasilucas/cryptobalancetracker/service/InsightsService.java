@@ -10,11 +10,9 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesRes
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
-import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
-import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
@@ -32,8 +30,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Clock;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -94,7 +92,7 @@ public class InsightsService {
     public Optional<DatesBalanceResponse> retrieveDatesBalances(DateRange dateRange) {
         log.info("Retrieving balances for date range: {}", dateRange);
         List<DateBalance> dateBalances = new ArrayList<>();
-        var now = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.of(23, 59, 59, 0));
+        var now = LocalDateTime.now(clock).toLocalDate();
 
         switch (dateRange) {
             case ONE_DAY -> dateBalances.addAll(retrieveDatesBalances(now.minusDays(2), now));
@@ -151,15 +149,15 @@ public class InsightsService {
             .map(userCrypto -> {
                 var quantity = userCryptosQuantity.get(userCrypto.coingeckoCryptoId());
                 var crypto = cryptos.stream()
-                    .filter(c -> userCrypto.coingeckoCryptoId().equals(c.id()))
+                    .filter(c -> userCrypto.coingeckoCryptoId().equals(c.getId()))
                     .findFirst()
                     .get();
                 var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
 
                 return new CryptoInsights(
                     userCrypto.id(),
-                    crypto.name(),
-                    crypto.id(),
+                    crypto.getName(),
+                    crypto.getId(),
                     quantity.toPlainString(),
                     cryptoTotalBalances,
                     calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance())
@@ -168,7 +166,7 @@ public class InsightsService {
             .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new PlatformInsightsResponse(platformResponse.name(), totalBalances, cryptosInsights));
+        return Optional.of(new PlatformInsightsResponse(platformResponse.getName(), totalBalances, cryptosInsights));
     }
 
     public Optional<CryptoInsightResponse> retrieveCryptoInsights(String coingeckoCryptoId) {
@@ -180,11 +178,12 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).toList();
+        var platformsIds = userCryptos.stream().map(userCrypto -> userCrypto.platform().getId()).toList();
         var platforms = platformService.findAllByIds(platformsIds);
         var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCryptoId);
 
-        var platformUserCryptoQuantity = userCryptos.stream().collect(Collectors.toMap(UserCrypto::platformId, UserCrypto::quantity));
+        var platformUserCryptoQuantity = userCryptos.stream()
+            .collect(Collectors.toMap(userCrypto -> userCrypto.platform().getId(), UserCrypto::quantity));
         var totalCryptoQuantity = userCryptos.stream()
             .map(UserCrypto::quantity)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -192,20 +191,20 @@ public class InsightsService {
 
         var platformInsights = platforms.stream()
             .map(platform -> {
-                var quantity = platformUserCryptoQuantity.get(platform.id());
+                var quantity = platformUserCryptoQuantity.get(platform.getId());
                 var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
 
                 return new PlatformInsight(
                     quantity.toPlainString(),
                     cryptoTotalBalances,
                     calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),
-                    platform.name()
+                    platform.getName()
                 );
             })
             .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new CryptoInsightResponse(crypto.name(), totalBalances, platformInsights));
+        return Optional.of(new CryptoInsightResponse(crypto.getName(), totalBalances, platformInsights));
     }
 
     public Optional<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
@@ -217,7 +216,9 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());
+        var platformsIds = userCryptos.stream()
+            .map(userCrypto -> userCrypto.platform().getId())
+            .collect(Collectors.toSet());
         var platforms = platformService.findAllByIds(platformsIds);
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
         var platformsUserCryptos = getPlatformsUserCryptos(userCryptos, platforms);
@@ -240,7 +241,7 @@ public class InsightsService {
 
                 for (var userCrypto : cryptosUser) {
                     var crypto = cryptos.stream()
-                        .filter(c -> c.id().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))
+                        .filter(c -> c.getId().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))
                         .findFirst()
                         .orElseThrow();
                     var balance = getCryptoTotalBalances(crypto, userCrypto.quantity());
@@ -285,13 +286,13 @@ public class InsightsService {
                 var coingeckoCryptoId = entry.getKey();
                 var quantity = entry.getValue();
                 var crypto = cryptos.stream()
-                    .filter(c -> c.id().equalsIgnoreCase(coingeckoCryptoId))
+                    .filter(c -> c.getId().equalsIgnoreCase(coingeckoCryptoId))
                     .findFirst()
                     .orElseThrow();
                 var cryptoBalances = getCryptoTotalBalances(crypto, quantity);
 
                 return new CryptoInsights(
-                    crypto.name(),
+                    crypto.getName(),
                     coingeckoCryptoId,
                     quantity.toPlainString(),
                     cryptoBalances,
@@ -319,7 +320,9 @@ public class InsightsService {
         }
 
         var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());
-        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());
+        var platformsIds = userCryptos.stream()
+            .map(userCrypto -> userCrypto.platform().getId())
+            .collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var platforms = platformService.findAllByIds(platformsIds);
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
@@ -329,44 +332,30 @@ public class InsightsService {
 
         for (var userCrypto : userCryptos) {
             var crypto = cryptos.stream()
-                .filter(c -> c.id().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))
+                .filter(c -> c.getId().equalsIgnoreCase(userCrypto.coingeckoCryptoId()))
                 .findFirst()
                 .orElseThrow();
             var platform = platforms.stream()
-                .filter(p -> p.id().equalsIgnoreCase(userCrypto.platformId()))
+                .filter(p -> p.getId().equalsIgnoreCase(userCrypto.platform().getId()))
                 .findFirst()
                 .orElseThrow();
             var balances = getCryptoTotalBalances(crypto, userCrypto.quantity());
-            var circulatingSupply = getCirculatingSupply(crypto.maxSupply(), crypto.circulatingSupply());
+            var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());
 
             var userCryptosInsight = new UserCryptosInsights(
                 new CryptoInfo(
                     userCrypto.id(),
-                    crypto.name(),
-                    crypto.id(),
-                    crypto.ticker(),
-                    crypto.image()
+                    crypto.getName(),
+                    crypto.getId(),
+                    crypto.getTicker(),
+                    crypto.getImage()
                 ),
                 userCrypto.quantity().toPlainString(),
                 calculatePercentage(totalBalances.totalUSDBalance(), balances.totalUSDBalance()),
                 balances,
-                crypto.marketCapRank(),
-                new MarketData(
-                    circulatingSupply,
-                    crypto.maxSupply().toPlainString(),
-                    new CurrentPrice(
-                        crypto.lastKnownPrice().toPlainString(),
-                        crypto.lastKnownPriceInEUR().toPlainString(),
-                        crypto.lastKnownPriceInBTC().toPlainString()
-                    ),
-                    crypto.marketCap().toPlainString(),
-                    new PriceChange(
-                        crypto.changePercentageIn24h(),
-                        crypto.changePercentageIn7d(),
-                        crypto.changePercentageIn30d()
-                    )
-                ),
-                List.of(platform.name())
+                crypto.getMarketCapRank(),
+                new MarketData(circulatingSupply, crypto),
+                List.of(platform.getName())
             );
 
             userCryptosInsights.add(userCryptosInsight);
@@ -408,7 +397,9 @@ public class InsightsService {
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
         var cryptosIds = userCryptos.stream().map(UserCrypto::coingeckoCryptoId).collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
-        var platformsIds = userCryptos.stream().map(UserCrypto::platformId).collect(Collectors.toSet());
+        var platformsIds = userCryptos.stream()
+            .map(userCrypto -> userCrypto.platform().getId())
+            .collect(Collectors.toSet());
         var platforms = platformService.findAllByIds(platformsIds);
         var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
         var userCryptosQuantityPlatforms = getUserCryptosQuantityPlatforms(userCryptos, platforms);
@@ -419,33 +410,19 @@ public class InsightsService {
                 var cryptoTotalQuantity = entry.getValue().component1();
                 var cryptoPlatforms = entry.getValue().component2();
                 var crypto = cryptos.stream()
-                    .filter(c -> c.id().equalsIgnoreCase(entry.getKey()))
+                    .filter(c -> c.getId().equalsIgnoreCase(entry.getKey()))
                     .findFirst()
                     .orElseThrow();
                 var cryptoTotalBalances = getCryptoTotalBalances(crypto, cryptoTotalQuantity);
-                var circulatingSupply = getCirculatingSupply(crypto.maxSupply(), crypto.circulatingSupply());
+                var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());
 
                 return new UserCryptosInsights(
-                    new CryptoInfo(crypto.name(), crypto.id(), crypto.ticker(), crypto.image()),
+                    new CryptoInfo(crypto.getName(), crypto.getId(), crypto.getTicker(), crypto.getImage()),
                     cryptoTotalQuantity.toPlainString(),
                     calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),
                     cryptoTotalBalances,
-                    crypto.marketCapRank(),
-                    new MarketData(
-                        circulatingSupply,
-                        crypto.maxSupply().toPlainString(),
-                        new CurrentPrice(
-                            crypto.lastKnownPrice().toPlainString(),
-                            crypto.lastKnownPriceInEUR().toPlainString(),
-                            crypto.lastKnownPriceInBTC().toPlainString()
-                        ),
-                        crypto.marketCap().toPlainString(),
-                        new PriceChange(
-                            crypto.changePercentageIn24h(),
-                            crypto.changePercentageIn7d(),
-                            crypto.changePercentageIn30d()
-                        )
-                    ),
+                    crypto.getMarketCapRank(),
+                    new MarketData(circulatingSupply, crypto),
                     cryptoPlatforms
                 );
             })
@@ -491,12 +468,12 @@ public class InsightsService {
             var quantity = entry.getValue();
 
             var crypto = cryptos.stream()
-                .filter(c -> c.id().equalsIgnoreCase(coingeckoCryptoId))
+                .filter(c -> c.getId().equalsIgnoreCase(coingeckoCryptoId))
                 .findFirst()
                 .orElseThrow();
-            var lastKnownPrice = crypto.lastKnownPrice();
-            var lastKnownPriceInBTC = crypto.lastKnownPriceInBTC();
-            var lastKnownPriceInEUR = crypto.lastKnownPriceInEUR();
+            var lastKnownPrice = crypto.getLastKnownPrice();
+            var lastKnownPriceInBTC = crypto.getLastKnownPriceInBTC();
+            var lastKnownPriceInEUR = crypto.getLastKnownPriceInEUR();
 
             totalUSDBalance = totalUSDBalance.add(lastKnownPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP));
             totalBTCBalance = totalBTCBalance.add(lastKnownPriceInBTC.multiply(quantity)).stripTrailingZeros();
@@ -512,9 +489,9 @@ public class InsightsService {
 
     private BalancesResponse getCryptoTotalBalances(Crypto crypto, BigDecimal quantity) {
         return new BalancesResponse(
-            crypto.lastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
-            crypto.lastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
-            crypto.lastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
+            crypto.getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
+            crypto.getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
+            crypto.getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
         );
     }
 
@@ -542,16 +519,16 @@ public class InsightsService {
 
         userCryptos.forEach(userCrypto -> {
             var platform = platforms.stream()
-                .filter(p -> p.id().equalsIgnoreCase(userCrypto.platformId()))
+                .filter(p -> p.getId().equalsIgnoreCase(userCrypto.platform().getId()))
                 .findFirst()
                 .orElseThrow();
 
-            if (platformsUserCryptos.containsKey(platform.name())) {
-                var cryptos = new ArrayList<>(platformsUserCryptos.get(platform.name()));
+            if (platformsUserCryptos.containsKey(platform.getName())) {
+                var cryptos = new ArrayList<>(platformsUserCryptos.get(platform.getName()));
                 cryptos.add(userCrypto);
-                platformsUserCryptos.put(platform.name(), cryptos);
+                platformsUserCryptos.put(platform.getName(), cryptos);
             } else {
-                platformsUserCryptos.put(platform.name(), List.of(userCrypto));
+                platformsUserCryptos.put(platform.getName(), List.of(userCrypto));
             }
         });
 
@@ -594,10 +571,10 @@ public class InsightsService {
 
         userCryptos.forEach(userCrypto -> {
             var platformName = platforms.stream()
-                .filter(p -> p.id().equalsIgnoreCase(userCrypto.platformId()))
+                .filter(p -> p.getId().equalsIgnoreCase(userCrypto.platform().getId()))
                 .findFirst()
                 .orElseThrow()
-                .name();
+                .getName();
 
             if (map.containsKey(userCrypto.coingeckoCryptoId())) {
                 var crypto = map.get(userCrypto.coingeckoCryptoId());
@@ -620,16 +597,15 @@ public class InsightsService {
         return page + 1 >= totalPages;
     }
 
-    private List<DateBalance> retrieveDatesBalances(LocalDateTime from, LocalDateTime to) {
-        var toMax = to.toLocalDate().atTime(LocalTime.MAX);
-        log.info("Retrieving date balances from {} to {}", from, toMax);
+    private List<DateBalance> retrieveDatesBalances(LocalDate from, LocalDate to) {
+        log.info("Retrieving date balances from {} to {}", from, to);
 
-        return dateBalanceRepository.findDateBalancesByDateBetween(from, toMax);
+        return dateBalanceRepository.findDateBalancesByDateBetween(from, to);
     }
 
     private List<DateBalance> retrieveDatesBalances(long daysSubtraction, int minRequired,
-                                                    LocalDateTime from, LocalDateTime to) {
-        List<LocalDateTime> dates = new ArrayList<>();
+                                                    LocalDate from, LocalDate to) {
+        List<LocalDate> dates = new ArrayList<>();
 
         while (from.isBefore(to)) {
             dates.add(to);
@@ -646,8 +622,8 @@ public class InsightsService {
             retrieveLastTwelveDaysBalances();
     }
 
-    private List<DateBalance> retrieveYearDatesBalances(LocalDateTime now) {
-        List<LocalDateTime> dates = new ArrayList<>();
+    private List<DateBalance> retrieveYearDatesBalances(LocalDate now) {
+        List<LocalDate> dates = new ArrayList<>();
         dates.add(now);
 
         IntStream.range(1, 12)
@@ -663,8 +639,8 @@ public class InsightsService {
     }
 
     private List<DateBalance> retrieveLastTwelveDaysBalances() {
-        var to = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.MAX);
-        var from = to.toLocalDate().minusDays(12).atTime(23, 59, 59, 0);
+        var to = LocalDateTime.now(clock).toLocalDate();
+        var from = to.minusDays(12).atTime(23, 59, 59, 0).toLocalDate();
 
         log.info("Not enough balances. Retrieving balances for the last twelve days from {} to {}", from, to);
         return dateBalanceRepository.findDateBalancesByDateBetween(from, to);

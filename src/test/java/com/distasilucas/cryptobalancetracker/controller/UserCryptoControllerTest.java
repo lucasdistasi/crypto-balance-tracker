@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.FromPlatform;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
@@ -83,7 +84,8 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveSavedUserCryptoWithStatus200() {
         var userCryptoRequest = getUserCryptoRequest();
-        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin");
+        var platformEntity = new Platform(userCryptoRequest.platformId(), "COINBASE");
+        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin", platformEntity);
         var userCryptoResponse = userCryptoEntity.toUserCryptoResponse("bitcoin", "COINBASE");
 
         when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCryptoResponse);
@@ -97,7 +99,8 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveUpdatedUserCryptoWithStatus200() {
         var userCryptoRequest = getUserCryptoRequest();
-        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin");
+        var platformEntity = new Platform(userCryptoRequest.platformId(), "BINANCE");
+        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin", platformEntity);
         var userCryptoResponse = userCryptoEntity.toUserCryptoResponse("bitcoin", "BINANCE");
 
         when(userCryptoServiceMock.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest))

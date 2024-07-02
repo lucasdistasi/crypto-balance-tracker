@@ -16,10 +16,11 @@ the current price of each crypto, the balance per platform, and many more data! 
 
 :warning: Please note that the Coingecko API
 has [rate limits for the Free Plan](https://www.coingecko.com/en/api/pricing).
-To avoid hitting the rate limit, a scheduler retrieves and updates the price of the saved cryptos every 180 seconds.
-This ensures that the end-users do not exceed the rate limit by making multiple API calls.
+A scheduler retrieves and updates the price of the saved cryptos based on a given cronjob, nevertheless
+**Coingecko gives a limit of 10K calls per month and 30 per minute**. 
+Keep this in mind when configuring the amount to cryptos to update in the specified cronjob time.
 
-Keep in mind that the balances displayed in the app might not be 100% accurate due to variations in price data
+The balances displayed in the app might not be 100% accurate due to variations in price data
 from different exchanges. However, any discrepancies should be minimal.
 <br>
 
@@ -48,7 +49,7 @@ Do your own research before investing money you are not willing to loss.
 - Gradle 8.4
 - Lombok
 - Ehcache
-- MongoDB
+- PostgreSQL
 - JUnit 5 - Mockito
 - JaCoCo
 - Docker, Docker Compose
@@ -76,30 +77,25 @@ That being said, below you can find the instructions to run the application.
 2. Clone needed repositories.
     - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
     - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
-    - [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) (not needed if security is disabled)
     - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if
       security is disabled)
 3. If you want to secure the app, set the _security.enabled_ property in application.yml from this project to true.
    Default value is false.
 4. Set up environment variables in _.env_ file.
-    1. MONGODB_DATABASE. The name of the database.
-    2. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
-    3. DEMO_COINGECKO_API_KEY. API Key from Coingecko. If you have a PRO account fill PRO_COINGECKO_API_KEY and leave this one empty.
-5. Set your desired values in [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed)  **(remember this is not
-   needed if security is disabled)**.
-6. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to
+    1. JWT_SIGNING_KEY. The signing key. Leave empty if security is disabled.
+    2. DEMO_COINGECKO_API_KEY. API Key from Coingecko. If you have a PRO account fill PRO_COINGECKO_API_KEY and leave this one empty.
+5. Run `./gradlew bootJar` on the root of this project to create the executable jar that's going to be used by Docker to
    build the image.
-7. Create docker images (`docker build`) for the projects. Bear in mind that the docker image must match the project
+6. Create docker images (`docker build`) for the projects. Bear in mind that the docker image must match the project
    name.
     - [crypto-balance-tracker](https://github.com/lucasdistasi/crypto-balance-tracker)
     - [crypto-balance-tracker-ui](https://github.com/lucasdistasi/crypto-balance-tracker-ui)
-    - [cbt-mongo-seed](https://github.com/lucasdistasi/cbt-mongo.seed) (not needed if security is disabled)
     - [crypto-balance-tracker-login](https://github.com/lucasdistasi/crypto-balance-tracker-login) (not needed if
       security is disabled)
-8. On this project folder run `docker ompose up` if you don't want to use it with security
+7. On this project folder run `docker ompose up` if you don't want to use it with security
    or `docker-compose -f docker-compose-security.yml up` if you want to use it with security.
-9. Open the URL `http://localhost:5173` on your favourite web browser.
-10. Boila!
+8. Open the URL `http://localhost:5173` on your favourite web browser.
+9. Boila!
 
 ## Contributing :coffee:
 

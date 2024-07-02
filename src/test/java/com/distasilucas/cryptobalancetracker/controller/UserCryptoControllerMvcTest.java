@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
@@ -92,11 +93,12 @@ class UserCryptoControllerMvcTest {
 
     @Test
     void shouldRetrieveUserCryptoWithMaxValueWithStatus200() throws Exception {
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
         var userCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("9999999999999999.999999999999"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity
         );
 
         var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");

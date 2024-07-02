@@ -1,6 +1,9 @@
 spring:
   application:
     name: crypto-balance-tracker
+  liquibase:
+    change-log: classpath:db/changelog/master.yaml
+    enabled: true
   profiles:
     active: ${ENV_PROFILE:local}
     group:

@@ -1,15 +1,15 @@
 package com.distasilucas.cryptobalancetracker.repository;
 
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-public interface DateBalanceRepository extends MongoRepository<DateBalance, String> {
+public interface DateBalanceRepository extends JpaRepository<DateBalance, String> {
 
-    List<DateBalance> findDateBalancesByDateBetween(LocalDateTime from, LocalDateTime to);
-    List<DateBalance> findAllByDateIn(List<LocalDateTime> date);
-    Optional<DateBalance> findDateBalanceByDate(LocalDateTime date);
+    List<DateBalance> findDateBalancesByDateBetween(LocalDate from, LocalDate to);
+    List<DateBalance> findAllByDateIn(List<LocalDate> date);
+    Optional<DateBalance> findDateBalanceByDate(LocalDate date);
 }

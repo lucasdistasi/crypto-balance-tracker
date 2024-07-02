@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getPlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -64,11 +64,12 @@ class UserCryptoServiceTest {
     @Test
     void shouldFindUserCryptoById() {
         var userCrypto = getUserCrypto();
+        var platformEntity = getBinancePlatformEntity();
         var expected = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("0.25"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity
         );
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
@@ -96,7 +97,7 @@ class UserCryptoServiceTest {
     void shouldRetrieveUserCrypto() {
         var userCrypto = getUserCrypto();
         var crypto = getBitcoinCryptoEntity();
-        var platform = getPlatformEntity();
+        var platform = getBinancePlatformEntity();
         var expected = new UserCryptoResponse(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "Bitcoin",
@@ -130,7 +131,7 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCryptosByPage() {
         var userCrypto = getUserCrypto();
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
         var crypto = getBitcoinCryptoEntity();
         var expected = new PageUserCryptoResponse(
             1,
@@ -154,7 +155,7 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCryptosByPageWithNextPage() {
         var userCrypto = getUserCrypto();
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
         var crypto = getBitcoinCryptoEntity();
         var userCryptosPage = List.of(userCrypto, userCrypto);
         var pageImpl = new PageImpl<>(userCryptosPage, PageRequest.of(0, 2), 10L);
@@ -196,7 +197,7 @@ class UserCryptoServiceTest {
     void shouldSaveUserCrypto() {
         var userCryptoRequest = getUserCryptoRequest();
         var coingeckoCrypto = getCoingeckoCrypto();
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
 
         var captor = ArgumentCaptor.forClass(UserCrypto.class);
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
@@ -226,7 +227,7 @@ class UserCryptoServiceTest {
     void shouldThrowDuplicatedCryptoPlatFormExceptionWHenSavingUserCrypto() {
         var userCryptoRequest = getUserCryptoRequest();
         var coingeckoCrypto = getCoingeckoCrypto();
-        var platformEntity = getPlatformEntity();
+        var platformEntity = getBinancePlatformEntity();
         var userCrypto = getUserCrypto();
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
@@ -250,13 +251,13 @@ class UserCryptoServiceTest {
     void shouldUpdateQuantityUserCrypto() {
         var userCryptoRequest = new UserCryptoRequest("bitcoin", new BigDecimal("1.25"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
         var userCrypto = getUserCrypto();
+        var platformEntity = getBinancePlatformEntity();
         var updatedUserCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("1.25"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity
         );
-        var platformEntity = getPlatformEntity();
         var coingeckoCrypto = getCoingeckoCrypto();
         var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "BINANCE");
 
@@ -283,13 +284,13 @@ class UserCryptoServiceTest {
     void shouldFullUpdateUserCrypto() {
         var userCryptoRequest = new UserCryptoRequest("bitcoin", new BigDecimal("1.25"), "123e4567-e89b-12d3-a456-426614174333");
         var userCrypto = getUserCrypto();
+        var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
         var updatedUserCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
             "bitcoin",
             new BigDecimal("1.25"),
-            "123e4567-e89b-12d3-a456-426614174333"
+            platformEntity
         );
-        var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
         var coingeckoCrypto = getCoingeckoCrypto();
         var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "COINBASE");
 
@@ -370,6 +371,7 @@ class UserCryptoServiceTest {
     @Test
     void shouldFindAllByCoingeckoCryptoId() {
         var userCrypto = getUserCrypto();
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
         when(userCryptoRepositoryMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
@@ -382,7 +384,7 @@ class UserCryptoServiceTest {
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
                     "bitcoin",
                     new BigDecimal("0.25"),
-                    "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                    platformEntity
                 )
             ));
     }
@@ -431,7 +433,7 @@ class UserCryptoServiceTest {
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
                     "bitcoin",
                     new BigDecimal("0.25"),
-                    "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                    getBinancePlatformEntity()
                 )
             ));
     }
@@ -451,7 +453,7 @@ class UserCryptoServiceTest {
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
                     "bitcoin",
                     new BigDecimal("0.25"),
-                    "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+                    getBinancePlatformEntity()
                 )
             ));
     }

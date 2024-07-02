@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet id="create-non-used-cryptos-view" author="distasilucas">
+        <createView viewName="non_used_cryptos_view">
+            SELECT crypto.id, crypto.name, crypto.ticker
+            FROM cryptos crypto
+            LEFT JOIN price_targets price_target
+            ON crypto.id = crypto.id
+            LEFT JOIN goals goal
+            ON crypto.id = goal.crypto_id
+            LEFT JOIN user_cryptos user_crypto
+            ON crypto.id = user_crypto.crypto_id
+            WHERE price_target.crypto_id IS NULL
+            AND goal.crypto_id IS NULL
+            AND user_crypto.crypto_id IS NULL;
+        </createView>
+    </changeSet>
+
+</databaseChangeLog>
