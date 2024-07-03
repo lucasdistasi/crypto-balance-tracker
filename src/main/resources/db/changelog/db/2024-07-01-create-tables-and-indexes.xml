@@ -24,6 +24,9 @@
             <column name="change_percentage_in_30d" type="DECIMAL"/>
             <column name="last_updated_at" type="TIMESTAMP"/>
         </createTable>
+        <createIndex tableName="cryptos" indexName="cryptos_id_index">
+            <column name="id"/>
+        </createIndex>
         <createIndex tableName="cryptos" indexName="cryptos_name_index">
             <column name="name"/>
         </createIndex>
@@ -62,6 +65,9 @@
             </column>
             <column name="name" type="VARCHAR2(24)"/>
         </createTable>
+        <createIndex tableName="platforms" indexName="platforms_id_index">
+            <column name="id"/>
+        </createIndex>
         <createIndex tableName="platforms" indexName="platforms_name_index">
             <column name="name"/>
         </createIndex>
@@ -72,7 +78,6 @@
             <column name="id" type="VARCHAR2(255)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="crypto_id" type="VARCHAR2(255)"/>
             <column name="quantity" type="DECIMAL"/>
             <column name="platform_id" type="VARCHAR2(255)">
                 <constraints nullable="false"
@@ -80,17 +85,13 @@
                              referencedTableName="platforms"
                              referencedColumnNames="id"/>
             </column>
+            <column name="crypto_id" type="VARCHAR2(255)">
+                <constraints nullable="false"
+                             foreignKeyName="fk_crypto_user_crypto"
+                             referencedTableName="cryptos"
+                             referencedColumnNames="id"/>
+            </column>
         </createTable>
-        <createIndex tableName="user_cryptos" indexName="user_cryptos_crypto_id_index">
-            <column name="crypto_id"/>
-        </createIndex>
-        <createIndex tableName="user_cryptos" indexName="user_cryptos_platform_id_index">
-            <column name="platform_id"/>
-        </createIndex>
-        <createIndex tableName="user_cryptos" indexName="user_cryptos_crypto_id_platform_id_index">
-            <column name="crypto_id"/>
-            <column name="platform_id"/>
-        </createIndex>
     </changeSet>
 
     <changeSet id="create-price-targets-table" author="distasilucas">

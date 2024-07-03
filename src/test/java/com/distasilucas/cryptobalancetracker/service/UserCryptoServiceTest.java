@@ -67,9 +67,9 @@ class UserCryptoServiceTest {
         var platformEntity = getBinancePlatformEntity();
         var expected = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("0.25"),
-            platformEntity
+            platformEntity,
+            getBitcoinCryptoEntity()
         );
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
@@ -207,7 +207,7 @@ class UserCryptoServiceTest {
             "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
         )).thenReturn(Optional.empty());
         when(userCryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
-        doNothing().when(cryptoServiceMock).saveCryptoIfNotExists("bitcoin");
+        when(cryptoServiceMock.saveCryptoIfNotExistsAndReturn("bitcoin")).thenReturn(getBitcoinCryptoEntity());
 
         var userCryptoResponse = userCryptoService.saveUserCrypto(userCryptoRequest);
 
@@ -372,9 +372,9 @@ class UserCryptoServiceTest {
             .isEqualTo(List.of(
                 new UserCrypto(
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-                    "bitcoin",
                     new BigDecimal("0.25"),
-                    platformEntity
+                    platformEntity,
+                    getBitcoinCryptoEntity()
                 )
             ));
     }
@@ -421,9 +421,9 @@ class UserCryptoServiceTest {
             .isEqualTo(List.of(
                 new UserCrypto(
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-                    "bitcoin",
                     new BigDecimal("0.25"),
-                    getBinancePlatformEntity()
+                    getBinancePlatformEntity(),
+                    getBitcoinCryptoEntity()
                 )
             ));
     }
@@ -441,9 +441,9 @@ class UserCryptoServiceTest {
             .isEqualTo(List.of(
                 new UserCrypto(
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-                    "bitcoin",
                     new BigDecimal("0.25"),
-                    getBinancePlatformEntity()
+                    getBinancePlatformEntity(),
+                    getBitcoinCryptoEntity()
                 )
             ));
     }

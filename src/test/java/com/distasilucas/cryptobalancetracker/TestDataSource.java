@@ -286,12 +286,13 @@ public class TestDataSource {
 
     public static UserCrypto getUserCrypto() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var crypto = getBitcoinCryptoEntity();
 
         return new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("0.25"),
-            platformEntity
+            platformEntity,
+            crypto
         );
     }
 

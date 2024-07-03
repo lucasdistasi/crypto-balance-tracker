@@ -26,6 +26,7 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.platform.Pl
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -36,7 +37,6 @@ import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +74,7 @@ class InsightsServiceTest {
     private InsightsService insightsService;
 
     private static final SortParams sortParams = new SortParams(SortBy.PERCENTAGE, SortType.DESC);
+    private static final LocalDateTime localDateTime = LocalDateTime.now();
 
     @BeforeEach
     void setUp() {
@@ -85,7 +86,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveTotalBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
 
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
@@ -464,10 +465,9 @@ class InsightsServiceTest {
 
     @Test
     void shouldRetrievePlatformInsightsWithMultipleCryptos() {
-        var localDateTime = LocalDateTime.now();
         var platformEntity = getBinancePlatformEntity();
         var bitcoinUserCrypto = getUserCrypto();
-        var polkadotUserCrypto = new UserCrypto("polkadot", new BigDecimal("100"), getBinancePlatformEntity());
+        var polkadotUserCrypto = new UserCrypto("1ad5b2fe-6060-48b5-aa02-3557e1d6e40b", new BigDecimal("100"), getBinancePlatformEntity(), getPolkadotCrypto());
         var bitcoinCryptoEntity = getBitcoinCryptoEntity();
         var polkadotCryptoEntity = new Crypto(
             "polkadot",
@@ -568,9 +568,9 @@ class InsightsServiceTest {
             getUserCrypto(),
             new UserCrypto(
                 "ed34425b-d9f7-4244-bd16-0212621848c6",
-                "bitcoin",
                 new BigDecimal("0.03455"),
-                coinbasePlatform
+                coinbasePlatform,
+                getBitcoinCryptoEntity()
             )
         );
         var bitcoinCryptoEntity = getBitcoinCryptoEntity();
@@ -618,7 +618,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrievePlatformsBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -662,7 +662,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveCryptosBalancesInsights() {
         var cryptos = List.of("bitcoin", "tether", "ethereum", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
 
         when(userCryptoServiceMock.findAll()).thenReturn(userCryptos);
@@ -862,7 +862,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsights() {
         var cryptos = List.of("bitcoin", "litecoin");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -952,7 +952,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForPageForRetrieveUserCryptosInsightsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1259,7 +1259,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosPlatformsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1362,7 +1362,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByCurrentPriceAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1465,7 +1465,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByMaxSupplyAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1568,7 +1568,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn24hDescending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1671,7 +1671,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn7dDescending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -1774,7 +1774,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveUserCryptosInsightsSortedByChangePriceIn30dAscending() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -2315,7 +2315,7 @@ class InsightsServiceTest {
     @Test
     void shouldRetrieveEmptyIfNoUserCryptosAreFoundForPageForRetrieveUserCryptosPlatformsInsights() {
         var cryptos = List.of("bitcoin", "ethereum", "tether");
-        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCoingeckoCryptoId())).toList();
+        var userCryptos = userCryptos().stream().filter(userCrypto -> cryptos.contains(userCrypto.getCrypto().getId())).toList();
         var cryptosEntities = cryptos().stream().filter(crypto -> cryptos.contains(crypto.getId())).toList();
         var binancePlatform = new Platform("163b1731-7a24-4e23-ac90-dc95ad8cb9e8", "BINANCE");
         var coinbasePlatform = new Platform("a76b400e-8ffc-42d6-bf47-db866eb20153", "COINBASE");
@@ -2336,279 +2336,329 @@ class InsightsServiceTest {
 
         return List.of(
             new UserCrypto(
-                "676fb38a-556e-11ee-b56e-325096b39f47", "bitcoin", new BigDecimal("0.15"), binancePlatform
+                "676fb38a-556e-11ee-b56e-325096b39f47", new BigDecimal("0.15"), binancePlatform, getBitcoinCryptoEntity()
             ),
             new UserCrypto(
-                "676fb600-556e-11ee-83b6-325096b39f47", "tether", new BigDecimal("200"), binancePlatform
+                "676fb600-556e-11ee-83b6-325096b39f47", new BigDecimal("200"), binancePlatform, getTetherCrypto()
             ),
             new UserCrypto(
-                "676fb696-556e-11ee-aa1c-325096b39f47", "ethereum", new BigDecimal("0.26"), binancePlatform
+                "676fb696-556e-11ee-aa1c-325096b39f47", new BigDecimal("0.26"), binancePlatform, getEthereumCrypto()
             ),
             new UserCrypto(
-                "676fba74-556e-11ee-9bff-325096b39f47", "ethereum", new BigDecimal("1.112"), coinbasePlatform
+                "676fba74-556e-11ee-9bff-325096b39f47", new BigDecimal("1.112"), coinbasePlatform, getEthereumCrypto()
             ),
             new UserCrypto(
-                "676fb70e-556e-11ee-8c2c-325096b39f47", "litecoin", new BigDecimal("3.125"), coinbasePlatform
+                "676fb70e-556e-11ee-8c2c-325096b39f47", new BigDecimal("3.125"), coinbasePlatform, getLitecoinCrypto()
             ),
             new UserCrypto(
-                "676fb768-556e-11ee-8b42-325096b39f47", "binancecoin", new BigDecimal("1"), binancePlatform
+                "676fb768-556e-11ee-8b42-325096b39f47", new BigDecimal("1"), binancePlatform, getBNBCrypto()
             ),
             new UserCrypto(
-                "676fb7c2-556e-11ee-9800-325096b39f47", "ripple", new BigDecimal("50"), coinbasePlatform
+                "676fb7c2-556e-11ee-9800-325096b39f47", new BigDecimal("50"), coinbasePlatform, getXRPCrypto()
             ),
             new UserCrypto(
-                "676fb83a-556e-11ee-9731-325096b39f47", "cardano", new BigDecimal("150"), binancePlatform
+                "676fb83a-556e-11ee-9731-325096b39f47", new BigDecimal("150"), binancePlatform, getCardanoCrypto()
             ),
             new UserCrypto(
-                "676fb89e-556e-11ee-b0b8-325096b39f47", "polkadot", new BigDecimal("40"), coinbasePlatform
+                "676fb89e-556e-11ee-b0b8-325096b39f47", new BigDecimal("40"), coinbasePlatform, getPolkadotCrypto()
             ),
             new UserCrypto(
-                "676fb8e4-556e-11ee-883e-325096b39f47", "solana", new BigDecimal("10"), binancePlatform
+                "676fb8e4-556e-11ee-883e-325096b39f47", new BigDecimal("10"), binancePlatform, getSolanaCrypto()
             ),
             new UserCrypto(
-                "676fb92a-556e-11ee-9de1-325096b39f47", "matic-network", new BigDecimal("100"), coinbasePlatform
+                "676fb92a-556e-11ee-9de1-325096b39f47", new BigDecimal("100"), coinbasePlatform, getPolygonCrypto()
             ),
             new UserCrypto(
-                "676fb966-556e-11ee-81d6-325096b39f47", "chainlink", new BigDecimal("35"), binancePlatform
+                "676fb966-556e-11ee-81d6-325096b39f47", new BigDecimal("35"), binancePlatform, getChainlinkCrypto()
             ),
             new UserCrypto(
-                "676fb9ac-556e-11ee-b4fa-325096b39f47", "dogecoin", new BigDecimal("500"), coinbasePlatform
+                "676fb9ac-556e-11ee-b4fa-325096b39f47", new BigDecimal("500"), coinbasePlatform, getDogecoinCrypto()
             ),
             new UserCrypto(
-                "676fb9f2-556e-11ee-a929-325096b39f47", "avalanche-2", new BigDecimal("25"), binancePlatform
+                "676fb9f2-556e-11ee-a929-325096b39f47", new BigDecimal("25"), binancePlatform, getAvalancheCrypto()
             ),
             new UserCrypto(
-                "676fba2e-556e-11ee-a181-325096b39f47", "uniswap", new BigDecimal("30"), coinbasePlatform
+                "676fba2e-556e-11ee-a181-325096b39f47", new BigDecimal("30"), coinbasePlatform, getUniswapCrypto()
             )
         );
     }
 
     private List<Crypto> cryptos() {
-        var localDateTime = LocalDateTime.now();
-
         return List.of(
             getBitcoinCryptoEntity(),
-            new Crypto(
-                "tether",
-                "Tether",
-                "usdt",
-                "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663",
-                new BigDecimal("0.999618"),
-                new BigDecimal("0.933095"),
-                new BigDecimal("0.0000388"),
-                new BigDecimal("83016246102"),
-                BigDecimal.ZERO,
-                3,
-                new BigDecimal("95085861049"),
-                new BigDecimal("0.00"),
-                new BigDecimal("0.00"),
-                new BigDecimal("0.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "ethereum",
-                "Ethereum",
-                "eth",
-                "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880",
-                new BigDecimal("1617.44"),
-                new BigDecimal("1509.37"),
-                new BigDecimal("0.06280356"),
-                new BigDecimal("120220572"),
-                BigDecimal.ZERO,
-                2,
-                new BigDecimal("298219864117"),
-                new BigDecimal("10.00"),
-                new BigDecimal("-5.00"),
-                new BigDecimal("2.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "litecoin",
-                "Litecoin",
-                "ltc",
-                "https://assets.coingecko.com/coins/images/2/large/litecoin.png?1547033580",
-                new BigDecimal("60.59"),
-                new BigDecimal("56.56"),
-                new BigDecimal("0.00235292"),
-                new BigDecimal("73638701"),
-                new BigDecimal("84000000"),
-                19,
-                new BigDecimal("5259205267"),
-                new BigDecimal("6.00"),
-                new BigDecimal("-2.00"),
-                new BigDecimal("12.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "binancecoin",
-                "BNB",
-                "bnb",
-                "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1644979850",
-                new BigDecimal("211.79"),
-                new BigDecimal("197.8"),
-                new BigDecimal("0.00811016"),
-                new BigDecimal("153856150"),
-                new BigDecimal("200000000"),
-                4,
-                new BigDecimal("48318686968"),
-                new BigDecimal("6.00"),
-                new BigDecimal("-2.00"),
-                new BigDecimal("12.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "ripple",
-                "XRP",
-                "xrp",
-                "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1605778731",
-                new BigDecimal("0.478363"),
-                new BigDecimal("0.446699"),
-                new BigDecimal("0.00001833"),
-                new BigDecimal("53083046512"),
-                new BigDecimal("100000000000"),
-                6,
-                new BigDecimal("29348197308"),
-                new BigDecimal("2.00"),
-                new BigDecimal("3.00"),
-                new BigDecimal("-5.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "cardano",
-                "Cardano",
-                "ada",
-                "https://assets.coingecko.com/coins/images/975/large/cardano.png?1547034860",
-                new BigDecimal("0.248915"),
-                new BigDecimal("0.231985"),
-                new BigDecimal("0.0000095"),
-                new BigDecimal("35045020830"),
-                new BigDecimal("45000000000"),
-                9,
-                new BigDecimal("29348197308"),
-                new BigDecimal("7.00"),
-                new BigDecimal("1.00"),
-                new BigDecimal("-2.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "polkadot",
-                "Polkadot",
-                "dot",
-                "https://assets.coingecko.com/coins/images/12171/large/polkadot.png?1639712644",
-                new BigDecimal("4.01"),
-                new BigDecimal("3.73"),
-                new BigDecimal("0.00015302"),
-                new BigDecimal("1274258350"),
-                BigDecimal.ZERO,
-                13,
-                new BigDecimal("8993575127"),
-                new BigDecimal("4.00"),
-                new BigDecimal("-1.00"),
-                new BigDecimal("2.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "solana",
-                "Solana",
-                "sol",
-                "https://assets.coingecko.com/coins/images/4128/large/solana.png?1640133422",
-                new BigDecimal("18.04"),
-                new BigDecimal("16.82"),
-                new BigDecimal("0.00068809"),
-                new BigDecimal("410905807"),
-                BigDecimal.ZERO,
-                5,
-                new BigDecimal("40090766907"),
-                new BigDecimal("4.00"),
-                new BigDecimal("1.00"),
-                new BigDecimal("-2.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "matic-network",
-                "Polygon",
-                "matic",
-                "https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912",
-                new BigDecimal("0.509995"),
-                new BigDecimal("0.475407"),
-                new BigDecimal("0.00001947"),
-                new BigDecimal("9319469069"),
-                new BigDecimal("10000000000"),
-                16,
-                new BigDecimal("7001911961"),
-                new BigDecimal("14.00"),
-                new BigDecimal("-10.00"),
-                new BigDecimal("2.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "chainlink",
-                "Chainlink",
-                "link",
-                "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700",
-                new BigDecimal("5.99"),
-                new BigDecimal("5.58"),
-                new BigDecimal("0.00022866"),
-                new BigDecimal("538099971"),
-                new BigDecimal("1000000000"),
-                14,
-                new BigDecimal("9021587267"),
-                new BigDecimal("4.00"),
-                new BigDecimal("-1.00"),
-                new BigDecimal("8.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "dogecoin",
-                "Dogecoin",
-                "doge",
-                "https://assets.coingecko.com/coins/images/5/large/dogecoin.png?1547792256",
-                new BigDecimal("0.061481"),
-                new BigDecimal("0.057319"),
-                new BigDecimal("0.00000235"),
-                new BigDecimal("140978466383"),
-                BigDecimal.ZERO,
-                11,
-                new BigDecimal("11195832359"),
-                new BigDecimal("-4.00"),
-                new BigDecimal("-1.00"),
-                new BigDecimal("-8.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "avalanche-2",
-                "Avalanche",
-                "avax",
-                "https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1670992574",
-                new BigDecimal("9.3"),
-                new BigDecimal("8.67"),
-                new BigDecimal("0.00035516"),
-                new BigDecimal("353804673"),
-                new BigDecimal("720000000"),
-                10,
-                new BigDecimal("11953262327"),
-                new BigDecimal("4.00"),
-                new BigDecimal("1.00"),
-                new BigDecimal("8.00"),
-                localDateTime
-            ),
-            new Crypto(
-                "uniswap",
-                "Uniswap",
-                "uni",
-                "https://assets.coingecko.com/coins/images/12504/large/uni.jpg?1687143398",
-                new BigDecimal("4.25"),
-                new BigDecimal("3.96"),
-                new BigDecimal("0.00016197"),
-                new BigDecimal("753766667"),
-                new BigDecimal("1000000000"),
-                22,
-                new BigDecimal("4772322900"),
-                new BigDecimal("2.00"),
-                new BigDecimal("-1.00"),
-                new BigDecimal("3.00"),
-                localDateTime
-            )
+            getTetherCrypto(),
+            getEthereumCrypto(),
+            getLitecoinCrypto(),
+            getBNBCrypto(),
+            getXRPCrypto(),
+            getCardanoCrypto(),
+            getPolkadotCrypto(),
+            getSolanaCrypto(),
+            getPolygonCrypto(),
+            getChainlinkCrypto(),
+            getDogecoinCrypto(),
+            getAvalancheCrypto(),
+            getUniswapCrypto()
+        );
+    }
+
+    private Crypto getUniswapCrypto() {
+        return new Crypto(
+            "uniswap",
+            "Uniswap",
+            "uni",
+            "https://assets.coingecko.com/coins/images/12504/large/uni.jpg?1687143398",
+            new BigDecimal("4.25"),
+            new BigDecimal("3.96"),
+            new BigDecimal("0.00016197"),
+            new BigDecimal("753766667"),
+            new BigDecimal("1000000000"),
+            22,
+            new BigDecimal("4772322900"),
+            new BigDecimal("2.00"),
+            new BigDecimal("-1.00"),
+            new BigDecimal("3.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getAvalancheCrypto() {
+        return new Crypto(
+            "avalanche-2",
+            "Avalanche",
+            "avax",
+            "https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1670992574",
+            new BigDecimal("9.3"),
+            new BigDecimal("8.67"),
+            new BigDecimal("0.00035516"),
+            new BigDecimal("353804673"),
+            new BigDecimal("720000000"),
+            10,
+            new BigDecimal("11953262327"),
+            new BigDecimal("4.00"),
+            new BigDecimal("1.00"),
+            new BigDecimal("8.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getDogecoinCrypto() {
+        return new Crypto(
+            "dogecoin",
+            "Dogecoin",
+            "doge",
+            "https://assets.coingecko.com/coins/images/5/large/dogecoin.png?1547792256",
+            new BigDecimal("0.061481"),
+            new BigDecimal("0.057319"),
+            new BigDecimal("0.00000235"),
+            new BigDecimal("140978466383"),
+            BigDecimal.ZERO,
+            11,
+            new BigDecimal("11195832359"),
+            new BigDecimal("-4.00"),
+            new BigDecimal("-1.00"),
+            new BigDecimal("-8.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getChainlinkCrypto() {
+        return new Crypto(
+            "chainlink",
+            "Chainlink",
+            "link",
+            "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700",
+            new BigDecimal("5.99"),
+            new BigDecimal("5.58"),
+            new BigDecimal("0.00022866"),
+            new BigDecimal("538099971"),
+            new BigDecimal("1000000000"),
+            14,
+            new BigDecimal("9021587267"),
+            new BigDecimal("4.00"),
+            new BigDecimal("-1.00"),
+            new BigDecimal("8.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getPolygonCrypto() {
+        return new Crypto(
+            "matic-network",
+            "Polygon",
+            "matic",
+            "https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912",
+            new BigDecimal("0.509995"),
+            new BigDecimal("0.475407"),
+            new BigDecimal("0.00001947"),
+            new BigDecimal("9319469069"),
+            new BigDecimal("10000000000"),
+            16,
+            new BigDecimal("7001911961"),
+            new BigDecimal("14.00"),
+            new BigDecimal("-10.00"),
+            new BigDecimal("2.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getSolanaCrypto() {
+        return new Crypto(
+            "solana",
+            "Solana",
+            "sol",
+            "https://assets.coingecko.com/coins/images/4128/large/solana.png?1640133422",
+            new BigDecimal("18.04"),
+            new BigDecimal("16.82"),
+            new BigDecimal("0.00068809"),
+            new BigDecimal("410905807"),
+            BigDecimal.ZERO,
+            5,
+            new BigDecimal("40090766907"),
+            new BigDecimal("4.00"),
+            new BigDecimal("1.00"),
+            new BigDecimal("-2.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getPolkadotCrypto() {
+        return new Crypto(
+            "polkadot",
+            "Polkadot",
+            "dot",
+            "https://assets.coingecko.com/coins/images/12171/large/polkadot.png?1639712644",
+            new BigDecimal("4.01"),
+            new BigDecimal("3.73"),
+            new BigDecimal("0.00015302"),
+            new BigDecimal("1274258350"),
+            BigDecimal.ZERO,
+            13,
+            new BigDecimal("8993575127"),
+            new BigDecimal("4.00"),
+            new BigDecimal("-1.00"),
+            new BigDecimal("2.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getCardanoCrypto() {
+        return new Crypto(
+            "cardano",
+            "Cardano",
+            "ada",
+            "https://assets.coingecko.com/coins/images/975/large/cardano.png?1547034860",
+            new BigDecimal("0.248915"),
+            new BigDecimal("0.231985"),
+            new BigDecimal("0.0000095"),
+            new BigDecimal("35045020830"),
+            new BigDecimal("45000000000"),
+            9,
+            new BigDecimal("29348197308"),
+            new BigDecimal("7.00"),
+            new BigDecimal("1.00"),
+            new BigDecimal("-2.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getXRPCrypto() {
+        return new Crypto(
+            "ripple",
+            "XRP",
+            "xrp",
+            "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1605778731",
+            new BigDecimal("0.478363"),
+            new BigDecimal("0.446699"),
+            new BigDecimal("0.00001833"),
+            new BigDecimal("53083046512"),
+            new BigDecimal("100000000000"),
+            6,
+            new BigDecimal("29348197308"),
+            new BigDecimal("2.00"),
+            new BigDecimal("3.00"),
+            new BigDecimal("-5.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getBNBCrypto() {
+        return new Crypto(
+            "binancecoin",
+            "BNB",
+            "bnb",
+            "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1644979850",
+            new BigDecimal("211.79"),
+            new BigDecimal("197.8"),
+            new BigDecimal("0.00811016"),
+            new BigDecimal("153856150"),
+            new BigDecimal("200000000"),
+            4,
+            new BigDecimal("48318686968"),
+            new BigDecimal("6.00"),
+            new BigDecimal("-2.00"),
+            new BigDecimal("12.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getLitecoinCrypto() {
+        return new Crypto(
+            "litecoin",
+            "Litecoin",
+            "ltc",
+            "https://assets.coingecko.com/coins/images/2/large/litecoin.png?1547033580",
+            new BigDecimal("60.59"),
+            new BigDecimal("56.56"),
+            new BigDecimal("0.00235292"),
+            new BigDecimal("73638701"),
+            new BigDecimal("84000000"),
+            19,
+            new BigDecimal("5259205267"),
+            new BigDecimal("6.00"),
+            new BigDecimal("-2.00"),
+            new BigDecimal("12.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getEthereumCrypto() {
+        return new Crypto(
+            "ethereum",
+            "Ethereum",
+            "eth",
+            "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880",
+            new BigDecimal("1617.44"),
+            new BigDecimal("1509.37"),
+            new BigDecimal("0.06280356"),
+            new BigDecimal("120220572"),
+            BigDecimal.ZERO,
+            2,
+            new BigDecimal("298219864117"),
+            new BigDecimal("10.00"),
+            new BigDecimal("-5.00"),
+            new BigDecimal("2.00"),
+            localDateTime
+        );
+    }
+
+    private Crypto getTetherCrypto() {
+        return new Crypto(
+            "tether",
+            "Tether",
+            "usdt",
+            "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663",
+            new BigDecimal("0.999618"),
+            new BigDecimal("0.933095"),
+            new BigDecimal("0.0000388"),
+            new BigDecimal("83016246102"),
+            BigDecimal.ZERO,
+            3,
+            new BigDecimal("95085861049"),
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00"),
+            localDateTime
         );
     }
 

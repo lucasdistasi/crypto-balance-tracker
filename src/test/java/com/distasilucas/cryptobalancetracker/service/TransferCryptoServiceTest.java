@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.NOT_ENOUGH_BALANCE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.SAME_FROM_TO_PLATFORM;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -248,9 +249,9 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("2.375321283"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -305,15 +306,15 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("1.105734142"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatformUserCrypto = new UserCrypto(
             "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-            "bitcoin",
             new BigDecimal("0.2512"),
-            BINANCE_PLATFORM
+            BINANCE_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -360,9 +361,9 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("1.105734142"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -408,9 +409,9 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("1.105734142"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatformUserCrypto = getToPlatformUserCrypto();
         var toPlatform = getToPlatform();
@@ -567,9 +568,9 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("2.375321283"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -597,9 +598,9 @@ class TransferCryptoServiceTest {
         );
         var userCryptoToTransfer = new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("2.375321283"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
         var toPlatform = getToPlatform();
         var fromPlatform = getFromPlatform();
@@ -629,18 +630,18 @@ class TransferCryptoServiceTest {
     private UserCrypto getUserCryptoToTransfer() {
         return new UserCrypto(
             "f47ac10b-58cc-4372-a567-0e02b2c3d479",
-            "bitcoin",
             new BigDecimal("2.375321283"),
-            BYBIT_PLATFORM
+            BYBIT_PLATFORM,
+            getBitcoinCryptoEntity()
         );
     }
 
     private UserCrypto getToPlatformUserCrypto() {
         return new UserCrypto(
             "a6b9f1e8-c1d5-4a8b-bf52-836e6a2e4c3d",
-            "bitcoin",
             new BigDecimal("1.752438292"),
-            BINANCE_PLATFORM
+            BINANCE_PLATFORM,
+            getBitcoinCryptoEntity()
         );
     }
 

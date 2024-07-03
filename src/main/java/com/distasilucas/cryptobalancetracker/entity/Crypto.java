@@ -3,6 +3,7 @@ package com.distasilucas.cryptobalancetracker.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,8 @@ import lombok.NoArgsConstructor;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Getter
 @Entity
@@ -57,4 +60,29 @@ public class Crypto implements Serializable {
 
     @Column(name = "last_updated_at")
     private LocalDateTime lastUpdatedAt;
+
+    @OneToMany(mappedBy = "crypto")
+    private List<UserCrypto> userCryptos;
+
+    public Crypto(String id, String name, String ticker, String image, BigDecimal lastKnownPrice,
+                  BigDecimal lastKnownPriceInEUR, BigDecimal lastKnownPriceInBTC, BigDecimal circulatingSupply,
+                  BigDecimal maxSupply, int marketCapRank, BigDecimal marketCap, BigDecimal changePercentageIn24h,
+                  BigDecimal changePercentageIn7d, BigDecimal changePercentageIn30d, LocalDateTime lastUpdatedAt) {
+        this.id = id;
+        this.name = name;
+        this.ticker = ticker;
+        this.image = image;
+        this.lastKnownPrice = lastKnownPrice;
+        this.lastKnownPriceInEUR = lastKnownPriceInEUR;
+        this.lastKnownPriceInBTC = lastKnownPriceInBTC;
+        this.circulatingSupply = circulatingSupply;
+        this.maxSupply = maxSupply;
+        this.marketCapRank = marketCapRank;
+        this.marketCap = marketCap;
+        this.changePercentageIn24h = changePercentageIn24h;
+        this.changePercentageIn7d = changePercentageIn7d;
+        this.changePercentageIn30d = changePercentageIn30d;
+        this.lastUpdatedAt = lastUpdatedAt;
+        this.userCryptos = Collections.emptyList();
+    }
 }

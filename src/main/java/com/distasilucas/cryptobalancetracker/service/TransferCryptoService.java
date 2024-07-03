@@ -43,7 +43,7 @@ public class TransferCryptoService {
         var remainingCryptoQuantity = transferCryptoRequest.calculateRemainingCryptoQuantity(availableQuantity);
         var quantityToSendReceive = transferCryptoRequest.calculateQuantityToSendReceive(remainingCryptoQuantity, availableQuantity);
         var toPlatformOptionalUserCrypto = userCryptoService.findByCoingeckoCryptoIdAndPlatformId(
-            userCryptoToTransfer.getCoingeckoCryptoId(),
+            userCryptoToTransfer.getCrypto().getId(),
             transferCryptoRequest.toPlatformId()
         );
 
@@ -68,9 +68,9 @@ public class TransferCryptoService {
             var uuid = UUID.randomUUID().toString();
             var toPlatformUserCrypto = new UserCrypto(
                 uuid,
-                userCryptoToTransfer.getCoingeckoCryptoId(),
                 quantityToSendReceive,
-                toPlatform
+                toPlatform,
+                userCryptoToTransfer.getCrypto()
             );
             var updatedUserCryptoToTransfer = userCryptoToTransfer.withQuantity(remainingCryptoQuantity);
 
@@ -110,9 +110,9 @@ public class TransferCryptoService {
         if (!doesFromPlatformHaveRemaining(remainingCryptoQuantity) && toPlatformOptionalUserCrypto.isEmpty()) {
             var updatedFromPlatformUserCrypto = new UserCrypto(
                 userCryptoToTransfer.getId(),
-                userCryptoToTransfer.getCoingeckoCryptoId(),
                 quantityToSendReceive,
-                toPlatform
+                toPlatform,
+                userCryptoToTransfer.getCrypto()
             );
 
             if (updatedFromPlatformUserCrypto.getQuantity().compareTo(BigDecimal.ZERO) > 0) {
@@ -128,7 +128,7 @@ public class TransferCryptoService {
             );
         }
 
-        log.info("Transferred {} of {} from platform {} to {}", quantityToTransfer, userCryptoToTransfer.getCoingeckoCryptoId(), fromPlatform.getName(), toPlatform.getName());
+        log.info("Transferred {} of {} from platform {} to {}", quantityToTransfer, userCryptoToTransfer.getCrypto().getId(), fromPlatform.getName(), toPlatform.getName());
 
         return transferCryptoResponse;
     }

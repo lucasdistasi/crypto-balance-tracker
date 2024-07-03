@@ -59,16 +59,17 @@ public class CryptoService {
             .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));
     }
 
-    public void saveCryptoIfNotExists(String coingeckoCryptoId) {
-        var cryptoOptional = cryptoRepository.findById(coingeckoCryptoId);
+    public Crypto saveCryptoIfNotExistsAndReturn(String coingeckoCryptoId) {
+        return cryptoRepository.findById(coingeckoCryptoId)
+            .orElseGet(() -> {
+                var crypto = getCrypto(coingeckoCryptoId);
+                cryptoRepository.save(crypto);
+                cacheService.invalidateCryptosCache();
 
-        if (cryptoOptional.isEmpty()) {
-            var crypto = getCrypto(coingeckoCryptoId);
-            cryptoRepository.save(crypto);
-            cacheService.invalidateCryptosCache();
+                log.info("Saved crypto {}", crypto);
 
-            log.info("Saved crypto {}", crypto);
-        }
+                return crypto;
+            });
     }
 
     public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {

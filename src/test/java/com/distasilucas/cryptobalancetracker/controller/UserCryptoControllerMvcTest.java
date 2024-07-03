@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.deleteUserCrypto;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getFileContent;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveUserCryptoById;
@@ -94,11 +95,12 @@ class UserCryptoControllerMvcTest {
     @Test
     void shouldRetrieveUserCryptoWithMaxValueWithStatus200() throws Exception {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var bitcoin = getBitcoinCryptoEntity();
         var userCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("9999999999999999.999999999999"),
-            platformEntity
+            platformEntity,
+            bitcoin
         );
 
         var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");

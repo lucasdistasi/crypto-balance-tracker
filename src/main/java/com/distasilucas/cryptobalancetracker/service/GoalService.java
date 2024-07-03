@@ -57,7 +57,7 @@ public class GoalService {
         }
 
         var goalEntity = goalRequest.toEntity(coingeckoCrypto.id());
-        cryptoService.saveCryptoIfNotExists(coingeckoCrypto.id());
+        cryptoService.saveCryptoIfNotExistsAndReturn(coingeckoCrypto.id());
         var goal = goalRepository.save(goalEntity);
 
         log.info("Saved goal {}", goal);

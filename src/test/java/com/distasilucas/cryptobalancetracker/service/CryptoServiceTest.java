@@ -226,7 +226,7 @@ class CryptoServiceTest {
     }
 
     @Test
-    void shouldSaveCryptoIfNotExists() {
+    void shouldSaveCryptoIfNotExistsAndReturn() {
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
@@ -255,7 +255,7 @@ class CryptoServiceTest {
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        cryptoService.saveCryptoIfNotExists("bitcoin");
+        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
@@ -266,7 +266,7 @@ class CryptoServiceTest {
     }
 
     @Test
-    void shouldSaveCryptoIfNotExistsWithZeroMaxSupply() {
+    void shouldSaveCryptoIfNotExistsAndReturnWithZeroMaxSupply() {
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
@@ -289,7 +289,7 @@ class CryptoServiceTest {
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        cryptoService.saveCryptoIfNotExists("bitcoin");
+        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
@@ -323,7 +323,7 @@ class CryptoServiceTest {
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.of(crypto));
 
-        cryptoService.saveCryptoIfNotExists("bitcoin");
+        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
 
         verify(cryptoRepositoryMock, never()).save(any());
     }

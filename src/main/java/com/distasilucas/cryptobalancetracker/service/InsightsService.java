@@ -82,7 +82,7 @@ public class InsightsService {
         }
 
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
-        var cryptosIds = userCryptos.stream().map(UserCrypto::getCoingeckoCryptoId).collect(Collectors.toSet());
+        var cryptosIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
 
@@ -140,16 +140,16 @@ public class InsightsService {
         }
 
         var platformResponse = platformService.retrievePlatformById(platformId);
-        var cryptosIds = userCryptosInPlatform.stream().map(UserCrypto::getCoingeckoCryptoId).toList();
+        var cryptosIds = userCryptosInPlatform.stream().map(userCrypto -> userCrypto.getCrypto().getId()).toList();
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var userCryptosQuantity = getUserCryptoQuantity(userCryptosInPlatform);
         var totalBalances = getTotalBalances(cryptos, userCryptosQuantity);
 
         var cryptosInsights = userCryptosInPlatform.stream()
             .map(userCrypto -> {
-                var quantity = userCryptosQuantity.get(userCrypto.getCoingeckoCryptoId());
+                var quantity = userCryptosQuantity.get(userCrypto.getCrypto().getId());
                 var crypto = cryptos.stream()
-                    .filter(c -> userCrypto.getCoingeckoCryptoId().equals(c.getId()))
+                    .filter(c -> userCrypto.getCrypto().getId().equals(c.getId()))
                     .findFirst()
                     .get();
                 var cryptoTotalBalances = getCryptoTotalBalances(crypto, quantity);
@@ -224,7 +224,7 @@ public class InsightsService {
         var platformsUserCryptos = getPlatformsUserCryptos(userCryptos, platforms);
         var cryptosIds = platformsUserCryptos.values()
             .stream()
-            .flatMap(cryptos -> cryptos.stream().map(UserCrypto::getCoingeckoCryptoId))
+            .flatMap(cryptos -> cryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()))
             .collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
@@ -241,7 +241,7 @@ public class InsightsService {
 
                 for (var userCrypto : cryptosUser) {
                     var crypto = cryptos.stream()
-                        .filter(c -> c.getId().equalsIgnoreCase(userCrypto.getCoingeckoCryptoId()))
+                        .filter(c -> c.getId().equalsIgnoreCase(userCrypto.getCrypto().getId()))
                         .findFirst()
                         .orElseThrow();
                     var balance = getCryptoTotalBalances(crypto, userCrypto.getQuantity());
@@ -276,7 +276,7 @@ public class InsightsService {
         }
 
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
-        var cryptosIds = userCryptos.stream().map(UserCrypto::getCoingeckoCryptoId).collect(Collectors.toSet());
+        var cryptosIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
 
@@ -319,7 +319,7 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var cryptosIds = userCryptos.stream().map(UserCrypto::getCoingeckoCryptoId).collect(Collectors.toSet());
+        var cryptosIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).collect(Collectors.toSet());
         var platformsIds = userCryptos.stream()
             .map(userCrypto -> userCrypto.getPlatform().getId())
             .collect(Collectors.toSet());
@@ -332,7 +332,7 @@ public class InsightsService {
 
         for (var userCrypto : userCryptos) {
             var crypto = cryptos.stream()
-                .filter(c -> c.getId().equalsIgnoreCase(userCrypto.getCoingeckoCryptoId()))
+                .filter(c -> c.getId().equalsIgnoreCase(userCrypto.getCrypto().getId()))
                 .findFirst()
                 .orElseThrow();
             var platform = platforms.stream()
@@ -388,7 +388,7 @@ public class InsightsService {
         }
 
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
-        var cryptosIds = userCryptos.stream().map(UserCrypto::getCoingeckoCryptoId).collect(Collectors.toSet());
+        var cryptosIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
         var platformsIds = userCryptos.stream()
             .map(userCrypto -> userCrypto.getPlatform().getId())
@@ -439,11 +439,11 @@ public class InsightsService {
         var userCryptoQuantity = new HashMap<String, BigDecimal>();
 
         userCryptos.forEach(userCrypto -> {
-            if (userCryptoQuantity.containsKey(userCrypto.getCoingeckoCryptoId())) {
-                var quantity = userCryptoQuantity.get(userCrypto.getCoingeckoCryptoId());
-                userCryptoQuantity.put(userCrypto.getCoingeckoCryptoId(), quantity.add(userCrypto.getQuantity()));
+            if (userCryptoQuantity.containsKey(userCrypto.getCrypto().getId())) {
+                var quantity = userCryptoQuantity.get(userCrypto.getCrypto().getId());
+                userCryptoQuantity.put(userCrypto.getCrypto().getId(), quantity.add(userCrypto.getQuantity()));
             } else {
-                userCryptoQuantity.put(userCrypto.getCoingeckoCryptoId(), userCrypto.getQuantity());
+                userCryptoQuantity.put(userCrypto.getCrypto().getId(), userCrypto.getQuantity());
             }
         });
 
@@ -569,17 +569,17 @@ public class InsightsService {
                 .orElseThrow()
                 .getName();
 
-            if (map.containsKey(userCrypto.getCoingeckoCryptoId())) {
-                var crypto = map.get(userCrypto.getCoingeckoCryptoId());
+            if (map.containsKey(userCrypto.getCrypto().getId())) {
+                var crypto = map.get(userCrypto.getCrypto().getId());
                 var actualQuantity = crypto.component1();
                 var actualPlatforms = new ArrayList<>(crypto.component2());
 
                 var newQuantity = actualQuantity.add(userCrypto.getQuantity());
                 actualPlatforms.add(platformName);
 
-                map.put(userCrypto.getCoingeckoCryptoId(), new Pair<>(newQuantity, actualPlatforms));
+                map.put(userCrypto.getCrypto().getId(), new Pair<>(newQuantity, actualPlatforms));
             } else {
-                map.put(userCrypto.getCoingeckoCryptoId(), new Pair<>(userCrypto.getQuantity(), List.of(platformName)));
+                map.put(userCrypto.getCrypto().getId(), new Pair<>(userCrypto.getQuantity(), List.of(platformName)));
             }
         });
 

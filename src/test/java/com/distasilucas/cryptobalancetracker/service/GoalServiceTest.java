@@ -85,9 +85,9 @@ class GoalServiceTest {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
         var userCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("1"),
-            platformEntity
+            platformEntity,
+            cryptoEntity
         );
         var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0.00");
 
@@ -212,7 +212,7 @@ class GoalServiceTest {
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.empty());
-        doNothing().when(cryptoServiceMock).saveCryptoIfNotExists("bitcoin");
+        when(cryptoServiceMock.saveCryptoIfNotExistsAndReturn("bitcoin")).thenReturn(getBitcoinCryptoEntity());
         when(goalRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
         when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(cryptoEntity);
         when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));

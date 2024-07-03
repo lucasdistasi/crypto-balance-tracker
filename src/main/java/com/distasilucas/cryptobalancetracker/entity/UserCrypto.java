@@ -1,7 +1,6 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
@@ -10,6 +9,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -18,6 +18,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "UserCryptos")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserCrypto implements Serializable {
@@ -25,17 +26,21 @@ public class UserCrypto implements Serializable {
     @Id
     private String id;
 
-    @Column(name = "crypto_id")
-    private String coingeckoCryptoId;
-
     private BigDecimal quantity;
 
     @ManyToOne
     @JoinColumn(name = "platform_id")
     private Platform platform;
 
-    public UserCrypto(String coingeckoCryptoId, BigDecimal quantity, Platform platform) {
-        this(UUID.randomUUID().toString(), coingeckoCryptoId, quantity, platform);
+    @ManyToOne
+    @JoinColumn(name = "crypto_id")
+    private Crypto crypto;
+
+    public UserCrypto(BigDecimal quantity, Platform platform, Crypto crypto) {
+        this.id = UUID.randomUUID().toString();
+        this.quantity = quantity;
+        this.platform = platform;
+        this.crypto = crypto;
     }
 
     public UserCryptoResponse toUserCryptoResponse(String cryptoName, String platformName) {
@@ -43,6 +48,6 @@ public class UserCrypto implements Serializable {
     }
 
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
-        return new UserCrypto(id, coingeckoCryptoId, updatedQuantity, platform);
+        return new UserCrypto(id, updatedQuantity, platform, crypto);
     }
 }

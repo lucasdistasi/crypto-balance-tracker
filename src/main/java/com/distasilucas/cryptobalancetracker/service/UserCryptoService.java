@@ -43,7 +43,7 @@ public class UserCryptoService {
         log.info("Retrieving user crypto with id {}", userCryptoId);
 
         var userCrypto = findUserCryptoById(userCryptoId);
-        var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.getCoingeckoCryptoId());
+        var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.getCrypto().getId());
         var platform = platformService.retrievePlatformById(userCrypto.getPlatform().getId());
 
         return userCrypto.toUserCryptoResponse(crypto.getName(), platform.getName());
@@ -59,7 +59,7 @@ public class UserCryptoService {
             .stream()
             .map(userCrypto -> {
                 var platform = platformService.retrievePlatformById(userCrypto.getPlatform().getId());
-                var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.getCoingeckoCryptoId());
+                var crypto = cryptoService.retrieveCryptoInfoById(userCrypto.getCrypto().getId());
 
                 return userCrypto.toUserCryptoResponse(crypto.getName(), platform.getName());
             })
@@ -80,9 +80,9 @@ public class UserCryptoService {
             throw new DuplicatedCryptoPlatFormException(message);
         });
 
-        var userCrypto = userCryptoRequest.toEntity(coingeckoCrypto.id(), platform);
+        var crypto = cryptoService.saveCryptoIfNotExistsAndReturn(coingeckoCrypto.id());
+        var userCrypto = new UserCrypto(userCryptoRequest.quantity(), platform, crypto);
 
-        cryptoService.saveCryptoIfNotExists(coingeckoCrypto.id());
         userCryptoRepository.save(userCrypto);
         log.info("Saved user crypto {}", userCrypto);
         cacheService.invalidateUserCryptosCaches();
@@ -97,16 +97,15 @@ public class UserCryptoService {
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());
 
         if (didChangePlatform(requestPlatform.getId(), platform.getId())) {
-            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(
-                coingeckoCrypto.id(),
-                userCryptoRequest.platformId()
-            ).ifPresent(uc -> {
-                String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.getName());
-                throw new DuplicatedCryptoPlatFormException(message);
-            });
+            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(coingeckoCrypto.id(), userCryptoRequest.platformId())
+                .ifPresent(uc -> {
+                    String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.getName());
+                    throw new DuplicatedCryptoPlatFormException(message);
+                });
         }
 
-        var updatedUserCrypto = userCryptoRequest.toEntity(userCrypto.getId(), userCrypto.getCoingeckoCryptoId(), requestPlatform);
+        var crypto = cryptoService.saveCryptoIfNotExistsAndReturn(coingeckoCrypto.id());
+        var updatedUserCrypto = new UserCrypto(userCrypto.getId(), userCryptoRequest.quantity(), platform, crypto);
 
         userCryptoRepository.save(updatedUserCrypto);
         cacheService.invalidateUserCryptosCaches();
@@ -118,7 +117,7 @@ public class UserCryptoService {
     public void deleteUserCrypto(String userCryptoId) {
         var userCrypto = findUserCryptoById(userCryptoId);
         userCryptoRepository.deleteById(userCryptoId);
-        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCoingeckoCryptoId());
+        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());
         cacheService.invalidateUserCryptosCaches();
 
         log.info("Deleted user crypto {}", userCryptoId);

@@ -6,6 +6,7 @@ import com.distasilucas.cryptobalancetracker.model.response.usercrypto.FromPlatf
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.TransferCryptoResponse;
+import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCryptoRequest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -84,9 +86,7 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveSavedUserCryptoWithStatus200() {
         var userCryptoRequest = getUserCryptoRequest();
-        var platformEntity = new Platform(userCryptoRequest.platformId(), "COINBASE");
-        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin", platformEntity);
-        var userCryptoResponse = userCryptoEntity.toUserCryptoResponse("bitcoin", "COINBASE");
+        var userCryptoResponse = new UserCryptoResponse("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "bitcoin", "0.25", "COINBASE");
 
         when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCryptoResponse);
 
@@ -99,9 +99,7 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveUpdatedUserCryptoWithStatus200() {
         var userCryptoRequest = getUserCryptoRequest();
-        var platformEntity = new Platform(userCryptoRequest.platformId(), "BINANCE");
-        var userCryptoEntity = userCryptoRequest.toEntity("bitcoin", platformEntity);
-        var userCryptoResponse = userCryptoEntity.toUserCryptoResponse("bitcoin", "BINANCE");
+        var userCryptoResponse = new UserCryptoResponse("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "bitcoin", "0.25", "BINANCE");
 
         when(userCryptoServiceMock.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest))
             .thenReturn(userCryptoResponse);
