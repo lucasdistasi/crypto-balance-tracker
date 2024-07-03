@@ -50,5 +50,9 @@ public class UserCrypto implements Serializable {
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
 <span class="fc" id="L51">        return new UserCrypto(id, updatedQuantity, platform, crypto);</span>
     }
+
+    public UserCrypto toUpdatedUserCrypto(BigDecimal quantity,  Platform platform) {
+<span class="fc" id="L55">        return new UserCrypto(this.id, quantity, platform, this.crypto);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
