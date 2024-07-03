@@ -13,9 +13,6 @@ services:
     volumes:
       - postgres-crypto-db-volume:/data/postgres/crypto-db
 
-  liquibase:
-
-
   crypto-balance-tracker-login:
     image: 'crypto-balance-tracker-login:latest'
     container_name: 'crypto-balance-tracker-login'
@@ -28,9 +25,9 @@ services:
     ports:
       - '8081:8081'
 
-  crypto-balance-tracker:
-    image: 'crypto-balance-tracker:latest'
-    container_name: 'crypto-balance-tracker'
+  crypto-balance-tracker-java:
+    image: 'crypto-balance-tracker-java:latest'
+    container_name: 'crypto-balance-tracker-java'
     depends_on:
       - postgresql-crypto-db
       - crypto-balance-tracker-login
@@ -47,7 +44,7 @@ services:
     image: 'crypto-balance-tracker-ui:latest'
     container_name: 'crypto-balance-tracker-ui'
     depends_on:
-      - crypto-balance-tracker
+      - crypto-balance-tracker-java
     ports:
       - '5173:5173'
 
