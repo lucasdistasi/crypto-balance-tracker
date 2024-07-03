@@ -5,31 +5,32 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 @Entity
 @Table(name = &quot;Goals&quot;)
-<span class="fc" id="L14">public record Goal(</span>
+@Getter
+<span class="nc" id="L17">@NoArgsConstructor</span>
+<span class="fc" id="L18">@AllArgsConstructor</span>
+public class Goal {
+
     @Id
-    String id,
+<span class="fc" id="L22">    private String id;</span>
 
     @Column(name = &quot;crypto_id&quot;)
-    String coingeckoCryptoId,
+<span class="fc" id="L25">    private String coingeckoCryptoId;</span>
 
     @Column(name = &quot;goal_quantity&quot;)
-    BigDecimal goalQuantity
-) {
-
-    public Goal(String coingeckoCryptoId, BigDecimal goalQuantity) {
-<span class="fc" id="L26">        this(UUID.randomUUID().toString(), coingeckoCryptoId, goalQuantity);</span>
-<span class="fc" id="L27">    }</span>
+<span class="fc" id="L28">    private BigDecimal goalQuantity;</span>
 
     public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
                                        BigDecimal remainingQuantity, BigDecimal moneyNeeded) {
-<span class="fc" id="L31">        return new GoalResponse(id, cryptoName, actualQuantity.toPlainString(), progress,</span>
-<span class="fc" id="L32">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
+<span class="fc" id="L32">        return new GoalResponse(id, cryptoName, actualQuantity.toPlainString(), progress,</span>
+<span class="fc" id="L33">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

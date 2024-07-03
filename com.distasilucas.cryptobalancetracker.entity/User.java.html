@@ -5,6 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,51 +18,53 @@ import java.util.List;
 
 @Entity
 @Table(name = &quot;Users&quot;)
-<span class="fc" id="L18">public record User(</span>
+@Getter
+<span class="nc" id="L22">@NoArgsConstructor</span>
+<span class="fc" id="L23">@AllArgsConstructor</span>
+public class User implements UserDetails {
+
     @Id
-    String id,
-    String username,
-    String password,
-    Role role,
+<span class="nc" id="L27">    private String id;</span>
+    private String username;
+    private String password;
+<span class="nc" id="L30">    private Role role;</span>
 
     @Column(name = &quot;created_at&quot;)
-    LocalDateTime createdAt
-
-) implements UserDetails {
+<span class="nc" id="L33">    private LocalDateTime createdAt;</span>
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
-<span class="fc" id="L32">        return List.of(new SimpleGrantedAuthority(role.name()));</span>
+<span class="fc" id="L37">        return List.of(new SimpleGrantedAuthority(role.name()));</span>
     }
 
     @Override
     public String getPassword() {
-<span class="fc" id="L37">        return password;</span>
+<span class="fc" id="L42">        return password;</span>
     }
 
     @Override
     public String getUsername() {
-<span class="fc" id="L42">        return username;</span>
+<span class="fc" id="L47">        return username;</span>
     }
 
     @Override
     public boolean isAccountNonExpired() {
-<span class="fc" id="L47">        return true;</span>
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
 <span class="fc" id="L52">        return true;</span>
     }
 
     @Override
-    public boolean isCredentialsNonExpired() {
+    public boolean isAccountNonLocked() {
 <span class="fc" id="L57">        return true;</span>
     }
 
     @Override
-    public boolean isEnabled() {
+    public boolean isCredentialsNonExpired() {
 <span class="fc" id="L62">        return true;</span>
+    }
+
+    @Override
+    public boolean isEnabled() {
+<span class="fc" id="L67">        return true;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

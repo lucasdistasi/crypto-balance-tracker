@@ -3,22 +3,29 @@
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
 @Table(name = &quot;DateBalances&quot;)
-<span class="fc" id="L12">public record DateBalance(</span>
+@Getter
+<span class="nc" id="L16">@NoArgsConstructor</span>
+<span class="fc" id="L17">@AllArgsConstructor</span>
+public class DateBalance {
 
     @Id
-    String id,
-    LocalDate date,
-    String balance
-) {
+<span class="fc" id="L21">    private String id;</span>
+<span class="fc" id="L22">    private LocalDate date;</span>
+<span class="fc" id="L23">    private String balance;</span>
 
-    public DateBalance(LocalDate date, String balance) {
-<span class="fc" id="L21">        this(UUID.randomUUID().toString(), date, balance);</span>
-<span class="fc" id="L22">    }</span>
+<span class="fc" id="L25">    public DateBalance(LocalDate date, String balance) {</span>
+<span class="fc" id="L26">        this.id = UUID.randomUUID().toString();</span>
+<span class="fc" id="L27">        this.date = date;</span>
+<span class="fc" id="L28">        this.balance = balance;</span>
+<span class="fc" id="L29">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

@@ -27,13 +27,13 @@ public class TransferCryptoService {
     public TransferCryptoResponse transferCrypto(TransferCryptoRequest transferCryptoRequest) {
 <span class="fc" id="L28">        var toPlatform = platformService.retrievePlatformById(transferCryptoRequest.toPlatformId());</span>
 <span class="fc" id="L29">        var userCryptoToTransfer = userCryptoService.findUserCryptoById(transferCryptoRequest.userCryptoId());</span>
-<span class="fc" id="L30">        var fromPlatform = platformService.retrievePlatformById(userCryptoToTransfer.platform().getId());</span>
+<span class="fc" id="L30">        var fromPlatform = platformService.retrievePlatformById(userCryptoToTransfer.getPlatform().getId());</span>
 
 <span class="fc bfc" id="L32" title="All 2 branches covered.">        if (isToAndFromSamePlatform(toPlatform.getId(), fromPlatform.getId())) {</span>
 <span class="fc" id="L33">            throw new ApiValidationException(HttpStatus.BAD_REQUEST, SAME_FROM_TO_PLATFORM);</span>
         }
 
-<span class="fc" id="L36">        var availableQuantity = userCryptoToTransfer.quantity();</span>
+<span class="fc" id="L36">        var availableQuantity = userCryptoToTransfer.getQuantity();</span>
 <span class="fc" id="L37">        var quantityToTransfer = transferCryptoRequest.quantityToTransfer();</span>
 
 <span class="fc bfc" id="L39" title="All 2 branches covered.">        if (transferCryptoRequest.hasInsufficientBalance(availableQuantity)) {</span>
@@ -43,7 +43,7 @@ public class TransferCryptoService {
 <span class="fc" id="L43">        var remainingCryptoQuantity = transferCryptoRequest.calculateRemainingCryptoQuantity(availableQuantity);</span>
 <span class="fc" id="L44">        var quantityToSendReceive = transferCryptoRequest.calculateQuantityToSendReceive(remainingCryptoQuantity, availableQuantity);</span>
 <span class="fc" id="L45">        var toPlatformOptionalUserCrypto = userCryptoService.findByCoingeckoCryptoIdAndPlatformId(</span>
-<span class="fc" id="L46">            userCryptoToTransfer.coingeckoCryptoId(),</span>
+<span class="fc" id="L46">            userCryptoToTransfer.getCrypto().getId(),</span>
 <span class="fc" id="L47">            transferCryptoRequest.toPlatformId()</span>
         );
 
@@ -51,7 +51,7 @@ public class TransferCryptoService {
 
 <span class="fc bfc" id="L52" title="All 4 branches covered.">        if (doesFromPlatformHaveRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalUserCrypto.isPresent()) {</span>
 <span class="fc" id="L53">            var toPlatformUserCrypto = toPlatformOptionalUserCrypto.get();</span>
-<span class="fc" id="L54">            var newQuantity = toPlatformUserCrypto.quantity().add(quantityToSendReceive);</span>
+<span class="fc" id="L54">            var newQuantity = toPlatformUserCrypto.getQuantity().add(quantityToSendReceive);</span>
 <span class="fc" id="L55">            var updatedFromPlatformUserCrypto = userCryptoToTransfer.withQuantity(remainingCryptoQuantity);</span>
 <span class="fc" id="L56">            var updatedToPlatformUserCrypto = toPlatformUserCrypto.withQuantity(newQuantity);</span>
 
@@ -68,9 +68,9 @@ public class TransferCryptoService {
 <span class="fc" id="L68">            var uuid = UUID.randomUUID().toString();</span>
 <span class="fc" id="L69">            var toPlatformUserCrypto = new UserCrypto(</span>
                 uuid,
-<span class="fc" id="L71">                userCryptoToTransfer.coingeckoCryptoId(),</span>
                 quantityToSendReceive,
-                toPlatform
+                toPlatform,
+<span class="fc" id="L73">                userCryptoToTransfer.getCrypto()</span>
             );
 <span class="fc" id="L75">            var updatedUserCryptoToTransfer = userCryptoToTransfer.withQuantity(remainingCryptoQuantity);</span>
 
@@ -93,11 +93,11 @@ public class TransferCryptoService {
 
 <span class="fc bfc" id="L94" title="All 4 branches covered.">        if (!doesFromPlatformHaveRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalUserCrypto.isPresent()) {</span>
 <span class="fc" id="L95">            var toPlatformUserCrypto = toPlatformOptionalUserCrypto.get();</span>
-<span class="fc" id="L96">            var newQuantity = toPlatformUserCrypto.quantity().add(quantityToSendReceive);</span>
+<span class="fc" id="L96">            var newQuantity = toPlatformUserCrypto.getQuantity().add(quantityToSendReceive);</span>
 
 <span class="fc" id="L98">            var updatedToPlatformUserCrypto = toPlatformUserCrypto.withQuantity(newQuantity);</span>
 
-<span class="fc" id="L100">            userCryptoService.deleteUserCrypto(userCryptoToTransfer.id());</span>
+<span class="fc" id="L100">            userCryptoService.deleteUserCrypto(userCryptoToTransfer.getId());</span>
 <span class="fc" id="L101">            userCryptoService.saveOrUpdateAll(List.of(updatedToPlatformUserCrypto));</span>
 
 <span class="fc" id="L103">            transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(</span>
@@ -109,16 +109,16 @@ public class TransferCryptoService {
 
 <span class="fc bfc" id="L110" title="All 4 branches covered.">        if (!doesFromPlatformHaveRemaining(remainingCryptoQuantity) &amp;&amp; toPlatformOptionalUserCrypto.isEmpty()) {</span>
 <span class="fc" id="L111">            var updatedFromPlatformUserCrypto = new UserCrypto(</span>
-<span class="fc" id="L112">                userCryptoToTransfer.id(),</span>
-<span class="fc" id="L113">                userCryptoToTransfer.coingeckoCryptoId(),</span>
+<span class="fc" id="L112">                userCryptoToTransfer.getId(),</span>
                 quantityToSendReceive,
-                toPlatform
+                toPlatform,
+<span class="fc" id="L115">                userCryptoToTransfer.getCrypto()</span>
             );
 
-<span class="fc bfc" id="L118" title="All 2 branches covered.">            if (updatedFromPlatformUserCrypto.quantity().compareTo(BigDecimal.ZERO) &gt; 0) {</span>
+<span class="fc bfc" id="L118" title="All 2 branches covered.">            if (updatedFromPlatformUserCrypto.getQuantity().compareTo(BigDecimal.ZERO) &gt; 0) {</span>
 <span class="fc" id="L119">                userCryptoService.saveOrUpdateAll(List.of(updatedFromPlatformUserCrypto));</span>
             } else {
-<span class="fc" id="L121">                userCryptoService.deleteUserCrypto(updatedFromPlatformUserCrypto.id());</span>
+<span class="fc" id="L121">                userCryptoService.deleteUserCrypto(updatedFromPlatformUserCrypto.getId());</span>
             }
 
 <span class="fc" id="L124">            transferCryptoResponse = transferCryptoRequest.toTransferCryptoResponse(</span>
@@ -128,7 +128,7 @@ public class TransferCryptoService {
             );
         }
 
-<span class="fc" id="L131">        log.info(&quot;Transferred {} of {} from platform {} to {}&quot;, quantityToTransfer, userCryptoToTransfer.coingeckoCryptoId(), fromPlatform.getName(), toPlatform.getName());</span>
+<span class="fc" id="L131">        log.info(&quot;Transferred {} of {} from platform {} to {}&quot;, quantityToTransfer, userCryptoToTransfer.getCrypto().getId(), fromPlatform.getName(), toPlatform.getName());</span>
 
 <span class="fc" id="L133">        return transferCryptoResponse;</span>
     }

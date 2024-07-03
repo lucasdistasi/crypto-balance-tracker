@@ -32,8 +32,8 @@ public class DateBalanceScheduler {
 
 <span class="fc" id="L33">        totalUSDBalance.ifPresent(balance -&gt; optionalDateBalance.ifPresentOrElse(</span>
             dateBalance -&gt; {
-<span class="fc" id="L35">                log.info(&quot;Updating balance for date {}. Old Balance: {}. New balance {}&quot;, now, dateBalance.balance(), balance);</span>
-<span class="fc" id="L36">                dateBalancesRepository.save(new DateBalance(dateBalance.id(), now, balance));</span>
+<span class="fc" id="L35">                log.info(&quot;Updating balance for date {}. Old Balance: {}. New balance {}&quot;, now, dateBalance.getBalance(), balance);</span>
+<span class="fc" id="L36">                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balance));</span>
 <span class="fc" id="L37">            },</span>
             () -&gt; {
 <span class="fc" id="L39">                log.info(&quot;Saving balance {} for date {}&quot;, balance, now);</span>

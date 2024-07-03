@@ -5,6 +5,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,34 +16,34 @@ import java.util.UUID;
 
 @Entity
 @Table(name = &quot;PriceTargets&quot;)
-<span class="fc" id="L15">public record PriceTarget(</span>
+@Getter
+<span class="pc" id="L20">@Setter</span>
+<span class="nc" id="L21">@NoArgsConstructor</span>
+<span class="fc" id="L22">@AllArgsConstructor</span>
+public class PriceTarget {
+
     @Id
-    String id,
+<span class="fc" id="L26">    private String id;</span>
 
     @Column(name = &quot;crypto_id&quot;)
-    String coingeckoCryptoId,
+<span class="fc" id="L29">    private String coingeckoCryptoId;</span>
 
-    BigDecimal target
-) {
-
-    public PriceTarget withTarget(BigDecimal target) {
-<span class="fc" id="L26">        return new PriceTarget(id(), coingeckoCryptoId(), target);</span>
-    }
+<span class="nc" id="L31">    private BigDecimal target;</span>
 
     public PriceTarget(String coingeckoCryptoId, BigDecimal target) {
-<span class="fc" id="L30">        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);</span>
-<span class="fc" id="L31">    }</span>
+<span class="fc" id="L34">        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);</span>
+<span class="fc" id="L35">    }</span>
 
     public PriceTargetResponse toPriceTargetResponse(String cryptoName, BigDecimal currentPrice, float change) {
-<span class="fc" id="L34">        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);</span>
+<span class="fc" id="L38">        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);</span>
     }
 
     public float calculateChangeNeeded(BigDecimal currentPrice) {
-<span class="fc" id="L38">        return target.subtract(currentPrice)</span>
-<span class="fc" id="L39">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L40">            .multiply(new BigDecimal(&quot;100&quot;))</span>
-<span class="fc" id="L41">            .setScale(2, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L42">            .floatValue();</span>
+<span class="fc" id="L42">        return target.subtract(currentPrice)</span>
+<span class="fc" id="L43">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L44">            .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L45">            .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L46">            .floatValue();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
