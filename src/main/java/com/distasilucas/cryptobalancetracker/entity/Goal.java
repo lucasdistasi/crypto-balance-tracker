@@ -4,6 +4,8 @@ import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,11 +23,12 @@ public class Goal {
     @Id
     private String id;
 
-    @Column(name = "crypto_id")
-    private String coingeckoCryptoId;
-
     @Column(name = "goal_quantity")
     private BigDecimal goalQuantity;
+
+    @ManyToOne
+    @JoinColumn(name = "crypto_id")
+    private Crypto crypto;
 
     public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
                                        BigDecimal remainingQuantity, BigDecimal moneyNeeded) {

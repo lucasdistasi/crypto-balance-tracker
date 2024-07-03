@@ -255,7 +255,7 @@ class CryptoServiceTest {
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
+        cryptoService.retrieveCryptoInfoById("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
@@ -289,7 +289,7 @@ class CryptoServiceTest {
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
+        cryptoService.retrieveCryptoInfoById("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
         verify(cacheServiceMock, times(1)).invalidateCryptosCache();
@@ -323,7 +323,7 @@ class CryptoServiceTest {
 
         when(cryptoRepositoryMock.findById("bitcoin")).thenReturn(Optional.of(crypto));
 
-        cryptoService.saveCryptoIfNotExistsAndReturn("bitcoin");
+        cryptoService.retrieveCryptoInfoById("bitcoin");
 
         verify(cryptoRepositoryMock, never()).save(any());
     }

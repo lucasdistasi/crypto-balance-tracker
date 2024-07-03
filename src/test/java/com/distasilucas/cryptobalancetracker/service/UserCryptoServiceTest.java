@@ -207,7 +207,7 @@ class UserCryptoServiceTest {
             "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
         )).thenReturn(Optional.empty());
         when(userCryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
-        when(cryptoServiceMock.saveCryptoIfNotExistsAndReturn("bitcoin")).thenReturn(getBitcoinCryptoEntity());
+        when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(getBitcoinCryptoEntity());
 
         var userCryptoResponse = userCryptoService.saveUserCrypto(userCryptoRequest);
 
@@ -298,6 +298,36 @@ class UserCryptoServiceTest {
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
         verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        assertThat(userCryptoResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(expected);
+    }
+
+    @Test
+    void shouldNotUpdateCryptoNameNorId() {
+        var captor = ArgumentCaptor.forClass(UserCrypto.class);
+        var userCryptoRequest = new UserCryptoRequest("ethereum", new BigDecimal("1.25"), "123e4567-e89b-12d3-a456-426614174333");
+        var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "COINBASE");
+        var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
+        var coingeckoCrypto = getCoingeckoCrypto();
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("0.25"),
+            platformEntity,
+            getBitcoinCryptoEntity()
+        );
+
+        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
+        when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
+        when(userCryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
+
+        var userCryptoResponse =
+            userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
+
+        verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);

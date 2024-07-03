@@ -53,8 +53,13 @@
             <column name="id" type="VARCHAR2(255)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="crypto_id" type="VARCHAR2(255)"/>
             <column name="goal_quantity" type="DECIMAL"/>
+            <column name="crypto_id" type="VARCHAR2(255)">
+                <constraints nullable="false"
+                             foreignKeyName="fk_crypto_goal"
+                             referencedTableName="cryptos"
+                             referencedColumnNames="id"/>
+            </column>
         </createTable>
     </changeSet>
 
@@ -99,8 +104,13 @@
             <column name="id" type="VARCHAR2(255)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="crypto_id" type="VARCHAR2(255)"/>
             <column name="target" type="DECIMAL"/>
+            <column name="crypto_id" type="VARCHAR2(255)">
+                <constraints nullable="false"
+                             foreignKeyName="fk_crypto_price_target"
+                             referencedTableName="cryptos"
+                             referencedColumnNames="id"/>
+            </column>
         </createTable>
         <createIndex tableName="price_targets" indexName="price_targets_crypto_id_target_index">
             <column name="crypto_id"/>

@@ -1,9 +1,10 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,17 +26,20 @@ public class PriceTarget {
     @Id
     private String id;
 
-    @Column(name = "crypto_id")
-    private String coingeckoCryptoId;
-
     private BigDecimal target;
 
-    public PriceTarget(String coingeckoCryptoId, BigDecimal target) {
-        this(UUID.randomUUID().toString(), coingeckoCryptoId, target);
+    @ManyToOne
+    @JoinColumn(name = "crypto_id")
+    private Crypto crypto;
+
+    public PriceTarget(BigDecimal target, Crypto crypto) {
+        this.id = UUID.randomUUID().toString();
+        this.target = target;
+        this.crypto = crypto;
     }
 
-    public PriceTargetResponse toPriceTargetResponse(String cryptoName, BigDecimal currentPrice, float change) {
-        return new PriceTargetResponse(id, cryptoName, currentPrice.toPlainString(), target.toPlainString(), change);
+    public PriceTargetResponse toPriceTargetResponse(Crypto crypto, float change) {
+        return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);
     }
 
     public float calculateChangeNeeded(BigDecimal currentPrice) {

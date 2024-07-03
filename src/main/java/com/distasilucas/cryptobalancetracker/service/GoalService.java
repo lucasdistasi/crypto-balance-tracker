@@ -56,8 +56,8 @@ public class GoalService {
             throw new DuplicatedGoalException(DUPLICATED_GOAL.formatted(coingeckoCrypto.name()));
         }
 
-        var goalEntity = goalRequest.toEntity(coingeckoCrypto.id());
-        cryptoService.saveCryptoIfNotExistsAndReturn(coingeckoCrypto.id());
+        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());
+        var goalEntity = goalRequest.toEntity(crypto);
         var goal = goalRepository.save(goalEntity);
 
         log.info("Saved goal {}", goal);
@@ -68,7 +68,7 @@ public class GoalService {
     public GoalResponse updateGoal(String goalId, GoalRequest goalRequest) {
         var goal = goalRepository.findById(goalId)
             .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
-        var updatedGoal = new Goal(goal.getId(), goal.getCoingeckoCryptoId(), goalRequest.goalQuantity());
+        var updatedGoal = new Goal(goal.getId(), goalRequest.goalQuantity(), goal.getCrypto());
 
         goalRepository.save(updatedGoal);
 
@@ -82,14 +82,15 @@ public class GoalService {
             .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
 
         goalRepository.deleteById(goalId);
-        cryptoService.deleteCryptoIfNotUsed(goal.getCoingeckoCryptoId());
+        cryptoService.deleteCryptoIfNotUsed(goal.getCrypto().getId());
 
         log.info("Deleted goal {}", goal);
     }
 
     private GoalResponse mapToGoalResponse(Goal goal) {
-        var crypto = cryptoService.retrieveCryptoInfoById(goal.getCoingeckoCryptoId());
-        var actualQuantity = userCryptoService.findAllByCoingeckoCryptoId(goal.getCoingeckoCryptoId())
+        var coingeckoCryptoId = goal.getCrypto().getId();
+        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCryptoId);
+        var actualQuantity = userCryptoService.findAllByCoingeckoCryptoId(coingeckoCryptoId)
             .stream()
             .map(UserCrypto::getQuantity)
             .reduce(BigDecimal.ZERO, BigDecimal::add);

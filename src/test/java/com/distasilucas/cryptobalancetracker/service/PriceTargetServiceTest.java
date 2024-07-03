@@ -61,10 +61,10 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldRetrievePriceTargetById() {
-        var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
+        var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
         when(priceTargetRepositoryMock.findById(priceTarget.getId())).thenReturn(Optional.of(priceTarget));
-        when(cryptoServiceMock.retrieveCryptoInfoById(priceTarget.getCoingeckoCryptoId())).thenReturn(getBitcoinCryptoEntity());
+        when(cryptoServiceMock.retrieveCryptoInfoById(priceTarget.getCrypto().getId())).thenReturn(getBitcoinCryptoEntity());
 
         var priceTargetResponse = priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
@@ -97,8 +97,8 @@ class PriceTargetServiceTest {
     void shouldRetrievePriceTargetsByPage() {
         var pageRequest = PageRequest.of(0, 10);
         var priceTargets = List.of(
-            new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000")),
-            new PriceTarget("ff738ff7-6f9a-400a-8b06-36b7e1fef81e", "bitcoin", new BigDecimal("100000"))
+            new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity()),
+            new PriceTarget("ff738ff7-6f9a-400a-8b06-36b7e1fef81e", new BigDecimal("100000"), getBitcoinCryptoEntity())
         );
         var pagePriceTargetResponse = new PagePriceTargetResponse(
             0,
@@ -165,7 +165,7 @@ class PriceTargetServiceTest {
     void shouldThrowDuplicatedPriceTargetExceptionWhenAddingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("120000"));
         var coingeckoCrypto = new CoingeckoCrypto("bitcoin", "btc", "Bitcoin");
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId())).thenReturn(coingeckoCrypto);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
@@ -183,7 +183,7 @@ class PriceTargetServiceTest {
     void shouldUpdatePriceTarget() {
         var captor = ArgumentCaptor.forClass(PriceTarget.class);
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
         when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
@@ -211,8 +211,8 @@ class PriceTargetServiceTest {
     @Test
     void shouldThrowDuplicatedPriceTargetExceptionWhenUpdatingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
-        var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
+        var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
 
         when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
@@ -243,7 +243,7 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldDeletePriceTarget() {
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
         when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
 

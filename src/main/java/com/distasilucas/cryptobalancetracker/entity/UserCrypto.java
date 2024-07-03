@@ -50,4 +50,8 @@ public class UserCrypto implements Serializable {
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
         return new UserCrypto(id, updatedQuantity, platform, crypto);
     }
+
+    public UserCrypto toUpdatedUserCrypto(BigDecimal quantity,  Platform platform) {
+        return new UserCrypto(this.id, quantity, platform, this.crypto);
+    }
 }

@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.model.request.pricetarget;
 
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.validation.ValidCryptoName;
 import jakarta.validation.constraints.DecimalMax;
@@ -34,7 +35,7 @@ public record PriceTargetRequest(
     BigDecimal priceTarget
 ) {
 
-    public PriceTarget toEntity(String coingeckoCryptoId) {
-        return new PriceTarget(coingeckoCryptoId, priceTarget);
+    public PriceTarget toEntity(Crypto crypto) {
+        return new PriceTarget(priceTarget, crypto);
     }
 }

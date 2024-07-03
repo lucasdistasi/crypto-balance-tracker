@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -61,8 +62,17 @@ public class Crypto implements Serializable {
     @Column(name = "last_updated_at")
     private LocalDateTime lastUpdatedAt;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "crypto")
     private List<UserCrypto> userCryptos;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "crypto")
+    private List<Goal> goals;
+
+    @ToString.Exclude
+    @OneToMany(mappedBy = "crypto")
+    private List<PriceTarget> priceTargets;
 
     public Crypto(String id, String name, String ticker, String image, BigDecimal lastKnownPrice,
                   BigDecimal lastKnownPriceInEUR, BigDecimal lastKnownPriceInBTC, BigDecimal circulatingSupply,
@@ -84,5 +94,7 @@ public class Crypto implements Serializable {
         this.changePercentageIn30d = changePercentageIn30d;
         this.lastUpdatedAt = lastUpdatedAt;
         this.userCryptos = Collections.emptyList();
+        this.goals = Collections.emptyList();
+        this.priceTargets = Collections.emptyList();
     }
 }

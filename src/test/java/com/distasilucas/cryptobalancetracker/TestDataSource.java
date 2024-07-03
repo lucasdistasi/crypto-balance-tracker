@@ -317,7 +317,7 @@ public class TestDataSource {
     }
 
     public static Goal getGoalEntity() {
-        return new Goal(UUID.randomUUID().toString(), "bitcoin", new BigDecimal("1"));
+        return new Goal(UUID.randomUUID().toString(), new BigDecimal("1"), getBitcoinCryptoEntity());
     }
 
     public static BalancesResponse getBalances() {

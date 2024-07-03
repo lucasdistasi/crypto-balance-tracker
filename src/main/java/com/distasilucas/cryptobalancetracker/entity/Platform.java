@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -24,6 +25,7 @@ public class Platform implements Serializable {
     private String id;
     private String name;
 
+    @ToString.Exclude
     @OneToMany(mappedBy = "platform")
     private List<UserCrypto> userCryptos;
 

@@ -35,17 +35,16 @@ public class CryptoService {
     public Crypto retrieveCryptoInfoById(String coingeckoCryptoId) {
         log.info("Retrieving crypto info for id {}", coingeckoCryptoId);
 
-        var cryptoOptional = cryptoRepository.findById(coingeckoCryptoId);
+        return cryptoRepository.findById(coingeckoCryptoId)
+            .orElseGet(() -> {
+                var crypto = getCrypto(coingeckoCryptoId);
+                cryptoRepository.save(crypto);
+                cacheService.invalidateCryptosCache();
 
-        if (cryptoOptional.isPresent()) {
-            return cryptoOptional.get();
-        }
+                log.info("Saved crypto {}", crypto);
 
-        var cryptoToSave = getCrypto(coingeckoCryptoId);
-
-        log.info("Saved crypto {} because it didn't exist", cryptoToSave);
-
-        return cryptoRepository.save(cryptoToSave);
+                return crypto;
+            });
     }
 
     public CoingeckoCrypto retrieveCoingeckoCryptoInfoByNameOrId(String cryptoNameOrId) {
@@ -57,19 +56,6 @@ public class CryptoService {
                 coingeckoCrypto.id().equalsIgnoreCase(cryptoNameOrId))
             .findFirst()
             .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));
-    }
-
-    public Crypto saveCryptoIfNotExistsAndReturn(String coingeckoCryptoId) {
-        return cryptoRepository.findById(coingeckoCryptoId)
-            .orElseGet(() -> {
-                var crypto = getCrypto(coingeckoCryptoId);
-                cryptoRepository.save(crypto);
-                cacheService.invalidateCryptosCache();
-
-                log.info("Saved crypto {}", crypto);
-
-                return crypto;
-            });
     }
 
     public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {

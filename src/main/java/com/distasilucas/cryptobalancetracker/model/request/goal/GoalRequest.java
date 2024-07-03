@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.model.request.goal;
 
+import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.validation.ValidCryptoName;
 import jakarta.validation.constraints.DecimalMax;
@@ -36,7 +37,7 @@ public record GoalRequest(
     BigDecimal goalQuantity
 ) {
 
-    public Goal toEntity(String coingeckoCryptoId) {
-        return new Goal(UUID.randomUUID().toString(), coingeckoCryptoId, goalQuantity);
+    public Goal toEntity(Crypto crypto) {
+        return new Goal(UUID.randomUUID().toString(), goalQuantity, crypto);
     }
 }
