@@ -40,7 +40,7 @@
             <column name="id" type="VARCHAR2(255)">
                 <constraints primaryKey="true"/>
             </column>
-            <column name="date" type="TIMESTAMP"/>
+            <column name="date" type="DATE"/>
             <column name="balance" type="VARCHAR2(255)"/>
         </createTable>
         <createIndex tableName="date_balances" indexName="date_balances_date_index">
