@@ -19,18 +19,18 @@ import java.util.List;
 @Entity
 @Table(name = &quot;Users&quot;)
 @Getter
-<span class="nc" id="L22">@NoArgsConstructor</span>
-<span class="fc" id="L23">@AllArgsConstructor</span>
+@NoArgsConstructor
+@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
-<span class="nc" id="L27">    private String id;</span>
+    private String id;
     private String username;
     private String password;
-<span class="nc" id="L30">    private Role role;</span>
+    private Role role;
 
     @Column(name = &quot;created_at&quot;)
-<span class="nc" id="L33">    private LocalDateTime createdAt;</span>
+    private LocalDateTime createdAt;
 
     @Override
     public Collection&lt;? extends GrantedAuthority&gt; getAuthorities() {
@@ -67,4 +67,4 @@ public class User implements UserDetails {
 <span class="fc" id="L67">        return true;</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

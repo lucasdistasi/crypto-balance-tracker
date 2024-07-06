@@ -17,17 +17,17 @@ import java.util.List;
 @Entity
 @Table(name = &quot;Platforms&quot;)
 @Getter
-<span class="nc" id="L20">@NoArgsConstructor</span>
-<span class="nc" id="L21">@AllArgsConstructor</span>
+@NoArgsConstructor
+@AllArgsConstructor
 public class Platform implements Serializable {
 
     @Id
-<span class="fc" id="L25">    private String id;</span>
-<span class="fc" id="L26">    private String name;</span>
+    private String id;
+    private String name;
 
     @ToString.Exclude
     @OneToMany(mappedBy = &quot;platform&quot;)
-<span class="fc" id="L30">    private List&lt;UserCrypto&gt; userCryptos;</span>
+    private List&lt;UserCrypto&gt; userCryptos;
 
 <span class="fc" id="L32">    public Platform(String id, String name) {</span>
 <span class="fc" id="L33">        this.id = id;</span>
@@ -39,4 +39,4 @@ public class Platform implements Serializable {
 <span class="fc" id="L39">        return new PlatformResponse(id, name);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

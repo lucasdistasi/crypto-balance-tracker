@@ -6,8 +6,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public class ApiException extends RuntimeException {
 
-<span class="fc" id="L9">    private final HttpStatus httpStatus;</span>
-<span class="fc" id="L10">    private final String message;</span>
+    private final HttpStatus httpStatus;
+    private final String message;
 
     public ApiException(HttpStatus httpStatus, String message) {
 <span class="fc" id="L13">        super(message);</span>
@@ -21,4 +21,4 @@ public class ApiException extends RuntimeException {
 <span class="fc" id="L21">        this.message = message;</span>
 <span class="fc" id="L22">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -18,23 +18,23 @@ import java.util.UUID;
 @Entity
 @Table(name = &quot;UserCryptos&quot;)
 @Getter
-<span class="nc" id="L21">@Setter</span>
-<span class="nc" id="L22">@NoArgsConstructor</span>
-<span class="fc" id="L23">@AllArgsConstructor</span>
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserCrypto implements Serializable {
 
     @Id
-<span class="fc" id="L27">    private String id;</span>
+    private String id;
 
-<span class="fc" id="L29">    private BigDecimal quantity;</span>
+    private BigDecimal quantity;
 
     @ManyToOne
     @JoinColumn(name = &quot;platform_id&quot;)
-<span class="fc" id="L33">    private Platform platform;</span>
+    private Platform platform;
 
     @ManyToOne
     @JoinColumn(name = &quot;crypto_id&quot;)
-<span class="fc" id="L37">    private Crypto crypto;</span>
+    private Crypto crypto;
 
 <span class="fc" id="L39">    public UserCrypto(BigDecimal quantity, Platform platform, Crypto crypto) {</span>
 <span class="fc" id="L40">        this.id = UUID.randomUUID().toString();</span>
@@ -55,4 +55,4 @@ public class UserCrypto implements Serializable {
 <span class="fc" id="L55">        return new UserCrypto(this.id, quantity, platform, this.crypto);</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

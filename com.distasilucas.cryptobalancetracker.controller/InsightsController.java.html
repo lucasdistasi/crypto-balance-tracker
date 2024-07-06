@@ -33,7 +33,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 @Validated
 @RestController
 @RequestMapping(INSIGHTS_ENDPOINT)
-<span class="fc" id="L36">@RequiredArgsConstructor</span>
+@RequiredArgsConstructor
 @CrossOrigin(origins = &quot;${allowed-origins}&quot;)
 public class InsightsController implements InsightsControllerAPI {
 
@@ -129,4 +129,4 @@ public class InsightsController implements InsightsControllerAPI {
 <span class="fc" id="L129">        return body.map(ResponseEntity::ok).orElseGet(() -&gt; ResponseEntity.noContent().build());</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

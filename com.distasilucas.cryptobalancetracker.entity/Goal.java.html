@@ -5,7 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,19 +16,19 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = &quot;Goals&quot;)
 @Getter
-<span class="nc" id="L19">@NoArgsConstructor</span>
-<span class="fc" id="L20">@AllArgsConstructor</span>
+@NoArgsConstructor
+@AllArgsConstructor
 public class Goal {
 
     @Id
-<span class="fc" id="L24">    private String id;</span>
+    private String id;
 
     @Column(name = &quot;goal_quantity&quot;)
-<span class="fc" id="L27">    private BigDecimal goalQuantity;</span>
+    private BigDecimal goalQuantity;
 
-    @ManyToOne
-    @JoinColumn(name = &quot;crypto_id&quot;)
-<span class="fc" id="L31">    private Crypto crypto;</span>
+    @OneToOne
+    @JoinColumn(name = &quot;crypto_id&quot;, nullable = false, unique = true)
+    private Crypto crypto;
 
     public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
                                        BigDecimal remainingQuantity, BigDecimal moneyNeeded) {
@@ -36,4 +36,4 @@ public class Goal {
 <span class="fc" id="L36">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
     }
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -13,14 +13,14 @@ import java.util.UUID;
 @Entity
 @Table(name = &quot;DateBalances&quot;)
 @Getter
-<span class="nc" id="L16">@NoArgsConstructor</span>
-<span class="fc" id="L17">@AllArgsConstructor</span>
+@NoArgsConstructor
+@AllArgsConstructor
 public class DateBalance {
 
     @Id
-<span class="fc" id="L21">    private String id;</span>
-<span class="fc" id="L22">    private LocalDate date;</span>
-<span class="fc" id="L23">    private String balance;</span>
+    private String id;
+    private LocalDate date;
+    private String balance;
 
 <span class="fc" id="L25">    public DateBalance(LocalDate date, String balance) {</span>
 <span class="fc" id="L26">        this.id = UUID.randomUUID().toString();</span>
@@ -28,4 +28,4 @@ public class DateBalance {
 <span class="fc" id="L28">        this.balance = balance;</span>
 <span class="fc" id="L29">    }</span>
 }
-</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
