@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -67,8 +68,8 @@ public class Crypto implements Serializable {
     private List<UserCrypto> userCryptos;
 
     @ToString.Exclude
-    @OneToMany(mappedBy = "crypto")
-    private List<Goal> goals;
+    @OneToOne(mappedBy = "crypto")
+    private Goal goal;
 
     @ToString.Exclude
     @OneToMany(mappedBy = "crypto")
@@ -94,7 +95,7 @@ public class Crypto implements Serializable {
         this.changePercentageIn30d = changePercentageIn30d;
         this.lastUpdatedAt = lastUpdatedAt;
         this.userCryptos = Collections.emptyList();
-        this.goals = Collections.emptyList();
+        this.goal = null;
         this.priceTargets = Collections.emptyList();
     }
 }

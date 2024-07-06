@@ -26,7 +26,6 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.platform.Pl
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
-import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

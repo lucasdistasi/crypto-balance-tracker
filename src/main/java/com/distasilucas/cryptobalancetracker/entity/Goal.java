@@ -5,7 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,8 +26,8 @@ public class Goal {
     @Column(name = "goal_quantity")
     private BigDecimal goalQuantity;
 
-    @ManyToOne
-    @JoinColumn(name = "crypto_id")
+    @OneToOne
+    @JoinColumn(name = "crypto_id", nullable = false, unique = true)
     private Crypto crypto;
 
     public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
