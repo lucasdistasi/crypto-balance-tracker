@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -19,6 +20,7 @@ import java.util.UUID;
 @Table(name = "UserCryptos")
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserCrypto implements Serializable {
@@ -43,8 +45,8 @@ public class UserCrypto implements Serializable {
         this.crypto = crypto;
     }
 
-    public UserCryptoResponse toUserCryptoResponse(String cryptoName, String platformName) {
-        return new UserCryptoResponse(id, cryptoName, quantity.toPlainString(), platformName);
+    public UserCryptoResponse toUserCryptoResponse() {
+        return new UserCryptoResponse(id, crypto.getName(), quantity.toPlainString(), platform.getName());
     }
 
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
@@ -53,5 +55,17 @@ public class UserCrypto implements Serializable {
 
     public UserCrypto toUpdatedUserCrypto(BigDecimal quantity,  Platform platform) {
         return new UserCrypto(this.id, quantity, platform, this.crypto);
+    }
+
+    public String toSavedUserCryptoString() {
+        return String.format("[%s] %s with quantity %s in platform %s",
+            crypto.getTicker(),
+            crypto.getName(),
+            quantity,
+            platform.getName());
+    }
+
+    public String toUpdatedUserCryptoString() {
+        return String.format("Crypto %s. Quantity %s. Platform %s", crypto.getName(), quantity, platform.getName());
     }
 }

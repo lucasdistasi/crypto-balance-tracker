@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
-import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.FromPlatform;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
@@ -19,7 +18,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCryptoRequest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,9 +44,9 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveUserCryptoByIdWithStatus200() {
         var userCrypto = getUserCrypto();
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");
+        var userCryptoResponse = userCrypto.toUserCryptoResponse();
 
-        when(userCryptoServiceMock.retrieveUserCryptoById("bitcoin")).thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.findUserCryptoById("bitcoin")).thenReturn(userCrypto);
 
         var responseEntity = userCryptoController.retrieveUserCrypto("bitcoin");
 
@@ -60,7 +58,7 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveUserCryptosForPageWithStatus200() {
         var userCrypto = getUserCrypto();
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "COINBASE");
+        var userCryptoResponse = userCrypto.toUserCryptoResponse();
         var pageUserCryptoResponse = new PageUserCryptoResponse(1, 1, false, List.of(userCryptoResponse));
 
         when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(pageUserCryptoResponse);

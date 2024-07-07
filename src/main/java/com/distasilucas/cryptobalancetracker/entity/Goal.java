@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Table(name = "Goals")
@@ -30,9 +31,32 @@ public class Goal {
     @JoinColumn(name = "crypto_id", nullable = false, unique = true)
     private Crypto crypto;
 
-    public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
-                                       BigDecimal remainingQuantity, BigDecimal moneyNeeded) {
-        return new GoalResponse(id, cryptoName, actualQuantity.toPlainString(), progress,
+    public GoalResponse toGoalResponse(BigDecimal actualQuantity) {
+        var progress = getProgress(actualQuantity);
+        var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);
+        var moneyNeeded = getMoneyNeeded(remainingQuantity);
+
+        return new GoalResponse(id, crypto.getName(), actualQuantity.toPlainString(), progress,
             remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());
+    }
+
+    private Float getProgress(BigDecimal actualQuantity) {
+        return goalQuantity.compareTo(actualQuantity) <= 0 ? 100F :
+            actualQuantity.multiply(new BigDecimal("100"))
+                .divide(goalQuantity, 2, RoundingMode.HALF_UP)
+                .floatValue();
+    }
+
+    private BigDecimal getRemainingQuantity(BigDecimal goalQuantity, BigDecimal actualQuantity) {
+        return goalQuantity.compareTo(actualQuantity) <= 0 ? BigDecimal.ZERO : goalQuantity.subtract(actualQuantity);
+    }
+
+    private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity) {
+        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    @Override
+    public String toString() {
+        return "Goal id [" + id + "] for crypto [" + crypto.getName() + "]";
     }
 }

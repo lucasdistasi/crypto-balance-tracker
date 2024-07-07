@@ -38,11 +38,15 @@ public class PriceTarget {
         this.crypto = crypto;
     }
 
-    public PriceTargetResponse toPriceTargetResponse(Crypto crypto, float change) {
+    public PriceTargetResponse toPriceTargetResponse() {
+        var change = calculateChangeNeeded();
+
         return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);
     }
 
-    public float calculateChangeNeeded(BigDecimal currentPrice) {
+    private float calculateChangeNeeded() {
+        var currentPrice = crypto.getLastKnownPrice();
+
         return target.subtract(currentPrice)
             .divide(currentPrice, 3, RoundingMode.HALF_UP)
             .multiply(new BigDecimal("100"))

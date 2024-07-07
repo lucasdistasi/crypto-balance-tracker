@@ -94,56 +94,17 @@ class UserCryptoServiceTest {
     }
 
     @Test
-    void shouldRetrieveUserCrypto() {
-        var userCrypto = getUserCrypto();
-        var crypto = getBitcoinCryptoEntity();
-        var platform = getBinancePlatformEntity();
-        var expected = new UserCryptoResponse(
-            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "Bitcoin",
-            "0.25",
-            "BINANCE"
-        );
-
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
-        when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(crypto);
-        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platform);
-
-        var userCryptoResponse = userCryptoService.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
-
-        assertThat(userCryptoResponse)
-            .usingRecursiveComparison()
-            .isEqualTo(expected);
-    }
-
-    @Test
-    void shouldThrowUserCryptoNotFoundExceptionIfUserCryptoDoesNotExists() {
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.empty());
-
-        var exception = assertThrows(
-            UserCryptoNotFoundException.class,
-            () -> userCryptoService.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")
-        );
-
-        assertEquals(USER_CRYPTO_ID_NOT_FOUND.formatted("af827ac7-d642-4461-a73c-b31ca6f6d13d"), exception.getMessage());
-    }
-
-    @Test
     void shouldRetrieveUserCryptosByPage() {
         var userCrypto = getUserCrypto();
-        var platformEntity = getBinancePlatformEntity();
-        var crypto = getBitcoinCryptoEntity();
         var expected = new PageUserCryptoResponse(
             1,
             1,
             false,
-            List.of(userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE"))
+            List.of(userCrypto.toUserCryptoResponse())
         );
 
         when(userCryptoRepositoryMock.findAll(PageRequest.of(0, 10)))
             .thenReturn(new PageImpl<>(List.of(userCrypto)));
-        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
-        when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(crypto);
 
         var pageUserCryptoResponse = userCryptoService.retrieveUserCryptosByPage(0);
 
@@ -155,8 +116,6 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCryptosByPageWithNextPage() {
         var userCrypto = getUserCrypto();
-        var platformEntity = getBinancePlatformEntity();
-        var crypto = getBitcoinCryptoEntity();
         var userCryptosPage = List.of(userCrypto, userCrypto);
         var pageImpl = new PageImpl<>(userCryptosPage, PageRequest.of(0, 2), 10L);
         var expected = new PageUserCryptoResponse(
@@ -164,14 +123,12 @@ class UserCryptoServiceTest {
             5,
             true,
             List.of(
-                userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE"),
-                userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE")
+                userCrypto.toUserCryptoResponse(),
+                userCrypto.toUserCryptoResponse()
             )
         );
 
         when(userCryptoRepositoryMock.findAll(PageRequest.of(0, 10))).thenReturn(pageImpl);
-        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
-        when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(crypto);
 
         var pageUserCryptoResponse = userCryptoService.retrieveUserCryptosByPage(0);
 

@@ -64,7 +64,7 @@ public class CryptoService {
         nonUsedCryptos.ifPresent(nonUsedCrypto -> {
             cryptoRepository.deleteById(nonUsedCrypto.getId());
             cacheService.invalidateCryptosCache();
-            log.info("Deleted crypto [{}] - ({}){} because it was not used", nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());
+            log.info("Deleted crypto [{}] - ({}) {} because it was not used", nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());
         });
     }
 

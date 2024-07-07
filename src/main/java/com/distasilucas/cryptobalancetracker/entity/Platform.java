@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "Platforms")
 @Getter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Platform implements Serializable {
@@ -25,6 +27,7 @@ public class Platform implements Serializable {
     private String id;
     private String name;
 
+    @Getter(AccessLevel.NONE)
     @ToString.Exclude
     @OneToMany(mappedBy = "platform")
     private List<UserCrypto> userCryptos;
@@ -38,4 +41,6 @@ public class Platform implements Serializable {
     public PlatformResponse toPlatformResponse() {
         return new PlatformResponse(id, name);
     }
+
+
 }

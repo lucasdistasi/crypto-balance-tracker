@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.service;
 
-import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
@@ -15,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
@@ -72,6 +70,7 @@ public class GoalService {
 
         goalRepository.save(updatedGoal);
 
+        // FIXME - TODO - Best tostring()
         log.info("Updated goal. Before: {} | After: {}", goal, updatedGoal);
 
         return mapToGoalResponse(updatedGoal);
@@ -89,30 +88,11 @@ public class GoalService {
 
     private GoalResponse mapToGoalResponse(Goal goal) {
         var coingeckoCryptoId = goal.getCrypto().getId();
-        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCryptoId);
         var actualQuantity = userCryptoService.findAllByCoingeckoCryptoId(coingeckoCryptoId)
             .stream()
             .map(UserCrypto::getQuantity)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-        var progress = getProgress(goal.getGoalQuantity(), actualQuantity);
-        var remainingQuantity = getRemainingQuantity(goal.getGoalQuantity(), actualQuantity);
-        var moneyNeeded = getMoneyNeeded(remainingQuantity, crypto);
 
-        return goal.toGoalResponse(goal.getId(), crypto.getName(), actualQuantity, progress, remainingQuantity, moneyNeeded);
-    }
-
-    private Float getProgress(BigDecimal goalQuantity, BigDecimal actualQuantity) {
-        return goalQuantity.compareTo(actualQuantity) <= 0 ? 100F :
-            actualQuantity.multiply(new BigDecimal("100"))
-                .divide(goalQuantity, 2, RoundingMode.HALF_UP)
-                .floatValue();
-    }
-
-    private BigDecimal getRemainingQuantity(BigDecimal goalQuantity, BigDecimal actualQuantity) {
-        return goalQuantity.compareTo(actualQuantity) <= 0 ? BigDecimal.ZERO : goalQuantity.subtract(actualQuantity);
-    }
-
-    private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity, Crypto crypto) {
-        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
+        return goal.toGoalResponse(actualQuantity);
     }
 }

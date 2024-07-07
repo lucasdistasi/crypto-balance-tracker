@@ -6,6 +6,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +21,7 @@ import java.util.List;
 @Getter
 @Entity
 @Table(name = "Cryptos")
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
 public class Crypto implements Serializable {
@@ -63,14 +65,17 @@ public class Crypto implements Serializable {
     @Column(name = "last_updated_at")
     private LocalDateTime lastUpdatedAt;
 
+    @Getter(AccessLevel.NONE)
     @ToString.Exclude
     @OneToMany(mappedBy = "crypto")
     private List<UserCrypto> userCryptos;
 
+    @Getter(AccessLevel.NONE)
     @ToString.Exclude
     @OneToOne(mappedBy = "crypto")
     private Goal goal;
 
+    @Getter(AccessLevel.NONE)
     @ToString.Exclude
     @OneToMany(mappedBy = "crypto")
     private List<PriceTarget> priceTargets;

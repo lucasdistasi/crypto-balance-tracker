@@ -79,10 +79,10 @@ class UserCryptoControllerMvcTest {
     @Test
     void shouldRetrieveUserCryptoByIdWithStatus200() throws Exception {
         var userCrypto = getUserCrypto();
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");
+        var userCryptoResponse = userCrypto.toUserCryptoResponse();
 
-        when(userCryptoServiceMock.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
-            .thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
+            .thenReturn(userCrypto);
 
         mockMvc.perform(retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
             .andExpect(status().isOk())
@@ -103,10 +103,10 @@ class UserCryptoControllerMvcTest {
             bitcoin
         );
 
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");
+        var userCryptoResponse = userCrypto.toUserCryptoResponse();
 
-        when(userCryptoServiceMock.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
-            .thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
+            .thenReturn(userCrypto);
 
         mockMvc.perform(retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
             .andExpect(status().isOk())
