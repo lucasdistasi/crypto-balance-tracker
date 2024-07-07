@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Entity
 @Table(name = &quot;Goals&quot;)
@@ -30,10 +31,33 @@ public class Goal {
     @JoinColumn(name = &quot;crypto_id&quot;, nullable = false, unique = true)
     private Crypto crypto;
 
-    public GoalResponse toGoalResponse(String id, String cryptoName, BigDecimal actualQuantity, float progress,
-                                       BigDecimal remainingQuantity, BigDecimal moneyNeeded) {
-<span class="fc" id="L35">        return new GoalResponse(id, cryptoName, actualQuantity.toPlainString(), progress,</span>
-<span class="fc" id="L36">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
+    public GoalResponse toGoalResponse(BigDecimal actualQuantity) {
+<span class="fc" id="L35">        var progress = getProgress(actualQuantity);</span>
+<span class="fc" id="L36">        var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);</span>
+<span class="fc" id="L37">        var moneyNeeded = getMoneyNeeded(remainingQuantity);</span>
+
+<span class="fc" id="L39">        return new GoalResponse(id, crypto.getName(), actualQuantity.toPlainString(), progress,</span>
+<span class="fc" id="L40">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
+    }
+
+    private Float getProgress(BigDecimal actualQuantity) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? 100F :</span>
+<span class="fc" id="L45">            actualQuantity.multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L46">                .divide(goalQuantity, 2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L47">                .floatValue();</span>
+    }
+
+    private BigDecimal getRemainingQuantity(BigDecimal goalQuantity, BigDecimal actualQuantity) {
+<span class="fc bfc" id="L51" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? BigDecimal.ZERO : goalQuantity.subtract(actualQuantity);</span>
+    }
+
+    private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity) {
+<span class="fc" id="L55">        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L60">        return &quot;Goal id [&quot; + id + &quot;] for crypto [&quot; + crypto.getName() + &quot;]&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

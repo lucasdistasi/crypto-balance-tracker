@@ -46,9 +46,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
         @PathVariable
         String userCryptoId
     ) {
-<span class="fc" id="L49">        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L49">        var userCrypto = userCryptoService.findUserCryptoById(userCryptoId);</span>
 
-<span class="fc" id="L51">        return ResponseEntity.ok(userCrypto);</span>
+<span class="fc" id="L51">        return ResponseEntity.ok(userCrypto.toUserCryptoResponse());</span>
     }
 
     @Override

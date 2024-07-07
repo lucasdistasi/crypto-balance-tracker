@@ -64,7 +64,7 @@ public class CryptoService {
 <span class="fc" id="L64">        nonUsedCryptos.ifPresent(nonUsedCrypto -&gt; {</span>
 <span class="fc" id="L65">            cryptoRepository.deleteById(nonUsedCrypto.getId());</span>
 <span class="fc" id="L66">            cacheService.invalidateCryptosCache();</span>
-<span class="fc" id="L67">            log.info(&quot;Deleted crypto [{}] - ({}){} because it was not used&quot;, nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());</span>
+<span class="fc" id="L67">            log.info(&quot;Deleted crypto [{}] - ({}) {} because it was not used&quot;, nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());</span>
 <span class="fc" id="L68">        });</span>
 <span class="fc" id="L69">    }</span>
 

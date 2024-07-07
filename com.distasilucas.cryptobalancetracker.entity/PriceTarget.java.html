@@ -38,16 +38,20 @@ public class PriceTarget {
 <span class="fc" id="L38">        this.crypto = crypto;</span>
 <span class="fc" id="L39">    }</span>
 
-    public PriceTargetResponse toPriceTargetResponse(Crypto crypto, float change) {
-<span class="fc" id="L42">        return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);</span>
+    public PriceTargetResponse toPriceTargetResponse() {
+<span class="fc" id="L42">        var change = calculateChangeNeeded();</span>
+
+<span class="fc" id="L44">        return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);</span>
     }
 
-    public float calculateChangeNeeded(BigDecimal currentPrice) {
-<span class="fc" id="L46">        return target.subtract(currentPrice)</span>
-<span class="fc" id="L47">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L48">            .multiply(new BigDecimal(&quot;100&quot;))</span>
-<span class="fc" id="L49">            .setScale(2, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L50">            .floatValue();</span>
+    private float calculateChangeNeeded() {
+<span class="fc" id="L48">        var currentPrice = crypto.getLastKnownPrice();</span>
+
+<span class="fc" id="L50">        return target.subtract(currentPrice)</span>
+<span class="fc" id="L51">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L52">            .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L53">            .setScale(2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L54">            .floatValue();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
