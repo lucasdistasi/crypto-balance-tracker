@@ -33,7 +33,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -521,7 +520,7 @@ class GoalControllerMvcTest {
         doNothing().when(goalServiceMock).deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         mockMvc.perform(deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3"))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 
     @ParameterizedTest

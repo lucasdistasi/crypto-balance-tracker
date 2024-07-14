@@ -22,7 +22,7 @@ public record UserCryptosInsights(
             userCrypto.getQuantity().toPlainString(),
             percentage,
             balances,
-            crypto.getMarketCapRank(),
+            crypto.getCryptoInfo().getMarketCapRank(),
             marketData,
             platforms
         );

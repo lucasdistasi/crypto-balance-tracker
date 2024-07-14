@@ -13,17 +13,17 @@ public record MarketData(
     public MarketData(CirculatingSupply circulatingSupply, Crypto crypto) {
         this(
             circulatingSupply,
-            crypto.getMaxSupply().toPlainString(),
+            crypto.getCryptoInfo().getMaxSupply().toPlainString(),
             new CurrentPrice(
-                crypto.getLastKnownPrice().toPlainString(),
-                crypto.getLastKnownPriceInEUR().toPlainString(),
-                crypto.getLastKnownPriceInBTC().toPlainString()
+                crypto.getLastKnownPrices().getLastKnownPrice().toPlainString(),
+                crypto.getLastKnownPrices().getLastKnownPriceInEUR().toPlainString(),
+                crypto.getLastKnownPrices().getLastKnownPriceInBTC().toPlainString()
             ),
-            crypto.getMarketCap().toPlainString(),
+            crypto.getCryptoInfo().getMarketCap().toPlainString(),
             new PriceChange(
-                crypto.getChangePercentageIn24h(),
-                crypto.getChangePercentageIn7d(),
-                crypto.getChangePercentageIn30d()
+                crypto.getChangePercentages().getChangePercentageIn24h(),
+                crypto.getChangePercentages().getChangePercentageIn7d(),
+                crypto.getChangePercentages().getChangePercentageIn30d()
             )
         );
     }

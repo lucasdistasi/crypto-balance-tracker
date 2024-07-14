@@ -46,7 +46,7 @@ public class UserCrypto implements Serializable {
     }
 
     public UserCryptoResponse toUserCryptoResponse() {
-        return new UserCryptoResponse(id, crypto.getName(), quantity.toPlainString(), platform.getName());
+        return new UserCryptoResponse(id, crypto.getCryptoInfo().getName(), quantity.toPlainString(), platform.getName());
     }
 
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
@@ -59,13 +59,13 @@ public class UserCrypto implements Serializable {
 
     public String toSavedUserCryptoString() {
         return String.format("[%s] %s with quantity %s in platform %s",
-            crypto.getTicker(),
-            crypto.getName(),
+            crypto.getCryptoInfo().getTicker(),
+            crypto.getCryptoInfo().getName(),
             quantity,
             platform.getName());
     }
 
     public String toUpdatedUserCryptoString() {
-        return String.format("Crypto %s. Quantity %s. Platform %s", crypto.getName(), quantity, platform.getName());
+        return String.format("Crypto %s. Quantity %s. Platform %s", crypto.getCryptoInfo().getName(), quantity, platform.getName());
     }
 }

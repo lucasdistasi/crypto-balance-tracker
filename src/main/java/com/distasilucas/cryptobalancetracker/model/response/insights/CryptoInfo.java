@@ -23,10 +23,10 @@ public record CryptoInfo(
     public CryptoInfo(UserCrypto userCrypto, Crypto crypto) {
         this(
             userCrypto.getId(),
-            crypto.getName(),
+            crypto.getCryptoInfo().getName(),
             crypto.getId(),
-            crypto.getTicker(),
-            crypto.getImage()
+            crypto.getCryptoInfo().getTicker(),
+            crypto.getCryptoInfo().getImage()
         );
     }
 }

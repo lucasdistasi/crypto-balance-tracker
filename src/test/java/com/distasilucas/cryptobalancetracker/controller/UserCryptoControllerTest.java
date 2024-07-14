@@ -11,6 +11,8 @@ import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -18,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCryptoRequest;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,8 +63,9 @@ class UserCryptoControllerTest {
         var userCrypto = getUserCrypto();
         var userCryptoResponse = userCrypto.toUserCryptoResponse();
         var pageUserCryptoResponse = new PageUserCryptoResponse(1, 1, false, List.of(userCryptoResponse));
+        var userCryptoPage = new PageImpl<>(Collections.singletonList(userCrypto));
 
-        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(pageUserCryptoResponse);
+        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(userCryptoPage);
 
         var responseEntity = userCryptoController.retrieveUserCryptosForPage(0);
 
@@ -71,9 +75,7 @@ class UserCryptoControllerTest {
 
     @Test
     void shouldRetrieveUserCryptosForPageWithStatus204() {
-        var pageUserCryptoResponse = new PageUserCryptoResponse(1, 1, false, Collections.emptyList());
-
-        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(pageUserCryptoResponse);
+        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(Page.empty());
 
         var responseEntity = userCryptoController.retrieveUserCryptosForPage(0);
 
@@ -83,10 +85,11 @@ class UserCryptoControllerTest {
 
     @Test
     void shouldRetrieveSavedUserCryptoWithStatus200() {
+        var userCrypto = getUserCrypto();
         var userCryptoRequest = getUserCryptoRequest();
-        var userCryptoResponse = new UserCryptoResponse("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "bitcoin", "0.25", "COINBASE");
+        var userCryptoResponse = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "0.25", "BINANCE");
 
-        when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCrypto);
 
         var responseEntity = userCryptoController.saveUserCrypto(userCryptoRequest);
 
@@ -97,25 +100,26 @@ class UserCryptoControllerTest {
     @Test
     void shouldRetrieveUpdatedUserCryptoWithStatus200() {
         var userCryptoRequest = getUserCryptoRequest();
-        var userCryptoResponse = new UserCryptoResponse("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "bitcoin", "0.25", "BINANCE");
+        var updatedUserCrypto = getUserCrypto().toUpdatedUserCrypto(userCryptoRequest.quantity(), getBinancePlatformEntity());
+        var userCryptoResponse = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "0.25", "BINANCE");
 
-        when(userCryptoServiceMock.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest))
-            .thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest))
+            .thenReturn(updatedUserCrypto);
 
-        var responseEntity = userCryptoController.updateUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", userCryptoRequest);
+        var responseEntity = userCryptoController.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         assertThat(responseEntity)
             .isEqualTo(ResponseEntity.ok(userCryptoResponse));
     }
 
     @Test
-    void shouldReturnStatus200WhenDeletingUserCrypto() {
+    void shouldReturnStatus204WhenDeletingUserCrypto() {
         doNothing().when(userCryptoServiceMock).deleteUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         var responseEntity = userCryptoController.deleteUserCrypto("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         assertThat(responseEntity)
-            .isEqualTo(ResponseEntity.ok().build());
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test

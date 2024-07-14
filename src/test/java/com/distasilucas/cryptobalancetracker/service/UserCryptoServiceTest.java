@@ -6,8 +6,6 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormE
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -96,12 +94,7 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCryptosByPage() {
         var userCrypto = getUserCrypto();
-        var expected = new PageUserCryptoResponse(
-            1,
-            1,
-            false,
-            List.of(userCrypto.toUserCryptoResponse())
-        );
+        var expected = new PageImpl<>(Collections.singletonList(userCrypto), PageRequest.of(0, 10), 1);
 
         when(userCryptoRepositoryMock.findAll(PageRequest.of(0, 10)))
             .thenReturn(new PageImpl<>(List.of(userCrypto)));
@@ -116,38 +109,27 @@ class UserCryptoServiceTest {
     @Test
     void shouldRetrieveUserCryptosByPageWithNextPage() {
         var userCrypto = getUserCrypto();
-        var userCryptosPage = List.of(userCrypto, userCrypto);
-        var pageImpl = new PageImpl<>(userCryptosPage, PageRequest.of(0, 2), 10L);
-        var expected = new PageUserCryptoResponse(
-            1,
-            5,
-            true,
-            List.of(
-                userCrypto.toUserCryptoResponse(),
-                userCrypto.toUserCryptoResponse()
-            )
-        );
+        var userCryptos = List.of(userCrypto, userCrypto);
+        var pageImpl = new PageImpl<>(userCryptos, PageRequest.of(0, 2), 10L);
 
         when(userCryptoRepositoryMock.findAll(PageRequest.of(0, 10))).thenReturn(pageImpl);
 
-        var pageUserCryptoResponse = userCryptoService.retrieveUserCryptosByPage(0);
+        var pageUserCrypto = userCryptoService.retrieveUserCryptosByPage(0);
 
-        assertThat(pageUserCryptoResponse)
+        assertThat(pageUserCrypto)
             .usingRecursiveComparison()
-            .isEqualTo(expected);
+            .isEqualTo(pageImpl);
     }
 
     @Test
     void shouldRetrieveEmptyUserCryptosForPage() {
-        var expected = new PageUserCryptoResponse(1, 1, false, Collections.emptyList());
-
         when(userCryptoRepositoryMock.findAll(PageRequest.of(0, 10))).thenReturn(Page.empty());
 
         var pageUserCryptoResponse = userCryptoService.retrieveUserCryptosByPage(0);
 
         assertThat(pageUserCryptoResponse)
             .usingRecursiveComparison()
-            .isEqualTo(expected);
+            .isEqualTo(Page.empty());
     }
 
     @Test
@@ -172,11 +154,11 @@ class UserCryptoServiceTest {
         verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
-            .isEqualTo(new UserCryptoResponse(
+            .isEqualTo(new UserCrypto(
                 captor.getValue().getId(),
-                "Bitcoin",
-                "1",
-                "BINANCE"
+                new BigDecimal("1"),
+                getBinancePlatformEntity(),
+                getBitcoinCryptoEntity()
             ));
     }
 
@@ -211,7 +193,7 @@ class UserCryptoServiceTest {
         var userCrypto = getUserCrypto();
         var platformEntity = getBinancePlatformEntity();
         var coingeckoCrypto = getCoingeckoCrypto();
-        var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "BINANCE");
+        var expected = new UserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", new BigDecimal("1.25"), getBinancePlatformEntity(), getBitcoinCryptoEntity());
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
@@ -239,7 +221,12 @@ class UserCryptoServiceTest {
         var userCrypto = getUserCrypto();
         var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
         var coingeckoCrypto = getCoingeckoCrypto();
-        var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "COINBASE");
+        var expected = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1.25"),
+            platformEntity,
+            getBitcoinCryptoEntity()
+        );
 
         when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
@@ -264,7 +251,6 @@ class UserCryptoServiceTest {
     void shouldNotUpdateCryptoNameNorId() {
         var captor = ArgumentCaptor.forClass(UserCrypto.class);
         var userCryptoRequest = new UserCryptoRequest("ethereum", new BigDecimal("1.25"), "123e4567-e89b-12d3-a456-426614174333");
-        var expected = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1.25", "COINBASE");
         var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
         var coingeckoCrypto = getCoingeckoCrypto();
         var userCrypto = new UserCrypto(
@@ -287,7 +273,12 @@ class UserCryptoServiceTest {
 
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
-            .isEqualTo(expected);
+            .isEqualTo(new UserCrypto(
+                "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+                new BigDecimal("1.25"),
+                platformEntity,
+                getBitcoinCryptoEntity()
+            ));
     }
 
     @Test

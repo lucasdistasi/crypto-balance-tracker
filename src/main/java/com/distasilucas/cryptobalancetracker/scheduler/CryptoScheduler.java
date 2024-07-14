@@ -11,7 +11,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientResponseException;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,44 +42,7 @@ public class CryptoScheduler {
 
         var cryptosToUpdate = getCryptosToUpdate()
             .stream()
-            .map(crypto -> {
-                try {
-                    var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.getId());
-                    var maxSupply = coingeckoCrypto.marketData().maxSupply() != null ?
-                        coingeckoCrypto.marketData().maxSupply() :
-                        BigDecimal.ZERO;
-                    var marketData = coingeckoCrypto.marketData();
-
-                    return new Crypto(
-                        coingeckoCrypto.id(),
-                        coingeckoCrypto.name(),
-                        coingeckoCrypto.symbol(),
-                        coingeckoCrypto.image().large(),
-                        marketData.currentPrice().usd(),
-                        marketData.currentPrice().eur(),
-                        marketData.currentPrice().btc(),
-                        marketData.circulatingSupply(),
-                        maxSupply,
-                        coingeckoCrypto.marketCapRank(),
-                        marketData.marketCap().usd(),
-                        marketData.changePercentageIn24h(),
-                        marketData.changePercentageIn7d(),
-                        marketData.changePercentageIn30d(),
-                        LocalDateTime.now(clock)
-                    );
-                } catch (RestClientResponseException exception) {
-                    if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
-                        throw new TooManyRequestsException();
-                    } else {
-                        log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.getId(), exception);
-                        return crypto;
-                    }
-                } catch (Exception exception) {
-                    log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.getId(), exception);
-
-                    return crypto;
-                }
-            })
+            .map(this::mapCrypto)
             .toList();
 
         if (cryptosToUpdate.isEmpty()) {
@@ -94,6 +56,25 @@ public class CryptoScheduler {
 
     private List<Crypto> getCryptosToUpdate() {
         return cryptoService.findOldestNCryptosByLastPriceUpdate(LocalDateTime.now(clock).minusMinutes(5), maxLimit);
+    }
+
+    private Crypto mapCrypto(Crypto crypto) {
+        try {
+            var coingeckoCrypto = coingeckoService.retrieveCryptoInfo(crypto.getId());
+
+            return new Crypto(coingeckoCrypto, LocalDateTime.now(clock));
+        } catch (RestClientResponseException exception) {
+            if (HttpStatus.TOO_MANY_REQUESTS == exception.getStatusCode()) {
+                throw new TooManyRequestsException();
+            } else {
+                log.warn("A RestClientResponseException occurred while retrieving info for {}", crypto.getId(), exception);
+                return crypto;
+            }
+        } catch (Exception exception) {
+            log.error("An exception occurred while retrieving info for {}, therefore crypto info might be outdated", crypto.getId(), exception);
+
+            return crypto;
+        }
     }
 
 }

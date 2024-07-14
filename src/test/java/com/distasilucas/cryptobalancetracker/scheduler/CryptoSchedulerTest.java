@@ -65,24 +65,15 @@ class CryptoSchedulerTest {
     void shouldUpdateTop9CryptosInformationFromTheLast5Minutes() {
         Class<List<Crypto>> listClass = (Class<List<Crypto>>)(Class)List.class;
         ArgumentCaptor<List<Crypto>> captor = ArgumentCaptor.forClass(listClass);
+        var bitcoinCryptoEntity = getBitcoinCryptoEntity();
 
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
             "bitcoin",
-            "Bitcoin",
-            "btc",
-            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            new BigDecimal("21000000"),
-            1,
-            new BigDecimal("813208997089"),
-            new BigDecimal("10.00"),
-            new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            bitcoinCryptoEntity.getCryptoInfo(),
+            bitcoinCryptoEntity.getLastKnownPrices(),
+            bitcoinCryptoEntity.getChangePercentages(),
             localDateTime
         );
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
@@ -105,24 +96,15 @@ class CryptoSchedulerTest {
     void shouldUpdateTop9CryptosInformationFromTheLast5MinutesWithZeroAsMaxSupply() {
         Class<List<Crypto>> listClass = (Class<List<Crypto>>)(Class)List.class;
         ArgumentCaptor<List<Crypto>> captor = ArgumentCaptor.forClass(listClass);
+        var bitcoinCryptoEntity = getBitcoinCryptoEntity();
 
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
             "bitcoin",
-            "Bitcoin",
-            "btc",
-            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            BigDecimal.ZERO,
-            1,
-            new BigDecimal("813208997089"),
-            new BigDecimal("10.00"),
-            new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            bitcoinCryptoEntity.getCryptoInfo(),
+            bitcoinCryptoEntity.getLastKnownPrices(),
+            bitcoinCryptoEntity.getChangePercentages(),
             localDateTime
         );
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");

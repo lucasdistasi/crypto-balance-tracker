@@ -41,16 +41,20 @@ public class PriceTarget {
     public PriceTargetResponse toPriceTargetResponse() {
         var change = calculateChangeNeeded();
 
-        return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);
+        return new PriceTargetResponse(id, crypto.getCryptoInfo().getName(), crypto.getLastKnownPrices().getLastKnownPrice().toPlainString(), target.toPlainString(), change);
     }
 
     private float calculateChangeNeeded() {
-        var currentPrice = crypto.getLastKnownPrice();
-
-        return target.subtract(currentPrice)
+        var currentPrice = crypto.getLastKnownPrices().getLastKnownPrice();
+        var change = target.subtract(currentPrice)
             .divide(currentPrice, 3, RoundingMode.HALF_UP)
             .multiply(new BigDecimal("100"))
-            .setScale(2, RoundingMode.HALF_UP)
-            .floatValue();
+            .setScale(2, RoundingMode.HALF_UP);
+
+        return isChangeNeededGreaterThanMaxFloat(change) ? 9999999F : change.floatValue();
+    }
+
+    private boolean isChangeNeededGreaterThanMaxFloat(BigDecimal change) {
+        return change.compareTo(new BigDecimal("9999999")) > 0;
     }
 }

@@ -1,7 +1,9 @@
 package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.DateRange;
@@ -44,8 +46,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -467,36 +469,18 @@ class InsightsServiceTest {
         var platformEntity = getBinancePlatformEntity();
         var bitcoinUserCrypto = getUserCrypto();
         var polkadotUserCrypto = new UserCrypto("1ad5b2fe-6060-48b5-aa02-3557e1d6e40b", new BigDecimal("100"), getBinancePlatformEntity(), getPolkadotCrypto());
-        var bitcoinCryptoEntity = getBitcoinCryptoEntity();
-        var polkadotCryptoEntity = new Crypto(
-            "polkadot",
-            "Polkadot",
-            "dot",
-            "https://assets.coingecko.com/coins/images/12171/large/polkadot.png?1639712644",
-            new BigDecimal("4.25"),
-            new BigDecimal("3.97"),
-            new BigDecimal("0.00016554"),
-            new BigDecimal("1272427996.25919"),
-            BigDecimal.ZERO,
-            1,
-            new BigDecimal("813208997089"),
-            new BigDecimal("10.00"),
-            new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
-            localDateTime
-        );
 
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174111")).thenReturn(platformEntity);
         when(userCryptoServiceMock.findAllByPlatformId("123e4567-e89b-12d3-a456-426614174111"))
             .thenReturn(List.of(bitcoinUserCrypto, polkadotUserCrypto));
         when(cryptoServiceMock.findAllByIds(List.of("bitcoin", "polkadot")))
-            .thenReturn(List.of(bitcoinCryptoEntity, polkadotCryptoEntity));
+            .thenReturn(List.of(getBitcoinCryptoEntity(), getPolkadotCrypto()));
 
         var platformInsightsResponse = insightsService.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
 
         var expected = new PlatformInsightsResponse(
             "BINANCE",
-            new BalancesResponse("7925.00", "7147.00", "0.266554"),
+            new BalancesResponse("7901.00", "7123.00", "0.265302"),
             List.of(
                 new CryptoInsights(
                     "af827ac7-d642-4461-a73c-b31ca6f6d13d",
@@ -504,15 +488,15 @@ class InsightsServiceTest {
                     "bitcoin",
                     "0.25",
                     new BalancesResponse("7500.00", "6750.00", "0.25"),
-                    94.64f
+                    94.92f
                 ),
                 new CryptoInsights(
                     polkadotUserCrypto.getId(),
                     "Polkadot",
                     "polkadot",
                     "100",
-                    new BalancesResponse("425.00", "397.00", "0.016554"),
-                    5.36f
+                    new BalancesResponse("401.00", "373.00", "0.015302"),
+                    5.08f
                 )
             )
         );
@@ -2402,263 +2386,315 @@ class InsightsServiceTest {
     }
 
     private Crypto getUniswapCrypto() {
-        return new Crypto(
-            "uniswap",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Uniswap",
             "uni",
             "https://assets.coingecko.com/coins/images/12504/large/uni.jpg?1687143398",
-            new BigDecimal("4.25"),
-            new BigDecimal("3.96"),
-            new BigDecimal("0.00016197"),
-            new BigDecimal("753766667"),
-            new BigDecimal("1000000000"),
             22,
             new BigDecimal("4772322900"),
+            new BigDecimal("753766667"),
+            new BigDecimal("1000000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("4.25"),
+            new BigDecimal("3.96"),
+            new BigDecimal("0.00016197")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("2.00"),
             new BigDecimal("-1.00"),
-            new BigDecimal("3.00"),
-            localDateTime
+            new BigDecimal("3.00")
         );
+
+        return new Crypto("uniswap", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getAvalancheCrypto() {
-        return new Crypto(
-            "avalanche-2",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Avalanche",
             "avax",
             "https://assets.coingecko.com/coins/images/12559/large/Avalanche_Circle_RedWhite_Trans.png?1670992574",
-            new BigDecimal("9.3"),
-            new BigDecimal("8.67"),
-            new BigDecimal("0.00035516"),
-            new BigDecimal("353804673"),
-            new BigDecimal("720000000"),
             10,
             new BigDecimal("11953262327"),
+            new BigDecimal("353804673"),
+            new BigDecimal("720000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("9.3"),
+            new BigDecimal("8.67"),
+            new BigDecimal("0.00035516")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("4.00"),
             new BigDecimal("1.00"),
-            new BigDecimal("8.00"),
-            localDateTime
+            new BigDecimal("8.00")
         );
+
+        return new Crypto("avalanche-2", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getDogecoinCrypto() {
-        return new Crypto(
-            "dogecoin",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Dogecoin",
             "doge",
             "https://assets.coingecko.com/coins/images/5/large/dogecoin.png?1547792256",
-            new BigDecimal("0.061481"),
-            new BigDecimal("0.057319"),
-            new BigDecimal("0.00000235"),
-            new BigDecimal("140978466383"),
-            BigDecimal.ZERO,
             11,
             new BigDecimal("11195832359"),
+            new BigDecimal("140978466383"),
+            BigDecimal.ZERO
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("0.061481"),
+            new BigDecimal("0.057319"),
+            new BigDecimal("0.00000235")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("-4.00"),
             new BigDecimal("-1.00"),
-            new BigDecimal("-8.00"),
-            localDateTime
+            new BigDecimal("-8.00")
         );
+
+        return new Crypto("dogecoin", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getChainlinkCrypto() {
-        return new Crypto(
-            "chainlink",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Chainlink",
             "link",
             "https://assets.coingecko.com/coins/images/877/large/chainlink-new-logo.png?1547034700",
-            new BigDecimal("5.99"),
-            new BigDecimal("5.58"),
-            new BigDecimal("0.00022866"),
-            new BigDecimal("538099971"),
-            new BigDecimal("1000000000"),
             14,
             new BigDecimal("9021587267"),
+            new BigDecimal("538099971"),
+            new BigDecimal("1000000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("5.99"),
+            new BigDecimal("5.58"),
+            new BigDecimal("0.00022866")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("4.00"),
             new BigDecimal("-1.00"),
-            new BigDecimal("8.00"),
-            localDateTime
+            new BigDecimal("8.00")
         );
+
+        return new Crypto("chainlink", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getPolygonCrypto() {
-        return new Crypto(
-            "matic-network",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Polygon",
             "matic",
             "https://assets.coingecko.com/coins/images/4713/large/matic-token-icon.png?1624446912",
-            new BigDecimal("0.509995"),
-            new BigDecimal("0.475407"),
-            new BigDecimal("0.00001947"),
-            new BigDecimal("9319469069"),
-            new BigDecimal("10000000000"),
             16,
             new BigDecimal("7001911961"),
+            new BigDecimal("9319469069"),
+            new BigDecimal("10000000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("0.509995"),
+            new BigDecimal("0.475407"),
+            new BigDecimal("0.00001947")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("14.00"),
             new BigDecimal("-10.00"),
-            new BigDecimal("2.00"),
-            localDateTime
+            new BigDecimal("2.00")
         );
+
+        return new Crypto("matic-network", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getSolanaCrypto() {
-        return new Crypto(
-            "solana",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Solana",
             "sol",
             "https://assets.coingecko.com/coins/images/4128/large/solana.png?1640133422",
-            new BigDecimal("18.04"),
-            new BigDecimal("16.82"),
-            new BigDecimal("0.00068809"),
-            new BigDecimal("410905807"),
-            BigDecimal.ZERO,
             5,
             new BigDecimal("40090766907"),
+            new BigDecimal("410905807"),
+            BigDecimal.ZERO
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("18.04"),
+            new BigDecimal("16.82"),
+            new BigDecimal("0.00068809")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("4.00"),
             new BigDecimal("1.00"),
-            new BigDecimal("-2.00"),
-            localDateTime
+            new BigDecimal("-2.00")
         );
+
+        return new Crypto("solana", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getPolkadotCrypto() {
-        return new Crypto(
-            "polkadot",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Polkadot",
             "dot",
             "https://assets.coingecko.com/coins/images/12171/large/polkadot.png?1639712644",
-            new BigDecimal("4.01"),
-            new BigDecimal("3.73"),
-            new BigDecimal("0.00015302"),
-            new BigDecimal("1274258350"),
-            BigDecimal.ZERO,
             13,
             new BigDecimal("8993575127"),
+            new BigDecimal("1274258350"),
+            BigDecimal.ZERO
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("4.01"),
+            new BigDecimal("3.73"),
+            new BigDecimal("0.00015302")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("4.00"),
             new BigDecimal("-1.00"),
-            new BigDecimal("2.00"),
-            localDateTime
+            new BigDecimal("2.00")
         );
+
+        return new Crypto("polkadot", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getCardanoCrypto() {
-        return new Crypto(
-            "cardano",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Cardano",
             "ada",
             "https://assets.coingecko.com/coins/images/975/large/cardano.png?1547034860",
-            new BigDecimal("0.248915"),
-            new BigDecimal("0.231985"),
-            new BigDecimal("0.0000095"),
-            new BigDecimal("35045020830"),
-            new BigDecimal("45000000000"),
             9,
             new BigDecimal("29348197308"),
+            new BigDecimal("35045020830"),
+            new BigDecimal("45000000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("0.248915"),
+            new BigDecimal("0.231985"),
+            new BigDecimal("0.0000095")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("7.00"),
             new BigDecimal("1.00"),
-            new BigDecimal("-2.00"),
-            localDateTime
+            new BigDecimal("-2.00")
         );
+
+        return new Crypto("cardano", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getXRPCrypto() {
-        return new Crypto(
-            "ripple",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "XRP",
             "xrp",
             "https://assets.coingecko.com/coins/images/44/large/xrp-symbol-white-128.png?1605778731",
-            new BigDecimal("0.478363"),
-            new BigDecimal("0.446699"),
-            new BigDecimal("0.00001833"),
-            new BigDecimal("53083046512"),
-            new BigDecimal("100000000000"),
             6,
             new BigDecimal("29348197308"),
+            new BigDecimal("53083046512"),
+            new BigDecimal("100000000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("0.478363"),
+            new BigDecimal("0.446699"),
+            new BigDecimal("0.00001833")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("2.00"),
             new BigDecimal("3.00"),
-            new BigDecimal("-5.00"),
-            localDateTime
+            new BigDecimal("-5.00")
         );
+
+        return new Crypto("ripple", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getBNBCrypto() {
-        return new Crypto(
-            "binancecoin",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "BNB",
             "bnb",
             "https://assets.coingecko.com/coins/images/825/large/bnb-icon2_2x.png?1644979850",
-            new BigDecimal("211.79"),
-            new BigDecimal("197.8"),
-            new BigDecimal("0.00811016"),
-            new BigDecimal("153856150"),
-            new BigDecimal("200000000"),
             4,
             new BigDecimal("48318686968"),
+            new BigDecimal("153856150"),
+            new BigDecimal("200000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("211.79"),
+            new BigDecimal("197.8"),
+            new BigDecimal("0.00811016")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("6.00"),
             new BigDecimal("-2.00"),
-            new BigDecimal("12.00"),
-            localDateTime
+            new BigDecimal("12.00")
         );
+
+        return new Crypto("binancecoin", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getLitecoinCrypto() {
-        return new Crypto(
-            "litecoin",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Litecoin",
             "ltc",
             "https://assets.coingecko.com/coins/images/2/large/litecoin.png?1547033580",
-            new BigDecimal("60.59"),
-            new BigDecimal("56.56"),
-            new BigDecimal("0.00235292"),
-            new BigDecimal("73638701"),
-            new BigDecimal("84000000"),
             19,
             new BigDecimal("5259205267"),
+            new BigDecimal("73638701"),
+            new BigDecimal("84000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("60.59"),
+            new BigDecimal("56.56"),
+            new BigDecimal("0.00235292")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("6.00"),
             new BigDecimal("-2.00"),
-            new BigDecimal("12.00"),
-            localDateTime
+            new BigDecimal("12.00")
         );
+
+        return new Crypto("litecoin", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getEthereumCrypto() {
-        return new Crypto(
-            "ethereum",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Ethereum",
             "eth",
             "https://assets.coingecko.com/coins/images/279/large/ethereum.png?1595348880",
-            new BigDecimal("1617.44"),
-            new BigDecimal("1509.37"),
-            new BigDecimal("0.06280356"),
-            new BigDecimal("120220572"),
-            BigDecimal.ZERO,
             2,
             new BigDecimal("298219864117"),
+            new BigDecimal("120220572"),
+            BigDecimal.ZERO
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("1617.44"),
+            new BigDecimal("1509.37"),
+            new BigDecimal("0.06280356")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("10.00"),
             new BigDecimal("-5.00"),
-            new BigDecimal("2.00"),
-            localDateTime
+            new BigDecimal("2.00")
         );
+
+        return new Crypto("ethereum", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private Crypto getTetherCrypto() {
-        return new Crypto(
-            "tether",
+        var cryptoInfo = new com.distasilucas.cryptobalancetracker.entity.CryptoInfo(
             "Tether",
             "usdt",
             "https://assets.coingecko.com/coins/images/325/large/Tether.png?1668148663",
-            new BigDecimal("0.999618"),
-            new BigDecimal("0.933095"),
-            new BigDecimal("0.0000388"),
-            new BigDecimal("83016246102"),
-            BigDecimal.ZERO,
             3,
             new BigDecimal("95085861049"),
-            new BigDecimal("0.00"),
-            new BigDecimal("0.00"),
-            new BigDecimal("0.00"),
-            localDateTime
+            new BigDecimal("83016246102"),
+            BigDecimal.ZERO
         );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("0.999618"),
+            new BigDecimal("0.933095"),
+            new BigDecimal("0.0000388")
+        );
+        var changePercentages = new ChangePercentages(
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00"),
+            new BigDecimal("0.00")
+        );
+
+        return new Crypto("tether", cryptoInfo, lastKnownPrices, changePercentages, localDateTime);
     }
 
     private List<LocalDate> getMockDates(LocalDate now, int iteration, int daysSubtraction) {

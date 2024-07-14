@@ -156,7 +156,7 @@ public class InsightsService {
 
                 return new CryptoInsights(
                     userCrypto.getId(),
-                    crypto.getName(),
+                    crypto.getCryptoInfo().getName(),
                     crypto.getId(),
                     quantity.toPlainString(),
                     cryptoTotalBalances,
@@ -204,7 +204,7 @@ public class InsightsService {
             .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new CryptoInsightResponse(crypto.getName(), totalBalances, platformInsights));
+        return Optional.of(new CryptoInsightResponse(crypto.getCryptoInfo().getName(), totalBalances, platformInsights));
     }
 
     public Optional<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
@@ -292,7 +292,7 @@ public class InsightsService {
                 var cryptoBalances = getCryptoTotalBalances(crypto, quantity);
 
                 return new CryptoInsights(
-                    crypto.getName(),
+                    crypto.getCryptoInfo().getName(),
                     coingeckoCryptoId,
                     quantity.toPlainString(),
                     cryptoBalances,
@@ -340,7 +340,7 @@ public class InsightsService {
                 .findFirst()
                 .orElseThrow();
             var balances = getCryptoTotalBalances(crypto, userCrypto.getQuantity());
-            var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());
+            var circulatingSupply = getCirculatingSupply(crypto.getCryptoInfo().getMaxSupply(), crypto.getCryptoInfo().getCirculatingSupply());
 
             var userCryptosInsight = new UserCryptosInsights(
                 userCrypto,
@@ -407,14 +407,14 @@ public class InsightsService {
                     .findFirst()
                     .orElseThrow();
                 var cryptoTotalBalances = getCryptoTotalBalances(crypto, cryptoTotalQuantity);
-                var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());
+                var circulatingSupply = getCirculatingSupply(crypto.getCryptoInfo().getMaxSupply(), crypto.getCryptoInfo().getCirculatingSupply());
 
                 return new UserCryptosInsights(
-                    new CryptoInfo(crypto.getName(), crypto.getId(), crypto.getTicker(), crypto.getImage()),
+                    new CryptoInfo(crypto.getCryptoInfo().getName(), crypto.getId(), crypto.getCryptoInfo().getTicker(), crypto.getCryptoInfo().getImage()),
                     cryptoTotalQuantity.toPlainString(),
                     calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),
                     cryptoTotalBalances,
-                    crypto.getMarketCapRank(),
+                    crypto.getCryptoInfo().getMarketCapRank(),
                     new MarketData(circulatingSupply, crypto),
                     cryptoPlatforms
                 );
@@ -464,9 +464,9 @@ public class InsightsService {
                 .filter(c -> c.getId().equalsIgnoreCase(coingeckoCryptoId))
                 .findFirst()
                 .orElseThrow();
-            var lastKnownPrice = crypto.getLastKnownPrice();
-            var lastKnownPriceInBTC = crypto.getLastKnownPriceInBTC();
-            var lastKnownPriceInEUR = crypto.getLastKnownPriceInEUR();
+            var lastKnownPrice = crypto.getLastKnownPrices().getLastKnownPrice();
+            var lastKnownPriceInBTC = crypto.getLastKnownPrices().getLastKnownPriceInBTC();
+            var lastKnownPriceInEUR = crypto.getLastKnownPrices().getLastKnownPriceInEUR();
 
             totalUSDBalance = totalUSDBalance.add(lastKnownPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP));
             totalBTCBalance = totalBTCBalance.add(lastKnownPriceInBTC.multiply(quantity)).stripTrailingZeros();
@@ -482,9 +482,9 @@ public class InsightsService {
 
     private BalancesResponse getCryptoTotalBalances(Crypto crypto, BigDecimal quantity) {
         return new BalancesResponse(
-            crypto.getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
-            crypto.getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
-            crypto.getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
+            crypto.getLastKnownPrices().getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
+            crypto.getLastKnownPrices().getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
+            crypto.getLastKnownPrices().getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
         );
     }
 

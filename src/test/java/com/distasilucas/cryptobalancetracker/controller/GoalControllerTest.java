@@ -106,7 +106,7 @@ class GoalControllerTest {
 
         assertThat(responseEntity)
             .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.ok().build());
+            .isEqualTo(ResponseEntity.noContent().build());
     }
 
 }

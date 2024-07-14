@@ -1,6 +1,9 @@
 package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
@@ -10,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -77,7 +79,7 @@ public class CryptoService {
     public void updateCryptos(List<Crypto> cryptosToUpdate) {
         cryptoRepository.saveAll(cryptosToUpdate);
         var cryptosNames = cryptosToUpdate.stream()
-            .map(Crypto::getName)
+            .map(crypto -> crypto.getCryptoInfo().getName())
             .toList();
 
         log.info("Updated cryptos: {}", cryptosNames);
@@ -93,26 +95,10 @@ public class CryptoService {
     private Crypto getCrypto(String coingeckoCryptoId) {
         var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
         var marketData = coingeckoCryptoInfo.marketData();
-        var maxSupply = marketData.maxSupply() != null ?
-            marketData.maxSupply() :
-            BigDecimal.ZERO;
+        var cryptoInfo = new CryptoInfo(coingeckoCryptoInfo);
+        var lastKnownPrices = new LastKnownPrices(marketData);
+        var changePercentages = new ChangePercentages(marketData);
 
-        return new Crypto(
-            coingeckoCryptoId,
-            coingeckoCryptoInfo.name(),
-            coingeckoCryptoInfo.symbol(),
-            coingeckoCryptoInfo.image().large(),
-            marketData.currentPrice().usd(),
-            marketData.currentPrice().eur(),
-            marketData.currentPrice().btc(),
-            marketData.circulatingSupply(),
-            maxSupply,
-            coingeckoCryptoInfo.marketCapRank(),
-            marketData.marketCap().usd(),
-            marketData.changePercentageIn24h(),
-            marketData.changePercentageIn7d(),
-            marketData.changePercentageIn30d(),
-            LocalDateTime.now(clock)
-        );
+        return new Crypto(coingeckoCryptoId, cryptoInfo, lastKnownPrices, changePercentages, LocalDateTime.now(clock));
     }
 }

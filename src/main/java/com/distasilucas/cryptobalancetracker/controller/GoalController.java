@@ -70,6 +70,6 @@ public class GoalController implements GoalControllerAPI {
     public ResponseEntity<Void> deleteGoal(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
         goalService.deleteGoal(goalId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

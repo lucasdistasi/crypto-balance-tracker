@@ -173,7 +173,7 @@ public interface PlatformControllerAPI {
     @Operation(summary = "Delete platform")
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "204",
             description = "Platform deleted",
             content = @Content(
                 mediaType = "application/json"

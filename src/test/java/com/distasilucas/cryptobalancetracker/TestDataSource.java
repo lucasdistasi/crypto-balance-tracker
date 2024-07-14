@@ -1,7 +1,10 @@
 package com.distasilucas.cryptobalancetracker;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.DateRange;
@@ -245,21 +248,31 @@ public class TestDataSource {
     }
 
     public static Crypto getBitcoinCryptoEntity() {
-        return new Crypto(
-            "bitcoin",
+        var cryptoInfo = new CryptoInfo(
             "Bitcoin",
             "btc",
             "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            new BigDecimal("21000000"),
             1,
             new BigDecimal("813208997089"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("10.00"),
             new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            new BigDecimal("0.00")
+        );
+
+        return new Crypto(
+            "bitcoin",
+            cryptoInfo,
+            lastKnownPrices,
+            changePercentages,
             LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         );
     }

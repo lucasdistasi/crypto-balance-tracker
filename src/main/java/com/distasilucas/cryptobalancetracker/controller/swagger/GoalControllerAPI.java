@@ -167,7 +167,7 @@ public interface GoalControllerAPI {
     @Operation(summary = "Delete goal")
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "204",
             description = "Goal deleted",
             content = @Content(
                 mediaType = "application/json",

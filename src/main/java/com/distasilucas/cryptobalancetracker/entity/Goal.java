@@ -36,7 +36,7 @@ public class Goal {
         var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);
         var moneyNeeded = getMoneyNeeded(remainingQuantity);
 
-        return new GoalResponse(id, crypto.getName(), actualQuantity.toPlainString(), progress,
+        return new GoalResponse(id, crypto.getCryptoInfo().getName(), actualQuantity.toPlainString(), progress,
             remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());
     }
 
@@ -52,11 +52,11 @@ public class Goal {
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity) {
-        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
+        return crypto.getLastKnownPrices().getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
     public String toString() {
-        return "Goal id [" + id + "] for crypto [" + crypto.getName() + "]";
+        return "Goal id [" + id + "] for crypto [" + crypto.getCryptoInfo().getName() + "]";
     }
 }

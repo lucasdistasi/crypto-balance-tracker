@@ -9,6 +9,8 @@ import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -23,11 +25,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class PlatformService {
 
     private final PlatformRepository platformRepository;
     private final UserCryptoRepository userCryptoRepository;
     private final CacheService cacheService;
+    private final PlatformService self;
 
     @Cacheable(cacheNames = ALL_PLATFORMS_CACHE)
     public List<Platform> retrieveAllPlatforms() {
@@ -60,10 +64,11 @@ public class PlatformService {
 
     public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
         validatePlatformDoesNotExist(platformRequest.name());
-        var platform = retrievePlatformById(platformId);
+        var platform = self.retrievePlatformById(platformId);
         var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());
         platformRepository.save(updatedPlatform);
         cacheService.invalidatePlatformsCaches();
+        // TODO - IF I UPDATE A PLATFORM, DOES A USER CRYPTO PLATFORM GETS UPDATED TOO?
 
         log.info("Updated platform. Before: {}. After: {}", platform, updatedPlatform);
 
@@ -71,7 +76,7 @@ public class PlatformService {
     }
 
     public void deletePlatform(String platformId) {
-        var platform = retrievePlatformById(platformId);
+        var platform = self.retrievePlatformById(platformId);
         var userCryptosToDelete = userCryptoRepository.findAllByPlatformId(platformId);
         userCryptoRepository.deleteAll(userCryptosToDelete);
         platformRepository.delete(platform);

@@ -36,12 +36,15 @@ class PlatformServiceTest {
     @Mock
     private CacheService cacheServiceMock;
 
+    @Mock
+    private PlatformService platformServiceMock;
+
     private PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        platformService = new PlatformService(platformRepositoryMock, userCryptoRepositoryMock, cacheServiceMock);
+        platformService = new PlatformService(platformRepositoryMock, userCryptoRepositoryMock, cacheServiceMock, platformServiceMock);
     }
 
     @Test
@@ -131,7 +134,7 @@ class PlatformServiceTest {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BYBIT");
         var existingPlatform = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.of(existingPlatform));
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(existingPlatform);
         when(platformRepositoryMock.save(platformArgumentCaptor.capture())).thenAnswer(answer -> platformArgumentCaptor.getValue());
 
         var platform = platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
@@ -163,7 +166,9 @@ class PlatformServiceTest {
         var platformRequest = new PlatformRequest("bybit");
         var expectedMessage = PLATFORM_ID_NOT_FOUND.formatted("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenThrow(new PlatformNotFoundException(expectedMessage));
+
         var exception = assertThrows(
             PlatformNotFoundException.class,
             () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
@@ -176,7 +181,7 @@ class PlatformServiceTest {
     void shouldDeletePlatformSuccessfully() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.of(platformEntity));
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
 
         platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
@@ -189,7 +194,9 @@ class PlatformServiceTest {
     void shouldThrowPlatformNotFoundExceptionWhenDeletingPlatform() {
         var expectedMessage = PLATFORM_ID_NOT_FOUND.formatted("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenThrow(new PlatformNotFoundException(expectedMessage));
+
         var exception = assertThrows(
             PlatformNotFoundException.class,
             () -> platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")

@@ -246,7 +246,7 @@ class PlatformControllerMvcTest {
         doNothing().when(platformServiceMock).deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         mockMvc.perform(deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 
     @ParameterizedTest
