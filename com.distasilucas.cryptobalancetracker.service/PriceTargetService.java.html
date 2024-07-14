@@ -4,17 +4,16 @@ import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPriceTargetException;
 import com.distasilucas.cryptobalancetracker.exception.PriceTargetNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.repository.PriceTargetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-<span class="fc" id="L17">@Slf4j</span>
+<span class="fc" id="L16">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class PriceTargetService {
@@ -22,73 +21,63 @@ public class PriceTargetService {
     private final PriceTargetRepository priceTargetRepository;
     private final CryptoService cryptoService;
 
-    public PriceTargetResponse retrievePriceTarget(String priceTargetId) {
-<span class="fc" id="L26">        log.info(&quot;Retrieving price target for id {}&quot;, priceTargetId);</span>
+    public PriceTarget retrievePriceTarget(String priceTargetId) {
+<span class="fc" id="L25">        log.info(&quot;Retrieving price target for id {}&quot;, priceTargetId);</span>
 
-<span class="fc" id="L28">        return findById(priceTargetId).toPriceTargetResponse();</span>
+<span class="fc" id="L27">        return findById(priceTargetId);</span>
     }
 
-    public PagePriceTargetResponse retrievePriceTargetsByPage(int page) {
-<span class="fc" id="L32">        log.info(&quot;Retrieving price targets for page {}&quot;, page);</span>
+    public Page&lt;PriceTarget&gt; retrievePriceTargetsByPage(int page) {
+<span class="fc" id="L31">        log.info(&quot;Retrieving price targets for page {}&quot;, page);</span>
+<span class="fc" id="L32">        var pageRequest = PageRequest.of(page, 10);</span>
 
-<span class="fc" id="L34">        var pageRequest = PageRequest.of(page, 10);</span>
-<span class="fc" id="L35">        var priceTargets = priceTargetRepository.findAll(pageRequest);</span>
-<span class="fc" id="L36">        var priceTargetsResponse = priceTargets.getContent()</span>
-<span class="fc" id="L37">            .stream()</span>
-<span class="fc" id="L38">            .map(PriceTarget::toPriceTargetResponse)</span>
-<span class="fc" id="L39">            .toList();</span>
-
-<span class="fc" id="L41">        return new PagePriceTargetResponse(page, priceTargets.getTotalPages(), priceTargetsResponse);</span>
+<span class="fc" id="L34">        return priceTargetRepository.findAll(pageRequest);</span>
     }
 
-    public PriceTargetResponse savePriceTarget(PriceTargetRequest priceTargetRequest) {
-<span class="fc" id="L45">        log.info(&quot;Saving price target {}&quot;, priceTargetRequest);</span>
+    public PriceTarget savePriceTarget(PriceTargetRequest priceTargetRequest) {
+<span class="fc" id="L38">        log.info(&quot;Saving price target {}&quot;, priceTargetRequest);</span>
 
-<span class="fc" id="L47">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());</span>
-<span class="fc" id="L48">        validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());</span>
-<span class="fc" id="L49">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
-<span class="fc" id="L50">        var priceTargetEntity = priceTargetRequest.toEntity(crypto);</span>
-<span class="fc" id="L51">        var priceTarget = priceTargetRepository.save(priceTargetEntity);</span>
+<span class="fc" id="L40">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());</span>
+<span class="fc" id="L41">        validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());</span>
+<span class="fc" id="L42">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
+<span class="fc" id="L43">        var priceTargetEntity = priceTargetRequest.toEntity(crypto);</span>
 
-<span class="fc" id="L53">        return priceTarget.toPriceTargetResponse();</span>
+<span class="fc" id="L45">        return priceTargetRepository.save(priceTargetEntity);</span>
     }
 
-    public PriceTargetResponse updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
-<span class="fc" id="L57">        log.info(&quot;Updating price target for id {}. New value: {}&quot;, priceTargetId, priceTargetRequest);</span>
+    public PriceTarget updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
+<span class="fc" id="L49">        log.info(&quot;Updating price target for id {}. New value: {}&quot;, priceTargetId, priceTargetRequest);</span>
 
-<span class="fc" id="L59">        var priceTarget = findById(priceTargetId);</span>
-<span class="fc" id="L60">        priceTarget.setTarget(priceTargetRequest.priceTarget());</span>
+<span class="fc" id="L51">        var priceTarget = findById(priceTargetId);</span>
+<span class="fc" id="L52">        priceTarget.setTarget(priceTargetRequest.priceTarget());</span>
 
-<span class="fc" id="L62">        var coingeckoCryptoId = priceTarget.getCrypto().getId();</span>
-<span class="fc" id="L63">        validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());</span>
-<span class="fc" id="L64">        var newPriceTarget = priceTargetRepository.save(priceTarget);</span>
+<span class="fc" id="L54">        var coingeckoCryptoId = priceTarget.getCrypto().getId();</span>
+<span class="fc" id="L55">        validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());</span>
 
-<span class="fc" id="L66">        return newPriceTarget.toPriceTargetResponse();</span>
+<span class="fc" id="L57">        return priceTargetRepository.save(priceTarget);</span>
     }
 
     public void deletePriceTarget(String priceTargetId) {
-<span class="fc" id="L70">        log.info(&quot;Deleting price target for id {}&quot;, priceTargetId);</span>
-<span class="fc" id="L71">        var priceTarget = findById(priceTargetId);</span>
+<span class="fc" id="L61">        log.info(&quot;Deleting price target for id {}&quot;, priceTargetId);</span>
+<span class="fc" id="L62">        var priceTarget = findById(priceTargetId);</span>
 
-<span class="fc" id="L73">        priceTargetRepository.delete(priceTarget);</span>
-<span class="fc" id="L74">        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());</span>
-<span class="fc" id="L75">    }</span>
+<span class="fc" id="L64">        priceTargetRepository.delete(priceTarget);</span>
+<span class="fc" id="L65">        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());</span>
+<span class="fc" id="L66">    }</span>
 
     private PriceTarget findById(String priceTargetId) {
-<span class="fc" id="L78">        var message = String.format(&quot;Price target with id %s not found&quot;, priceTargetId);</span>
-
-<span class="fc" id="L80">        return priceTargetRepository.findById(priceTargetId)</span>
-<span class="fc" id="L81">            .orElseThrow(() -&gt; new PriceTargetNotFoundException(message));</span>
+<span class="fc" id="L69">        return priceTargetRepository.findById(priceTargetId)</span>
+<span class="fc" id="L70">            .orElseThrow(() -&gt; new PriceTargetNotFoundException(String.format(&quot;Price target with id %s not found&quot;, priceTargetId)));</span>
     }
 
     private void validatePriceTargetIsNotDuplicated(String coingeckoCryptoId, BigDecimal target) {
-<span class="fc" id="L85">        var message = String.format(&quot;You already have a price target for %s at that price&quot;, coingeckoCryptoId);</span>
-<span class="fc" id="L86">        var optionalPriceTarget = priceTargetRepository.findByCoingeckoCryptoIdAndTarget(coingeckoCryptoId, target);</span>
+<span class="fc" id="L74">        var message = String.format(&quot;You already have a price target for %s at that price&quot;, coingeckoCryptoId);</span>
+<span class="fc" id="L75">        var optionalPriceTarget = priceTargetRepository.findByCoingeckoCryptoIdAndTarget(coingeckoCryptoId, target);</span>
 
-<span class="fc bfc" id="L88" title="All 2 branches covered.">        if (optionalPriceTarget.isPresent()) {</span>
-<span class="fc" id="L89">            throw new DuplicatedPriceTargetException(message);</span>
+<span class="fc bfc" id="L77" title="All 2 branches covered.">        if (optionalPriceTarget.isPresent()) {</span>
+<span class="fc" id="L78">            throw new DuplicatedPriceTargetException(message);</span>
         }
-<span class="fc" id="L91">    }</span>
+<span class="fc" id="L80">    }</span>
 
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

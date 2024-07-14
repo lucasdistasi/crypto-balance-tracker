@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Crypto.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.entity</a> &gt; <span class="el_source">Crypto.java</span></div><h1>Crypto.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.entity;
 
+import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -23,44 +23,19 @@ import java.util.List;
 @Table(name = &quot;Cryptos&quot;)
 @ToString
 @NoArgsConstructor
-@AllArgsConstructor
 public class Crypto implements Serializable {
 
     @Id
     private String id;
-    private String name;
-    private String ticker;
-    private String image;
 
-    @Column(name = &quot;last_known_price&quot;)
-    private BigDecimal lastKnownPrice;
+    @Embedded
+    private CryptoInfo cryptoInfo;
 
-    @Column(name = &quot;last_known_price_in_eur&quot;)
-    private BigDecimal lastKnownPriceInEUR;
+    @Embedded
+    private LastKnownPrices lastKnownPrices;
 
-    @Column(name = &quot;last_known_price_in_btc&quot;)
-    private BigDecimal lastKnownPriceInBTC;
-
-    @Column(name = &quot;circulating_supply&quot;)
-    private BigDecimal circulatingSupply;
-
-    @Column(name = &quot;max_supply&quot;)
-    private BigDecimal maxSupply;
-
-    @Column(name = &quot;market_cap_rank&quot;)
-    private int marketCapRank;
-
-    @Column(name = &quot;market_cap&quot;)
-    private BigDecimal marketCap;
-
-    @Column(name = &quot;change_percentage_in_24h&quot;)
-    private BigDecimal changePercentageIn24h;
-
-    @Column(name = &quot;change_percentage_in_7d&quot;)
-    private BigDecimal changePercentageIn7d;
-
-    @Column(name = &quot;change_percentage_in_30d&quot;)
-    private BigDecimal changePercentageIn30d;
+    @Embedded
+    private ChangePercentages changePercentages;
 
     @Column(name = &quot;last_updated_at&quot;)
     private LocalDateTime lastUpdatedAt;
@@ -80,28 +55,27 @@ public class Crypto implements Serializable {
     @OneToMany(mappedBy = &quot;crypto&quot;)
     private List&lt;PriceTarget&gt; priceTargets;
 
-    public Crypto(String id, String name, String ticker, String image, BigDecimal lastKnownPrice,
-                  BigDecimal lastKnownPriceInEUR, BigDecimal lastKnownPriceInBTC, BigDecimal circulatingSupply,
-                  BigDecimal maxSupply, int marketCapRank, BigDecimal marketCap, BigDecimal changePercentageIn24h,
-<span class="fc" id="L86">                  BigDecimal changePercentageIn7d, BigDecimal changePercentageIn30d, LocalDateTime lastUpdatedAt) {</span>
-<span class="fc" id="L87">        this.id = id;</span>
-<span class="fc" id="L88">        this.name = name;</span>
-<span class="fc" id="L89">        this.ticker = ticker;</span>
-<span class="fc" id="L90">        this.image = image;</span>
-<span class="fc" id="L91">        this.lastKnownPrice = lastKnownPrice;</span>
-<span class="fc" id="L92">        this.lastKnownPriceInEUR = lastKnownPriceInEUR;</span>
-<span class="fc" id="L93">        this.lastKnownPriceInBTC = lastKnownPriceInBTC;</span>
-<span class="fc" id="L94">        this.circulatingSupply = circulatingSupply;</span>
-<span class="fc" id="L95">        this.maxSupply = maxSupply;</span>
-<span class="fc" id="L96">        this.marketCapRank = marketCapRank;</span>
-<span class="fc" id="L97">        this.marketCap = marketCap;</span>
-<span class="fc" id="L98">        this.changePercentageIn24h = changePercentageIn24h;</span>
-<span class="fc" id="L99">        this.changePercentageIn7d = changePercentageIn7d;</span>
-<span class="fc" id="L100">        this.changePercentageIn30d = changePercentageIn30d;</span>
-<span class="fc" id="L101">        this.lastUpdatedAt = lastUpdatedAt;</span>
-<span class="fc" id="L102">        this.userCryptos = Collections.emptyList();</span>
-<span class="fc" id="L103">        this.goal = null;</span>
-<span class="fc" id="L104">        this.priceTargets = Collections.emptyList();</span>
-<span class="fc" id="L105">    }</span>
+    public Crypto(String id, CryptoInfo cryptoInfo, LastKnownPrices lastKnownPrices,
+<span class="fc" id="L59">                  ChangePercentages changePercentages, LocalDateTime lastUpdatedAt) {</span>
+<span class="fc" id="L60">        this.id = id;</span>
+<span class="fc" id="L61">        this.cryptoInfo = cryptoInfo;</span>
+<span class="fc" id="L62">        this.lastKnownPrices = lastKnownPrices;</span>
+<span class="fc" id="L63">        this.changePercentages = changePercentages;</span>
+<span class="fc" id="L64">        this.lastUpdatedAt = lastUpdatedAt;</span>
+<span class="fc" id="L65">        this.userCryptos = Collections.emptyList();</span>
+<span class="fc" id="L66">        this.goal = null;</span>
+<span class="fc" id="L67">        this.priceTargets = Collections.emptyList();</span>
+<span class="fc" id="L68">    }</span>
+
+<span class="fc" id="L70">    public Crypto(CoingeckoCryptoInfo coingeckoCryptoInfo, LocalDateTime lastUpdatedAt) {</span>
+<span class="fc" id="L71">        this.id = coingeckoCryptoInfo.id();</span>
+<span class="fc" id="L72">        this.cryptoInfo = new CryptoInfo(coingeckoCryptoInfo);</span>
+<span class="fc" id="L73">        this.lastKnownPrices = new LastKnownPrices(coingeckoCryptoInfo.marketData());</span>
+<span class="fc" id="L74">        this.changePercentages = new ChangePercentages(coingeckoCryptoInfo.marketData());</span>
+<span class="fc" id="L75">        this.lastUpdatedAt = lastUpdatedAt;</span>
+<span class="fc" id="L76">        this.userCryptos = Collections.emptyList();</span>
+<span class="fc" id="L77">        this.goal = null;</span>
+<span class="fc" id="L78">        this.priceTargets = Collections.emptyList();</span>
+<span class="fc" id="L79">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

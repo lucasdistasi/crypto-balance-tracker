@@ -36,7 +36,7 @@ public class Goal {
 <span class="fc" id="L36">        var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);</span>
 <span class="fc" id="L37">        var moneyNeeded = getMoneyNeeded(remainingQuantity);</span>
 
-<span class="fc" id="L39">        return new GoalResponse(id, crypto.getName(), actualQuantity.toPlainString(), progress,</span>
+<span class="fc" id="L39">        return new GoalResponse(id, crypto.getCryptoInfo().getName(), actualQuantity.toPlainString(), progress,</span>
 <span class="fc" id="L40">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
     }
 
@@ -52,12 +52,12 @@ public class Goal {
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity) {
-<span class="fc" id="L55">        return crypto.getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L55">        return crypto.getLastKnownPrices().getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L60">        return &quot;Goal id [&quot; + id + &quot;] for crypto [&quot; + crypto.getName() + &quot;]&quot;;</span>
+<span class="fc" id="L60">        return &quot;Goal id [&quot; + id + &quot;] for crypto [&quot; + crypto.getCryptoInfo().getName() + &quot;]&quot;;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

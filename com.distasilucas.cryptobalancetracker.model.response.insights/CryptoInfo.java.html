@@ -23,10 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
     public CryptoInfo(UserCrypto userCrypto, Crypto crypto) {
 <span class="fc" id="L24">        this(</span>
 <span class="fc" id="L25">            userCrypto.getId(),</span>
-<span class="fc" id="L26">            crypto.getName(),</span>
+<span class="fc" id="L26">            crypto.getCryptoInfo().getName(),</span>
 <span class="fc" id="L27">            crypto.getId(),</span>
-<span class="fc" id="L28">            crypto.getTicker(),</span>
-<span class="fc" id="L29">            crypto.getImage()</span>
+<span class="fc" id="L28">            crypto.getCryptoInfo().getTicker(),</span>
+<span class="fc" id="L29">            crypto.getCryptoInfo().getImage()</span>
         );
 <span class="fc" id="L31">    }</span>
 }

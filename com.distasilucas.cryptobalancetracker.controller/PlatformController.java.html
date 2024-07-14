@@ -83,7 +83,7 @@ public class PlatformController implements PlatformControllerAPI {
     public ResponseEntity&lt;Void&gt; deletePlatform(@UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId) {
 <span class="fc" id="L84">        platformService.deletePlatform(platformId);</span>
 
-<span class="fc" id="L86">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L86">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

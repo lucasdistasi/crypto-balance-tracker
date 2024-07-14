@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CryptoService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.service</a> &gt; <span class="el_source">CryptoService.java</span></div><h1>CryptoService.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
@@ -10,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -20,7 +22,7 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
 
-<span class="fc" id="L23">@Slf4j</span>
+<span class="fc" id="L25">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class CryptoService {
@@ -33,87 +35,71 @@ public class CryptoService {
 
     @Cacheable(cacheNames = CRYPTO_COINGECKO_CRYPTO_ID_CACHE, key = &quot;#coingeckoCryptoId&quot;)
     public Crypto retrieveCryptoInfoById(String coingeckoCryptoId) {
-<span class="fc" id="L36">        log.info(&quot;Retrieving crypto info for id {}&quot;, coingeckoCryptoId);</span>
+<span class="fc" id="L38">        log.info(&quot;Retrieving crypto info for id {}&quot;, coingeckoCryptoId);</span>
 
-<span class="fc" id="L38">        return cryptoRepository.findById(coingeckoCryptoId)</span>
-<span class="fc" id="L39">            .orElseGet(() -&gt; {</span>
-<span class="fc" id="L40">                var crypto = getCrypto(coingeckoCryptoId);</span>
-<span class="fc" id="L41">                cryptoRepository.save(crypto);</span>
-<span class="fc" id="L42">                cacheService.invalidateCryptosCache();</span>
+<span class="fc" id="L40">        return cryptoRepository.findById(coingeckoCryptoId)</span>
+<span class="fc" id="L41">            .orElseGet(() -&gt; {</span>
+<span class="fc" id="L42">                var crypto = getCrypto(coingeckoCryptoId);</span>
+<span class="fc" id="L43">                cryptoRepository.save(crypto);</span>
+<span class="fc" id="L44">                cacheService.invalidateCryptosCache();</span>
 
-<span class="fc" id="L44">                log.info(&quot;Saved crypto {}&quot;, crypto);</span>
+<span class="fc" id="L46">                log.info(&quot;Saved crypto {}&quot;, crypto);</span>
 
-<span class="fc" id="L46">                return crypto;</span>
+<span class="fc" id="L48">                return crypto;</span>
             });
     }
 
     public CoingeckoCrypto retrieveCoingeckoCryptoInfoByNameOrId(String cryptoNameOrId) {
-<span class="fc" id="L51">        log.info(&quot;Retrieving info for coingecko crypto {}&quot;, cryptoNameOrId);</span>
+<span class="fc" id="L53">        log.info(&quot;Retrieving info for coingecko crypto {}&quot;, cryptoNameOrId);</span>
 
-<span class="fc" id="L53">        return coingeckoService.retrieveAllCryptos()</span>
-<span class="fc" id="L54">            .stream()</span>
-<span class="fc bfc" id="L55" title="All 2 branches covered.">            .filter(coingeckoCrypto -&gt; coingeckoCrypto.name().equalsIgnoreCase(cryptoNameOrId) ||</span>
-<span class="fc bfc" id="L56" title="All 2 branches covered.">                coingeckoCrypto.id().equalsIgnoreCase(cryptoNameOrId))</span>
-<span class="fc" id="L57">            .findFirst()</span>
-<span class="fc" id="L58">            .orElseThrow(() -&gt; new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));</span>
+<span class="fc" id="L55">        return coingeckoService.retrieveAllCryptos()</span>
+<span class="fc" id="L56">            .stream()</span>
+<span class="fc bfc" id="L57" title="All 2 branches covered.">            .filter(coingeckoCrypto -&gt; coingeckoCrypto.name().equalsIgnoreCase(cryptoNameOrId) ||</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                coingeckoCrypto.id().equalsIgnoreCase(cryptoNameOrId))</span>
+<span class="fc" id="L59">            .findFirst()</span>
+<span class="fc" id="L60">            .orElseThrow(() -&gt; new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));</span>
     }
 
     public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {
-<span class="fc" id="L62">        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoId(coingeckoCryptoId);</span>
+<span class="fc" id="L64">        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoId(coingeckoCryptoId);</span>
 
-<span class="fc" id="L64">        nonUsedCryptos.ifPresent(nonUsedCrypto -&gt; {</span>
-<span class="fc" id="L65">            cryptoRepository.deleteById(nonUsedCrypto.getId());</span>
-<span class="fc" id="L66">            cacheService.invalidateCryptosCache();</span>
-<span class="fc" id="L67">            log.info(&quot;Deleted crypto [{}] - ({}) {} because it was not used&quot;, nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());</span>
-<span class="fc" id="L68">        });</span>
-<span class="fc" id="L69">    }</span>
+<span class="fc" id="L66">        nonUsedCryptos.ifPresent(nonUsedCrypto -&gt; {</span>
+<span class="fc" id="L67">            cryptoRepository.deleteById(nonUsedCrypto.getId());</span>
+<span class="fc" id="L68">            cacheService.invalidateCryptosCache();</span>
+<span class="fc" id="L69">            log.info(&quot;Deleted crypto [{}] - ({}) {} because it was not used&quot;, nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());</span>
+<span class="fc" id="L70">        });</span>
+<span class="fc" id="L71">    }</span>
 
     public List&lt;Crypto&gt; findOldestNCryptosByLastPriceUpdate(LocalDateTime localDateTime, int limit) {
-<span class="fc" id="L72">        log.info(&quot;Retrieving {} cryptos with date filter {}&quot;, limit, localDateTime);</span>
+<span class="fc" id="L74">        log.info(&quot;Retrieving {} cryptos with date filter {}&quot;, limit, localDateTime);</span>
 
-<span class="fc" id="L74">        return cryptoRepository.findOldestNCryptosByLastPriceUpdate(localDateTime, limit);</span>
+<span class="fc" id="L76">        return cryptoRepository.findOldestNCryptosByLastPriceUpdate(localDateTime, limit);</span>
     }
 
     public void updateCryptos(List&lt;Crypto&gt; cryptosToUpdate) {
-<span class="fc" id="L78">        cryptoRepository.saveAll(cryptosToUpdate);</span>
-<span class="fc" id="L79">        var cryptosNames = cryptosToUpdate.stream()</span>
-<span class="fc" id="L80">            .map(Crypto::getName)</span>
-<span class="fc" id="L81">            .toList();</span>
+<span class="fc" id="L80">        cryptoRepository.saveAll(cryptosToUpdate);</span>
+<span class="fc" id="L81">        var cryptosNames = cryptosToUpdate.stream()</span>
+<span class="fc" id="L82">            .map(crypto -&gt; crypto.getCryptoInfo().getName())</span>
+<span class="fc" id="L83">            .toList();</span>
 
-<span class="fc" id="L83">        log.info(&quot;Updated cryptos: {}&quot;, cryptosNames);</span>
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L85">        log.info(&quot;Updated cryptos: {}&quot;, cryptosNames);</span>
+<span class="fc" id="L86">    }</span>
 
     @Cacheable(cacheNames = CRYPTOS_CRYPTOS_IDS_CACHE, key = &quot;#ids&quot;)
     public List&lt;Crypto&gt; findAllByIds(Collection&lt;String&gt; ids) {
-<span class="fc" id="L88">        log.info(&quot;Retrieving cryptos with ids {}&quot;, ids);</span>
+<span class="fc" id="L90">        log.info(&quot;Retrieving cryptos with ids {}&quot;, ids);</span>
 
-<span class="fc" id="L90">        return cryptoRepository.findAllByIdIn(ids);</span>
+<span class="fc" id="L92">        return cryptoRepository.findAllByIdIn(ids);</span>
     }
 
     private Crypto getCrypto(String coingeckoCryptoId) {
-<span class="fc" id="L94">        var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);</span>
-<span class="fc" id="L95">        var marketData = coingeckoCryptoInfo.marketData();</span>
-<span class="fc bfc" id="L96" title="All 2 branches covered.">        var maxSupply = marketData.maxSupply() != null ?</span>
-<span class="fc" id="L97">            marketData.maxSupply() :</span>
-<span class="fc" id="L98">            BigDecimal.ZERO;</span>
+<span class="fc" id="L96">        var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);</span>
+<span class="fc" id="L97">        var marketData = coingeckoCryptoInfo.marketData();</span>
+<span class="fc" id="L98">        var cryptoInfo = new CryptoInfo(coingeckoCryptoInfo);</span>
+<span class="fc" id="L99">        var lastKnownPrices = new LastKnownPrices(marketData);</span>
+<span class="fc" id="L100">        var changePercentages = new ChangePercentages(marketData);</span>
 
-<span class="fc" id="L100">        return new Crypto(</span>
-            coingeckoCryptoId,
-<span class="fc" id="L102">            coingeckoCryptoInfo.name(),</span>
-<span class="fc" id="L103">            coingeckoCryptoInfo.symbol(),</span>
-<span class="fc" id="L104">            coingeckoCryptoInfo.image().large(),</span>
-<span class="fc" id="L105">            marketData.currentPrice().usd(),</span>
-<span class="fc" id="L106">            marketData.currentPrice().eur(),</span>
-<span class="fc" id="L107">            marketData.currentPrice().btc(),</span>
-<span class="fc" id="L108">            marketData.circulatingSupply(),</span>
-            maxSupply,
-<span class="fc" id="L110">            coingeckoCryptoInfo.marketCapRank(),</span>
-<span class="fc" id="L111">            marketData.marketCap().usd(),</span>
-<span class="fc" id="L112">            marketData.changePercentageIn24h(),</span>
-<span class="fc" id="L113">            marketData.changePercentageIn7d(),</span>
-<span class="fc" id="L114">            marketData.changePercentageIn30d(),</span>
-<span class="fc" id="L115">            LocalDateTime.now(clock)</span>
-        );
+<span class="fc" id="L102">        return new Crypto(coingeckoCryptoId, cryptoInfo, lastKnownPrices, changePercentages, LocalDateTime.now(clock));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

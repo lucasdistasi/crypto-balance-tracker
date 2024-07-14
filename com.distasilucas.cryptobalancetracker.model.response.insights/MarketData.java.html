@@ -13,17 +13,17 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
     public MarketData(CirculatingSupply circulatingSupply, Crypto crypto) {
 <span class="fc" id="L14">        this(</span>
             circulatingSupply,
-<span class="fc" id="L16">            crypto.getMaxSupply().toPlainString(),</span>
+<span class="fc" id="L16">            crypto.getCryptoInfo().getMaxSupply().toPlainString(),</span>
             new CurrentPrice(
-<span class="fc" id="L18">                crypto.getLastKnownPrice().toPlainString(),</span>
-<span class="fc" id="L19">                crypto.getLastKnownPriceInEUR().toPlainString(),</span>
-<span class="fc" id="L20">                crypto.getLastKnownPriceInBTC().toPlainString()</span>
+<span class="fc" id="L18">                crypto.getLastKnownPrices().getLastKnownPrice().toPlainString(),</span>
+<span class="fc" id="L19">                crypto.getLastKnownPrices().getLastKnownPriceInEUR().toPlainString(),</span>
+<span class="fc" id="L20">                crypto.getLastKnownPrices().getLastKnownPriceInBTC().toPlainString()</span>
             ),
-<span class="fc" id="L22">            crypto.getMarketCap().toPlainString(),</span>
+<span class="fc" id="L22">            crypto.getCryptoInfo().getMarketCap().toPlainString(),</span>
             new PriceChange(
-<span class="fc" id="L24">                crypto.getChangePercentageIn24h(),</span>
-<span class="fc" id="L25">                crypto.getChangePercentageIn7d(),</span>
-<span class="fc" id="L26">                crypto.getChangePercentageIn30d()</span>
+<span class="fc" id="L24">                crypto.getChangePercentages().getChangePercentageIn24h(),</span>
+<span class="fc" id="L25">                crypto.getChangePercentages().getChangePercentageIn7d(),</span>
+<span class="fc" id="L26">                crypto.getChangePercentages().getChangePercentageIn30d()</span>
             )
         );
 <span class="fc" id="L29">    }</span>

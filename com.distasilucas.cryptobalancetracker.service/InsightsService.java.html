@@ -156,7 +156,7 @@ public class InsightsService {
 
 <span class="fc" id="L157">                return new CryptoInsights(</span>
 <span class="fc" id="L158">                    userCrypto.getId(),</span>
-<span class="fc" id="L159">                    crypto.getName(),</span>
+<span class="fc" id="L159">                    crypto.getCryptoInfo().getName(),</span>
 <span class="fc" id="L160">                    crypto.getId(),</span>
 <span class="fc" id="L161">                    quantity.toPlainString(),</span>
                     cryptoTotalBalances,
@@ -204,7 +204,7 @@ public class InsightsService {
 <span class="fc" id="L204">            .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))</span>
 <span class="fc" id="L205">            .toList();</span>
 
-<span class="fc" id="L207">        return Optional.of(new CryptoInsightResponse(crypto.getName(), totalBalances, platformInsights));</span>
+<span class="fc" id="L207">        return Optional.of(new CryptoInsightResponse(crypto.getCryptoInfo().getName(), totalBalances, platformInsights));</span>
     }
 
     public Optional&lt;PlatformsBalancesInsightsResponse&gt; retrievePlatformsBalancesInsights() {
@@ -292,7 +292,7 @@ public class InsightsService {
 <span class="fc" id="L292">                var cryptoBalances = getCryptoTotalBalances(crypto, quantity);</span>
 
 <span class="fc" id="L294">                return new CryptoInsights(</span>
-<span class="fc" id="L295">                    crypto.getName(),</span>
+<span class="fc" id="L295">                    crypto.getCryptoInfo().getName(),</span>
                     coingeckoCryptoId,
 <span class="fc" id="L297">                    quantity.toPlainString(),</span>
                     cryptoBalances,
@@ -340,7 +340,7 @@ public class InsightsService {
 <span class="fc" id="L340">                .findFirst()</span>
 <span class="fc" id="L341">                .orElseThrow();</span>
 <span class="fc" id="L342">            var balances = getCryptoTotalBalances(crypto, userCrypto.getQuantity());</span>
-<span class="fc" id="L343">            var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());</span>
+<span class="fc" id="L343">            var circulatingSupply = getCirculatingSupply(crypto.getCryptoInfo().getMaxSupply(), crypto.getCryptoInfo().getCirculatingSupply());</span>
 
 <span class="fc" id="L345">            var userCryptosInsight = new UserCryptosInsights(</span>
                 userCrypto,
@@ -407,14 +407,14 @@ public class InsightsService {
 <span class="fc" id="L407">                    .findFirst()</span>
 <span class="fc" id="L408">                    .orElseThrow();</span>
 <span class="fc" id="L409">                var cryptoTotalBalances = getCryptoTotalBalances(crypto, cryptoTotalQuantity);</span>
-<span class="fc" id="L410">                var circulatingSupply = getCirculatingSupply(crypto.getMaxSupply(), crypto.getCirculatingSupply());</span>
+<span class="fc" id="L410">                var circulatingSupply = getCirculatingSupply(crypto.getCryptoInfo().getMaxSupply(), crypto.getCryptoInfo().getCirculatingSupply());</span>
 
 <span class="fc" id="L412">                return new UserCryptosInsights(</span>
-<span class="fc" id="L413">                    new CryptoInfo(crypto.getName(), crypto.getId(), crypto.getTicker(), crypto.getImage()),</span>
+<span class="fc" id="L413">                    new CryptoInfo(crypto.getCryptoInfo().getName(), crypto.getId(), crypto.getCryptoInfo().getTicker(), crypto.getCryptoInfo().getImage()),</span>
 <span class="fc" id="L414">                    cryptoTotalQuantity.toPlainString(),</span>
 <span class="fc" id="L415">                    calculatePercentage(totalBalances.totalUSDBalance(), cryptoTotalBalances.totalUSDBalance()),</span>
                     cryptoTotalBalances,
-<span class="fc" id="L417">                    crypto.getMarketCapRank(),</span>
+<span class="fc" id="L417">                    crypto.getCryptoInfo().getMarketCapRank(),</span>
                     new MarketData(circulatingSupply, crypto),
                     cryptoPlatforms
                 );
@@ -464,9 +464,9 @@ public class InsightsService {
 <span class="fc" id="L464">                .filter(c -&gt; c.getId().equalsIgnoreCase(coingeckoCryptoId))</span>
 <span class="fc" id="L465">                .findFirst()</span>
 <span class="fc" id="L466">                .orElseThrow();</span>
-<span class="fc" id="L467">            var lastKnownPrice = crypto.getLastKnownPrice();</span>
-<span class="fc" id="L468">            var lastKnownPriceInBTC = crypto.getLastKnownPriceInBTC();</span>
-<span class="fc" id="L469">            var lastKnownPriceInEUR = crypto.getLastKnownPriceInEUR();</span>
+<span class="fc" id="L467">            var lastKnownPrice = crypto.getLastKnownPrices().getLastKnownPrice();</span>
+<span class="fc" id="L468">            var lastKnownPriceInBTC = crypto.getLastKnownPrices().getLastKnownPriceInBTC();</span>
+<span class="fc" id="L469">            var lastKnownPriceInEUR = crypto.getLastKnownPrices().getLastKnownPriceInEUR();</span>
 
 <span class="fc" id="L471">            totalUSDBalance = totalUSDBalance.add(lastKnownPrice.multiply(quantity).setScale(2, RoundingMode.HALF_UP));</span>
 <span class="fc" id="L472">            totalBTCBalance = totalBTCBalance.add(lastKnownPriceInBTC.multiply(quantity)).stripTrailingZeros();</span>
@@ -482,9 +482,9 @@ public class InsightsService {
 
     private BalancesResponse getCryptoTotalBalances(Crypto crypto, BigDecimal quantity) {
 <span class="fc" id="L484">        return new BalancesResponse(</span>
-<span class="fc" id="L485">            crypto.getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
-<span class="fc" id="L486">            crypto.getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
-<span class="fc" id="L487">            crypto.getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()</span>
+<span class="fc" id="L485">            crypto.getLastKnownPrices().getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
+<span class="fc" id="L486">            crypto.getLastKnownPrices().getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),</span>
+<span class="fc" id="L487">            crypto.getLastKnownPrices().getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()</span>
         );
     }
 

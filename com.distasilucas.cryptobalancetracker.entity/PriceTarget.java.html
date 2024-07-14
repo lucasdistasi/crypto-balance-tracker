@@ -41,17 +41,21 @@ public class PriceTarget {
     public PriceTargetResponse toPriceTargetResponse() {
 <span class="fc" id="L42">        var change = calculateChangeNeeded();</span>
 
-<span class="fc" id="L44">        return new PriceTargetResponse(id, crypto.getName(), crypto.getLastKnownPrice().toPlainString(), target.toPlainString(), change);</span>
+<span class="fc" id="L44">        return new PriceTargetResponse(id, crypto.getCryptoInfo().getName(), crypto.getLastKnownPrices().getLastKnownPrice().toPlainString(), target.toPlainString(), change);</span>
     }
 
     private float calculateChangeNeeded() {
-<span class="fc" id="L48">        var currentPrice = crypto.getLastKnownPrice();</span>
+<span class="fc" id="L48">        var currentPrice = crypto.getLastKnownPrices().getLastKnownPrice();</span>
+<span class="fc" id="L49">        var change = target.subtract(currentPrice)</span>
+<span class="fc" id="L50">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L51">            .multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L52">            .setScale(2, RoundingMode.HALF_UP);</span>
 
-<span class="fc" id="L50">        return target.subtract(currentPrice)</span>
-<span class="fc" id="L51">            .divide(currentPrice, 3, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L52">            .multiply(new BigDecimal(&quot;100&quot;))</span>
-<span class="fc" id="L53">            .setScale(2, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L54">            .floatValue();</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        return isChangeNeededGreaterThanMaxFloat(change) ? 9999999F : change.floatValue();</span>
+    }
+
+    private boolean isChangeNeededGreaterThanMaxFloat(BigDecimal change) {
+<span class="fc bfc" id="L58" title="All 2 branches covered.">        return change.compareTo(new BigDecimal(&quot;9999999&quot;)) &gt; 0;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

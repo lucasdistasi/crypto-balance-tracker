@@ -4,12 +4,11 @@ import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedCryptoPlatFormException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +21,7 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRY
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
 
-<span class="fc" id="L25">@Slf4j</span>
+<span class="fc" id="L24">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 public class UserCryptoService {
@@ -33,115 +32,107 @@ public class UserCryptoService {
     private final CacheService cacheService;
 
     public UserCrypto findUserCryptoById(String userCryptoId) {
-<span class="fc" id="L36">        log.info(&quot;Retrieving user crypto with id {}&quot;, userCryptoId);</span>
+<span class="fc" id="L35">        log.info(&quot;Retrieving user crypto with id {}&quot;, userCryptoId);</span>
 
-<span class="fc" id="L38">        return userCryptoRepository.findById(userCryptoId)</span>
-<span class="fc" id="L39">            .orElseThrow(() -&gt; new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));</span>
+<span class="fc" id="L37">        return userCryptoRepository.findById(userCryptoId)</span>
+<span class="fc" id="L38">            .orElseThrow(() -&gt; new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));</span>
     }
 
-    public PageUserCryptoResponse retrieveUserCryptosByPage(int page) {
-<span class="fc" id="L43">        log.info(&quot;Retrieving user cryptos for page {}&quot;, page);</span>
+    public Page&lt;UserCrypto&gt; retrieveUserCryptosByPage(int page) {
+<span class="fc" id="L42">        log.info(&quot;Retrieving user cryptos for page {}&quot;, page);</span>
+<span class="fc" id="L43">        var pageRequest = PageRequest.of(page, 10);</span>
 
-<span class="fc" id="L45">        var pageRequest = PageRequest.of(page, 10);</span>
-<span class="fc" id="L46">        var entityUserCryptosPage = userCryptoRepository.findAll(pageRequest);</span>
-
-<span class="fc" id="L48">        var userCryptosPage = entityUserCryptosPage.getContent()</span>
-<span class="fc" id="L49">            .stream()</span>
-<span class="fc" id="L50">            .map(UserCrypto::toUserCryptoResponse)</span>
-<span class="fc" id="L51">            .toList();</span>
-
-<span class="fc" id="L53">        return new PageUserCryptoResponse(page, entityUserCryptosPage.getTotalPages(), userCryptosPage);</span>
+<span class="fc" id="L45">        return userCryptoRepository.findAll(pageRequest);</span>
     }
 
-    public UserCryptoResponse saveUserCrypto(UserCryptoRequest userCryptoRequest) {
-<span class="fc" id="L57">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());</span>
-<span class="fc" id="L58">        var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
+    public UserCrypto saveUserCrypto(UserCryptoRequest userCryptoRequest) {
+<span class="fc" id="L49">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCryptoRequest.cryptoName());</span>
+<span class="fc" id="L50">        var platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
 
-<span class="fc" id="L60">        userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
-<span class="fc" id="L61">            coingeckoCrypto.id(),</span>
-<span class="fc" id="L62">            userCryptoRequest.platformId()</span>
-<span class="fc" id="L63">        ).ifPresent(userCrypto -&gt; {</span>
-<span class="fc" id="L64">            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.getName());</span>
-<span class="fc" id="L65">            throw new DuplicatedCryptoPlatFormException(message);</span>
+<span class="fc" id="L52">        userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(</span>
+<span class="fc" id="L53">            coingeckoCrypto.id(),</span>
+<span class="fc" id="L54">            userCryptoRequest.platformId()</span>
+<span class="fc" id="L55">        ).ifPresent(userCrypto -&gt; {</span>
+<span class="fc" id="L56">            String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), platform.getName());</span>
+<span class="fc" id="L57">            throw new DuplicatedCryptoPlatFormException(message);</span>
         });
 
-<span class="fc" id="L68">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
-<span class="fc" id="L69">        var userCrypto = new UserCrypto(userCryptoRequest.quantity(), platform, crypto);</span>
+<span class="fc" id="L60">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
+<span class="fc" id="L61">        var userCrypto = new UserCrypto(userCryptoRequest.quantity(), platform, crypto);</span>
+<span class="fc" id="L62">        userCryptoRepository.save(userCrypto);</span>
 
-<span class="fc" id="L71">        userCryptoRepository.save(userCrypto);</span>
-<span class="fc" id="L72">        log.info(&quot;Saved user crypto {}&quot;, userCrypto.toSavedUserCryptoString());</span>
-<span class="fc" id="L73">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L64">        log.info(&quot;Saved user crypto {}&quot;, userCrypto.toSavedUserCryptoString());</span>
+<span class="fc" id="L65">        cacheService.invalidateUserCryptosCaches();</span>
 
-<span class="fc" id="L75">        return userCrypto.toUserCryptoResponse();</span>
+<span class="fc" id="L67">        return userCrypto;</span>
     }
 
-    public UserCryptoResponse updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
-<span class="fc" id="L79">        final UserCrypto userCrypto = findUserCryptoById(userCryptoId);</span>
-<span class="fc" id="L80">        var platform = userCrypto.getPlatform();</span>
-<span class="fc" id="L81">        var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
-<span class="fc" id="L82">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCrypto.getCrypto().getId());</span>
-        UserCrypto updatedUserCrypto;
+    public UserCrypto updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
+<span class="fc" id="L71">        final UserCrypto userCrypto = findUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L72">        var platform = userCrypto.getPlatform();</span>
+<span class="fc" id="L73">        var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
+<span class="fc" id="L74">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCrypto.getCrypto().getId());</span>
 
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        if (didChangePlatform(requestPlatform.getId(), platform.getId())) {</span>
-<span class="fc" id="L86">            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(coingeckoCrypto.id(), userCryptoRequest.platformId())</span>
-<span class="fc" id="L87">                .ifPresent(uc -&gt; {</span>
-<span class="fc" id="L88">                    String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.getName());</span>
-<span class="fc" id="L89">                    throw new DuplicatedCryptoPlatFormException(message);</span>
+<span class="fc bfc" id="L76" title="All 2 branches covered.">        if (didChangePlatform(requestPlatform.getId(), platform.getId())) {</span>
+<span class="fc" id="L77">            userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(coingeckoCrypto.id(), userCryptoRequest.platformId())</span>
+<span class="fc" id="L78">                .ifPresent(uc -&gt; {</span>
+<span class="fc" id="L79">                    String message = DUPLICATED_CRYPTO_PLATFORM.formatted(coingeckoCrypto.name(), requestPlatform.getName());</span>
+<span class="fc" id="L80">                    throw new DuplicatedCryptoPlatFormException(message);</span>
                 });
 
-<span class="fc" id="L92">            platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
+<span class="fc" id="L83">            platform = platformService.retrievePlatformById(userCryptoRequest.platformId());</span>
         }
 
-<span class="fc" id="L95">        updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);</span>
-<span class="fc" id="L96">        userCryptoRepository.save(updatedUserCrypto);</span>
-<span class="fc" id="L97">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L86">        var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);</span>
+<span class="fc" id="L87">        userCryptoRepository.save(updatedUserCrypto);</span>
+<span class="fc" id="L88">        cacheService.invalidateUserCryptosCaches();</span>
         // TODO - FIXME - check if they are different
-<span class="fc" id="L99">        log.info(&quot;Updated user crypto. Before: {} | After: {}&quot;, userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());</span>
+<span class="fc" id="L90">        log.info(&quot;Updated user crypto. Before: {} | After: {}&quot;, userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());</span>
 
-<span class="fc" id="L101">        return updatedUserCrypto.toUserCryptoResponse();</span>
+<span class="fc" id="L92">        return updatedUserCrypto;</span>
     }
 
     public void deleteUserCrypto(String userCryptoId) {
-<span class="fc" id="L105">        var userCrypto = findUserCryptoById(userCryptoId);</span>
-<span class="fc" id="L106">        userCryptoRepository.deleteById(userCryptoId);</span>
-<span class="fc" id="L107">        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());</span>
-<span class="fc" id="L108">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L96">        var userCrypto = findUserCryptoById(userCryptoId);</span>
+<span class="fc" id="L97">        userCryptoRepository.deleteById(userCryptoId);</span>
+<span class="fc" id="L98">        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());</span>
+<span class="fc" id="L99">        cacheService.invalidateUserCryptosCaches();</span>
 
-<span class="fc" id="L110">        log.info(&quot;Deleted user crypto {} from platform {}&quot;, userCrypto.getCrypto().getName(), userCrypto.getPlatform().getName());</span>
-<span class="fc" id="L111">    }</span>
+<span class="fc" id="L101">        log.info(&quot;Deleted user crypto {} from platform {}&quot;, userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());</span>
+<span class="fc" id="L102">    }</span>
 
     @Cacheable(cacheNames = USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, key = &quot;#coingeckoCryptoId&quot;)
     public List&lt;UserCrypto&gt; findAllByCoingeckoCryptoId(String coingeckoCryptoId) {
-<span class="fc" id="L115">        log.info(&quot;Retrieving all user cryptos matching coingecko crypto id {}&quot;, coingeckoCryptoId);</span>
+<span class="fc" id="L106">        log.info(&quot;Retrieving all user cryptos matching coingecko crypto id {}&quot;, coingeckoCryptoId);</span>
 
-<span class="fc" id="L117">        return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);</span>
+<span class="fc" id="L108">        return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);</span>
     }
 
     public Optional&lt;UserCrypto&gt; findByCoingeckoCryptoIdAndPlatformId(String cryptoId, String platformId) {
-<span class="fc" id="L121">        return userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(cryptoId, platformId);</span>
+<span class="fc" id="L112">        return userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(cryptoId, platformId);</span>
     }
 
     public void saveOrUpdateAll(List&lt;UserCrypto&gt; userCryptos) {
-<span class="fc" id="L125">        userCryptoRepository.saveAll(userCryptos);</span>
-<span class="fc" id="L126">        cacheService.invalidateUserCryptosCaches();</span>
-<span class="fc" id="L127">    }</span>
+<span class="fc" id="L116">        userCryptoRepository.saveAll(userCryptos);</span>
+<span class="fc" id="L117">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L118">    }</span>
 
     @Cacheable(cacheNames = USER_CRYPTOS_CACHE)
     public List&lt;UserCrypto&gt; findAll() {
-<span class="fc" id="L131">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
+<span class="fc" id="L122">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
 
-<span class="fc" id="L133">        return userCryptoRepository.findAll();</span>
+<span class="fc" id="L124">        return userCryptoRepository.findAll();</span>
     }
 
     @Cacheable(cacheNames = USER_CRYPTOS_PLATFORM_ID_CACHE, key = &quot;#platformId&quot;)
     public List&lt;UserCrypto&gt; findAllByPlatformId(String platformId) {
-<span class="fc" id="L138">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
+<span class="fc" id="L129">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
 
-<span class="fc" id="L140">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
+<span class="fc" id="L131">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {
-<span class="fc bfc" id="L144" title="All 2 branches covered.">        return !newPlatform.equalsIgnoreCase(originalPlatform);</span>
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        return !newPlatform.equalsIgnoreCase(originalPlatform);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

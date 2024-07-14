@@ -46,7 +46,7 @@ public class UserCrypto implements Serializable {
 <span class="fc" id="L46">    }</span>
 
     public UserCryptoResponse toUserCryptoResponse() {
-<span class="fc" id="L49">        return new UserCryptoResponse(id, crypto.getName(), quantity.toPlainString(), platform.getName());</span>
+<span class="fc" id="L49">        return new UserCryptoResponse(id, crypto.getCryptoInfo().getName(), quantity.toPlainString(), platform.getName());</span>
     }
 
     public UserCrypto withQuantity(BigDecimal updatedQuantity) {
@@ -59,14 +59,14 @@ public class UserCrypto implements Serializable {
 
     public String toSavedUserCryptoString() {
 <span class="fc" id="L61">        return String.format(&quot;[%s] %s with quantity %s in platform %s&quot;,</span>
-<span class="fc" id="L62">            crypto.getTicker(),</span>
-<span class="fc" id="L63">            crypto.getName(),</span>
+<span class="fc" id="L62">            crypto.getCryptoInfo().getTicker(),</span>
+<span class="fc" id="L63">            crypto.getCryptoInfo().getName(),</span>
             quantity,
 <span class="fc" id="L65">            platform.getName());</span>
     }
 
     public String toUpdatedUserCryptoString() {
-<span class="fc" id="L69">        return String.format(&quot;Crypto %s. Quantity %s. Platform %s&quot;, crypto.getName(), quantity, platform.getName());</span>
+<span class="fc" id="L69">        return String.format(&quot;Crypto %s. Quantity %s. Platform %s&quot;, crypto.getCryptoInfo().getName(), quantity, platform.getName());</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

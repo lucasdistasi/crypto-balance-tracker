@@ -70,7 +70,7 @@ public class GoalController implements GoalControllerAPI {
     public ResponseEntity&lt;Void&gt; deleteGoal(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
 <span class="fc" id="L71">        goalService.deleteGoal(goalId);</span>
 
-<span class="fc" id="L73">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L73">        return ResponseEntity.noContent().build();</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
