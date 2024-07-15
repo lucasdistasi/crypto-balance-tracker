@@ -57,6 +57,6 @@ public class Goal {
 
     @Override
     public String toString() {
-        return "Goal id [" + id + "] for crypto [" + crypto.getCryptoInfo().getName() + "]";
+        return String.format("Goal[id=%s, cryptoName=%s, goalQuantity=%s]", id, crypto.getCryptoInfo().getName(), goalQuantity);
     }
 }

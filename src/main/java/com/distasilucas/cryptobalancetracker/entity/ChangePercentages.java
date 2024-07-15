@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChangePercentages {
+public class ChangePercentages implements Serializable {
 
     @Column(name = "change_percentage_in_24h")
     private BigDecimal changePercentageIn24h;

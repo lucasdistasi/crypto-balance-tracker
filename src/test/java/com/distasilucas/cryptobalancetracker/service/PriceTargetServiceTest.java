@@ -44,12 +44,18 @@ class PriceTargetServiceTest {
     @Mock
     private CryptoService cryptoServiceMock;
 
+    @Mock
+    private CacheService cacheServiceMock;
+
+    @Mock
+    private PriceTargetService priceTargetServiceMock;
+
     private PriceTargetService priceTargetService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        priceTargetService = new PriceTargetService(priceTargetRepositoryMock, cryptoServiceMock);
+        priceTargetService = new PriceTargetService(priceTargetRepositoryMock, cryptoServiceMock, cacheServiceMock, priceTargetServiceMock);
     }
 
     @AfterEach
@@ -61,7 +67,7 @@ class PriceTargetServiceTest {
     void shouldRetrievePriceTargetById() {
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.findById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
 
         var priceTarget = priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
@@ -72,14 +78,17 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenRetrievingPriceTargetById() {
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
+
+        when(priceTargetServiceMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
             () -> priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
     }
 
     @Test
@@ -137,6 +146,7 @@ class PriceTargetServiceTest {
                 )
             );
         verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
     }
 
     @Test
@@ -155,6 +165,7 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
+        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
     }
 
     @Test
@@ -163,7 +174,7 @@ class PriceTargetServiceTest {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.findById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.empty());
         when(priceTargetRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
@@ -180,6 +191,7 @@ class PriceTargetServiceTest {
                 )
             );
         verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
     }
 
     @Test
@@ -188,7 +200,7 @@ class PriceTargetServiceTest {
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
         var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.findById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.of(anotherSamePriceTargetEntity));
 
@@ -198,47 +210,56 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
+        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
     }
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenUpdatingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
 
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        when(priceTargetServiceMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
             () -> priceTargetService.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest)
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).save(any());
+        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
     }
 
     @Test
     void shouldDeletePriceTarget() {
         var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.getId())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.findById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
 
         priceTargetService.deletePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
         verify(priceTargetRepositoryMock, times(1)).delete(priceTargetEntity);
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
+        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
     }
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenDeletingPriceTarget() {
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
+
+        when(priceTargetServiceMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
             () -> priceTargetService.deletePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).delete(any());
         verify(cryptoServiceMock, never()).deleteCryptoIfNotUsed(any());
+        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
     }
 
 }

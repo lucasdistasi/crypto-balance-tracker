@@ -8,6 +8,8 @@ import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -18,19 +20,24 @@ import java.util.Optional;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class UserCryptoService {
 
     private final UserCryptoRepository userCryptoRepository;
     private final PlatformService platformService;
     private final CryptoService cryptoService;
     private final CacheService cacheService;
+    private final UserCryptoService self;
 
+    @Cacheable(cacheNames = USER_CRYPTO_ID_CACHE, key = "#userCryptoId")
     public UserCrypto findUserCryptoById(String userCryptoId) {
         log.info("Retrieving user crypto with id {}", userCryptoId);
 
@@ -38,6 +45,7 @@ public class UserCryptoService {
             .orElseThrow(() -> new UserCryptoNotFoundException(USER_CRYPTO_ID_NOT_FOUND.formatted(userCryptoId)));
     }
 
+    @Cacheable(cacheNames = USER_CRYPTOS_PAGE_CACHE, key = "#page")
     public Page<UserCrypto> retrieveUserCryptosByPage(int page) {
         log.info("Retrieving user cryptos for page {}", page);
         var pageRequest = PageRequest.of(page, 10);
@@ -68,7 +76,7 @@ public class UserCryptoService {
     }
 
     public UserCrypto updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
-        final UserCrypto userCrypto = findUserCryptoById(userCryptoId);
+        final UserCrypto userCrypto = self.findUserCryptoById(userCryptoId);
         var platform = userCrypto.getPlatform();
         var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCrypto.getCrypto().getId());
@@ -84,16 +92,15 @@ public class UserCryptoService {
         }
 
         var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);
+        log.info("Updating user crypto. Before: {} | After: {}", userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());
         userCryptoRepository.save(updatedUserCrypto);
         cacheService.invalidateUserCryptosCaches();
-        // TODO - FIXME - check if they are different
-        log.info("Updated user crypto. Before: {} | After: {}", userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());
 
         return updatedUserCrypto;
     }
 
     public void deleteUserCrypto(String userCryptoId) {
-        var userCrypto = findUserCryptoById(userCryptoId);
+        var userCrypto = self.findUserCryptoById(userCryptoId);
         userCryptoRepository.deleteById(userCryptoId);
         cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());
         cacheService.invalidateUserCryptosCaches();

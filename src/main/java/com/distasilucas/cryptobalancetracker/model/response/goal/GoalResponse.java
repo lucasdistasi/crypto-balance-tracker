@@ -1,5 +1,7 @@
 package com.distasilucas.cryptobalancetracker.model.response.goal;
 
+import java.io.Serializable;
+
 public record GoalResponse(
     String id,
     String cryptoName,
@@ -8,5 +10,5 @@ public record GoalResponse(
     String remainingQuantity,
     String goalQuantity,
     String moneyNeeded
-) {
+) implements Serializable {
 }

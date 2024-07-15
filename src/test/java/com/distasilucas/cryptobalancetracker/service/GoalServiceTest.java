@@ -52,12 +52,15 @@ class GoalServiceTest {
     @Mock
     private UserCryptoService userCryptoServiceMock;
 
+    @Mock
+    private CacheService cacheServiceMock;
+
     private GoalService goalService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, userCryptoServiceMock);
+        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, userCryptoServiceMock, cacheServiceMock);
     }
 
     @Test
@@ -211,6 +214,7 @@ class GoalServiceTest {
         var goalResponse = goalService.saveGoal(goalRequest);
 
         verify(goalRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
         assertThat(goalResponse)
             .usingRecursiveComparison()
             .isEqualTo(
@@ -249,6 +253,7 @@ class GoalServiceTest {
 
         var goalResponse = goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
 
+        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
         assertThat(goalResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -280,6 +285,7 @@ class GoalServiceTest {
 
         verify(goalRepositoryMock, times(1)).deleteById("10e3c7c1-0732-4294-9410-9708a21128e3");
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
+        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
     }
 
     @Test

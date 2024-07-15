@@ -51,12 +51,15 @@ class UserCryptoServiceTest {
     @Mock
     private CacheService cacheServiceMock;
 
+    @Mock
+    private UserCryptoService userCryptoServiceMock;
+
     private UserCryptoService userCryptoService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        userCryptoService = new UserCryptoService(userCryptoRepositoryMock, platformServiceMock, cryptoServiceMock, cacheServiceMock);
+        userCryptoService = new UserCryptoService(userCryptoRepositoryMock, platformServiceMock, cryptoServiceMock, cacheServiceMock, userCryptoServiceMock);
     }
 
     @Test
@@ -195,7 +198,7 @@ class UserCryptoServiceTest {
         var coingeckoCrypto = getCoingeckoCrypto();
         var expected = new UserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", new BigDecimal("1.25"), getBinancePlatformEntity(), getBitcoinCryptoEntity());
 
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(userCrypto);
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
@@ -228,7 +231,7 @@ class UserCryptoServiceTest {
             getBitcoinCryptoEntity()
         );
 
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(userCrypto);
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
@@ -260,7 +263,7 @@ class UserCryptoServiceTest {
             getBitcoinCryptoEntity()
         );
 
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(userCrypto);
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
@@ -289,7 +292,7 @@ class UserCryptoServiceTest {
         var platformEntity = new Platform("123e4567-e89b-12d3-a456-426614174333", "COINBASE");
         var coingeckoCrypto = getCoingeckoCrypto();
 
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(userCrypto);
         when(platformServiceMock.retrievePlatformById("123e4567-e89b-12d3-a456-426614174333")).thenReturn(platformEntity);
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId("bitcoin")).thenReturn(coingeckoCrypto);
         when(userCryptoRepositoryMock.findByCoingeckoCryptoIdAndPlatformId(
@@ -311,7 +314,7 @@ class UserCryptoServiceTest {
     void shouldDeleteUserCrypto() {
         var userCrypto = getUserCrypto();
 
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.of(userCrypto));
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(userCrypto);
         doNothing().when(userCryptoRepositoryMock).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
         doNothing().when(cryptoServiceMock).deleteCryptoIfNotUsed("bitcoin");
 
@@ -324,7 +327,10 @@ class UserCryptoServiceTest {
 
     @Test
     void shouldThrowUserCryptoNotFoundExceptionWHenDeletingUserCrypto() {
-        when(userCryptoRepositoryMock.findById("af827ac7-d642-4461-a73c-b31ca6f6d13d")).thenReturn(Optional.empty());
+        var exceptionMessage = USER_CRYPTO_ID_NOT_FOUND.formatted("af827ac7-d642-4461-a73c-b31ca6f6d13d");
+
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
+            .thenThrow(new UserCryptoNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             UserCryptoNotFoundException.class,
@@ -333,7 +339,7 @@ class UserCryptoServiceTest {
 
         verify(userCryptoRepositoryMock, never()).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
 
-        assertEquals(USER_CRYPTO_ID_NOT_FOUND.formatted("af827ac7-d642-4461-a73c-b31ca6f6d13d"), exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
     }
 
     @Test

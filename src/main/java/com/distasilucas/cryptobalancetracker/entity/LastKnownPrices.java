@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class LastKnownPrices {
+public class LastKnownPrices implements Serializable {
 
     @Column(name = "last_known_price")
     private BigDecimal lastKnownPrice;

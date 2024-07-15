@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 
 @Getter
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-public class CryptoInfo {
+public class CryptoInfo implements Serializable {
     private String name;
     private String ticker;
     private String image;

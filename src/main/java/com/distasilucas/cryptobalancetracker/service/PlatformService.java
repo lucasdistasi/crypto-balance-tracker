@@ -66,11 +66,10 @@ public class PlatformService {
         validatePlatformDoesNotExist(platformRequest.name());
         var platform = self.retrievePlatformById(platformId);
         var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());
+
+        log.info("Updating platform. Before: {}. After: {}", platform, updatedPlatform);
         platformRepository.save(updatedPlatform);
         cacheService.invalidatePlatformsCaches();
-        // TODO - IF I UPDATE A PLATFORM, DOES A USER CRYPTO PLATFORM GETS UPDATED TOO?
-
-        log.info("Updated platform. Before: {}. After: {}", platform, updatedPlatform);
 
         return updatedPlatform;
     }
