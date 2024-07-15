@@ -57,7 +57,7 @@ public class Goal {
 
     @Override
     public String toString() {
-<span class="fc" id="L60">        return &quot;Goal id [&quot; + id + &quot;] for crypto [&quot; + crypto.getCryptoInfo().getName() + &quot;]&quot;;</span>
+<span class="fc" id="L60">        return String.format(&quot;Goal[id=%s, cryptoName=%s, goalQuantity=%s]&quot;, id, crypto.getCryptoInfo().getName(), goalQuantity);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
