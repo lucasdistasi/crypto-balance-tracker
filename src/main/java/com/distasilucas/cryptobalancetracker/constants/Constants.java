@@ -25,10 +25,9 @@ public class Constants {
     public static final String CRYPTOS_CRYPTOS_IDS_CACHE = "CRYPTOS_CRYPTOS_IDS_CACHE";
     public static final String ALL_PLATFORMS_CACHE = "ALL_PLATFORMS_CACHE";
     public static final String PLATFORM_PLATFORM_ID_CACHE = "PLATFORM_PLATFORM_ID_CACHE";
-    public static final String GOAL_RESPONSE_GOAL_ID_CACHE = "GOAL_RESPONSE_GOAL_ID_CACHE";
-    public static final String PAGE_GOALS_RESPONSE_PAGE_CACHE = "PAGE_GOALS_RESPONSE_PAGE_CACHE";
+    public static final String GOAL_CACHE = "GOAL_CACHE";
+    public static final String PAGE_GOALS_CACHE = "PAGE_GOALS_CACHE";
     public static final String PRICE_TARGET_ID_CACHE = "PRICE_TARGET_ID_CACHE";
-    public static final String PRICE_TARGET_RESPONSE_ID_CACHE = "PRICE_TARGET_RESPONSE_ID_CACHE";
     public static final String PRICE_TARGET_PAGE_CACHE = "PRICE_TARGET_PAGE_CACHE";
 
 }

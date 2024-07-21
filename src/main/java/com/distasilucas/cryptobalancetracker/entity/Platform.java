@@ -40,5 +40,4 @@ public class Platform implements Serializable {
         return new PlatformResponse(id, name);
     }
 
-
 }

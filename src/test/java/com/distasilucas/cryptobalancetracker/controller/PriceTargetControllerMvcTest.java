@@ -55,7 +55,7 @@ class PriceTargetControllerMvcTest {
             getBitcoinCryptoEntity()
         );
 
-        when(priceTargetServiceMock.retrievePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))
+        when(priceTargetServiceMock.retrievePriceTargetById("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))
             .thenReturn(priceTarget);
 
         mockMvc.perform(retrievePriceTargetById("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))

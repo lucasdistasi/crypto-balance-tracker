@@ -1,19 +1,14 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Goal;
-import com.distasilucas.cryptobalancetracker.entity.Platform;
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedGoalException;
 import com.distasilucas.cryptobalancetracker.exception.GoalNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
-import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
@@ -25,13 +20,10 @@ import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCry
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
@@ -50,9 +42,6 @@ class GoalServiceTest {
     private CryptoService cryptoServiceMock;
 
     @Mock
-    private UserCryptoService userCryptoServiceMock;
-
-    @Mock
     private CacheService cacheServiceMock;
 
     private GoalService goalService;
@@ -60,44 +49,19 @@ class GoalServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, userCryptoServiceMock, cacheServiceMock);
+        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, cacheServiceMock);
     }
 
     @Test
     void shouldRetrieveGoalById() {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
-        var userCrypto = getUserCrypto();
-        var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00");
+        var expected = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
 
         when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.of(goalEntity));
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
-        var goalResponse = goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
+        var goal = goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
 
-        assertThat(goalResponse)
-            .usingRecursiveComparison()
-            .isEqualTo(expected);
-    }
-
-    @Test
-    void shouldRetrieveCompletedGoal() {
-        var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
-        var cryptoEntity = getBitcoinCryptoEntity();
-        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
-        var userCrypto = new UserCrypto(
-            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            new BigDecimal("1"),
-            platformEntity,
-            cryptoEntity
-        );
-        var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0.00");
-
-        when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.of(goalEntity));
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
-
-        var goalResponse = goalService.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3");
-
-        assertThat(goalResponse)
+        assertThat(goal)
             .usingRecursiveComparison()
             .isEqualTo(expected);
     }
@@ -118,90 +82,20 @@ class GoalServiceTest {
     void shouldRetrieveGoalsForPage() {
         var pageRequest = PageRequest.of(0, 10);
         var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
-        var userCrypto = getUserCrypto();
 
-        when(goalRepositoryMock.findAll(pageRequest)).thenReturn(new PageImpl<>(List.of(goal)));
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
+        when(goalRepositoryMock.findAll(pageRequest)).thenReturn(new PageImpl<>(List.of(goal), pageRequest, 10));
 
-        var goalsResponse = goalService.retrieveGoalsForPage(0);
+        var pageGoals = goalService.retrieveGoalsForPage(0);
 
-        assertThat(goalsResponse)
+        assertThat(pageGoals)
             .usingRecursiveComparison()
-            .isEqualTo(
-                new PageGoalResponse(1, 1, false,
-                    List.of(
-                        new GoalResponse(
-                            "10e3c7c1-0732-4294-9410-9708a21128e3",
-                            "Bitcoin",
-                            "0.25",
-                            25f,
-                            "0.75",
-                            "1",
-                            "22500.00"
-                        ))
-                )
-            );
-    }
-
-    @Test
-    void shouldRetrieveGoalsForPageWithNextPage() {
-        var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
-        var userCrypto = getUserCrypto();
-        var goalPage = List.of(goal, goal);
-        var pageImpl = new PageImpl<>(goalPage, PageRequest.of(0, 2), 10L);
-
-        when(goalRepositoryMock.findAll(PageRequest.of(0, 10))).thenReturn(pageImpl);
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
-
-        var goalsResponse = goalService.retrieveGoalsForPage(0);
-
-        assertThat(goalsResponse)
-            .usingRecursiveComparison()
-            .isEqualTo(
-                new PageGoalResponse(1, 5, true,
-                    List.of(
-                        new GoalResponse(
-                            "10e3c7c1-0732-4294-9410-9708a21128e3",
-                            "Bitcoin",
-                            "0.25",
-                            25f,
-                            "0.75",
-                            "1",
-                            "22500.00"
-                        ),
-                        new GoalResponse(
-                            "10e3c7c1-0732-4294-9410-9708a21128e3",
-                            "Bitcoin",
-                            "0.25",
-                            25f,
-                            "0.75",
-                            "1",
-                            "22500.00"
-                        )
-                    )
-                )
-            );
-    }
-
-    @Test
-    void shouldRetrieveEmptyGoalsForPage() {
-        var pageRequest = PageRequest.of(0, 10);
-
-        when(goalRepositoryMock.findAll(pageRequest)).thenReturn(Page.empty());
-
-        var goalsResponse = goalService.retrieveGoalsForPage(0);
-
-        assertFalse(goalsResponse.hasNextPage());
-        assertThat(goalsResponse)
-            .usingRecursiveComparison()
-            .isEqualTo(new PageGoalResponse(1, 1, false, emptyList()));
+            .isEqualTo(new PageImpl<>(List.of(goal), pageRequest, 10));
     }
 
     @Test
     void shouldSaveGoal() {
         var goalRequest = getGoalRequest();
         var coingeckoCrypto = getCoingeckoCrypto();
-        var userCrypto = getUserCrypto();
 
         var captor = ArgumentCaptor.forClass(Goal.class);
 
@@ -209,7 +103,6 @@ class GoalServiceTest {
         when(goalRepositoryMock.findByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.empty());
         when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(getBitcoinCryptoEntity());
         when(goalRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         var goalResponse = goalService.saveGoal(goalRequest);
 
@@ -217,9 +110,7 @@ class GoalServiceTest {
         verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
         assertThat(goalResponse)
             .usingRecursiveComparison()
-            .isEqualTo(
-                new GoalResponse(captor.getValue().getId(), "Bitcoin", "0.25", 25f, "0.75", "1", "22500.00")
-            );
+            .isEqualTo(new Goal(captor.getValue().getId(), new BigDecimal("1"), getBitcoinCryptoEntity()));
     }
 
     @Test
@@ -244,19 +135,17 @@ class GoalServiceTest {
         var goalRequest = new GoalRequest("bitcoin", new BigDecimal("0.75"));
         var goal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
         var updatedGoal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("0.75"), getBitcoinCryptoEntity());
-        var userCrypto = getUserCrypto();
-        var expected = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 33.33f, "0.50", "0.75", "15000.00");
+        var captor = ArgumentCaptor.forClass(Goal.class);
 
         when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.of(goal));
-        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
-        when(goalRepositoryMock.save(updatedGoal)).thenReturn(updatedGoal);
+        when(goalRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        var goalResponse = goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
+        var goalUpdated = goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
 
         verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
-        assertThat(goalResponse)
+        assertThat(goalUpdated)
             .usingRecursiveComparison()
-            .isEqualTo(expected);
+            .isEqualTo(updatedGoal);
     }
 
     @Test

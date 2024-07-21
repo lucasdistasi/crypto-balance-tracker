@@ -17,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_RESPONSE_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
 
 @Slf4j
@@ -32,16 +31,11 @@ public class PriceTargetService {
     private final PriceTargetService self;
 
     @Cacheable(cacheNames = PRICE_TARGET_ID_CACHE, key = "#priceTargetId")
-    public PriceTarget findById(String priceTargetId) {
-        return priceTargetRepository.findById(priceTargetId)
-            .orElseThrow(() -> new PriceTargetNotFoundException(String.format("Price target with id %s not found", priceTargetId)));
-    }
-
-    @Cacheable(cacheNames = PRICE_TARGET_RESPONSE_ID_CACHE, key = "#priceTargetId")
-    public PriceTarget retrievePriceTarget(String priceTargetId) {
+    public PriceTarget retrievePriceTargetById(String priceTargetId) {
         log.info("Retrieving price target for id {}", priceTargetId);
 
-        return self.findById(priceTargetId);
+        return priceTargetRepository.findById(priceTargetId)
+            .orElseThrow(() -> new PriceTargetNotFoundException(String.format("Price target with id %s not found", priceTargetId)));
     }
 
     @Cacheable(cacheNames = PRICE_TARGET_PAGE_CACHE, key = "#page")
@@ -69,7 +63,7 @@ public class PriceTargetService {
     public PriceTarget updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
         log.info("Updating price target for id {}. New value: {}", priceTargetId, priceTargetRequest);
 
-        var priceTarget = self.findById(priceTargetId);
+        var priceTarget = self.retrievePriceTargetById(priceTargetId);
         priceTarget.setTarget(priceTargetRequest.priceTarget());
 
         var coingeckoCryptoId = priceTarget.getCrypto().getId();
@@ -83,7 +77,7 @@ public class PriceTargetService {
 
     public void deletePriceTarget(String priceTargetId) {
         log.info("Deleting price target for id {}", priceTargetId);
-        var priceTarget = self.findById(priceTargetId);
+        var priceTarget = self.retrievePriceTargetById(priceTargetId);
 
         priceTargetRepository.delete(priceTarget);
         cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());

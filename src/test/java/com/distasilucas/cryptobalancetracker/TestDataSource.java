@@ -20,6 +20,9 @@ import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -321,8 +324,12 @@ public class TestDataSource {
         return new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0");
     }
 
-    public static PageGoalResponse getPageGoalResponse() {
-        return new PageGoalResponse(1, 1, false, List.of(getGoalResponse()));
+    public static Goal getGoal() {
+        return new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
+    }
+
+    public static Page<Goal> getPageGoal() {
+        return new PageImpl<>(List.of(getGoal()), PageRequest.of(0, 10), 1);
     }
 
     public static GoalRequest getGoalRequest() {

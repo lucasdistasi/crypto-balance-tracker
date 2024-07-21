@@ -1,14 +1,12 @@
 package com.distasilucas.cryptobalancetracker.configuration;
 
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.Goal;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
-import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import org.ehcache.config.CacheConfiguration;
 import org.ehcache.config.builders.CacheConfigurationBuilder;
 import org.ehcache.config.builders.ExpiryPolicyBuilder;
@@ -31,12 +29,11 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.COINGECK
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_INFO_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_RESPONSE_GOAL_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_RESPONSE_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_PLATFORMS_IDS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_RESPONSE_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
@@ -64,10 +61,9 @@ public class EhCacheConfiguration {
         var allPlatformsCache = getAllPlatformsCache();
         var platformCache = getPlatformCache();
         var priceTargetCache = getPriceTargetCache();
-        var priceTargetResponseCache = getPriceTargetResponseCache();
         var pagePriceTargetCache = getPagePriceTargetCache();
-        var goalResponseCache = getGoalResponseCache();
-        var pageGoalsResponseCache = getPageGoalsResponseCache();
+        var goalCache = getGoalCache();
+        var pageGoalsCache = getPageGoalsCache();
 
         cacheManager.createCache(COINGECKO_CRYPTOS_CACHE, getCacheConfiguration(coingeckoCryptosCache));
         cacheManager.createCache(CRYPTO_INFO_CACHE, getCacheConfiguration(coingeckoCryptoInfoCache));
@@ -82,10 +78,9 @@ public class EhCacheConfiguration {
         cacheManager.createCache(ALL_PLATFORMS_CACHE, getCacheConfiguration(allPlatformsCache));
         cacheManager.createCache(PLATFORM_PLATFORM_ID_CACHE, getCacheConfiguration(platformCache));
         cacheManager.createCache(PRICE_TARGET_ID_CACHE, getCacheConfiguration(priceTargetCache));
-        cacheManager.createCache(PRICE_TARGET_RESPONSE_ID_CACHE, getCacheConfiguration(priceTargetResponseCache));
         cacheManager.createCache(PRICE_TARGET_PAGE_CACHE, getCacheConfiguration(pagePriceTargetCache));
-        cacheManager.createCache(GOAL_RESPONSE_GOAL_ID_CACHE, getCacheConfiguration(goalResponseCache));
-        cacheManager.createCache(PAGE_GOALS_RESPONSE_PAGE_CACHE, getCacheConfiguration(pageGoalsResponseCache));
+        cacheManager.createCache(GOAL_CACHE, getCacheConfiguration(goalCache));
+        cacheManager.createCache(PAGE_GOALS_CACHE, getCacheConfiguration(pageGoalsCache));
 
         return cacheManager;
     }
@@ -273,19 +268,6 @@ public class EhCacheConfiguration {
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
-    private CacheConfiguration<String, PriceTargetResponse> getPriceTargetResponseCache() {
-        var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
-            .offheap(1, MemoryUnit.MB)
-            .build();
-        var expirationPolicyBuilder = ExpiryPolicyBuilder.timeToLiveExpiration(Duration.ofMinutes(60));
-
-        return CacheConfigurationBuilder.newCacheConfigurationBuilder(
-            String.class,
-            PriceTargetResponse.class,
-            resourcePools
-        ).withExpiry(expirationPolicyBuilder).build();
-    }
-
     private CacheConfiguration<Integer, Page<PriceTarget>> getPagePriceTargetCache() {
         Class<Page<PriceTarget>> priceTargetPageClass = cast(Page.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
@@ -300,7 +282,7 @@ public class EhCacheConfiguration {
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
-    private CacheConfiguration<String, GoalResponse> getGoalResponseCache() {
+    private CacheConfiguration<String, Goal> getGoalCache() {
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
             .offheap(1, MemoryUnit.MB)
             .build();
@@ -308,12 +290,13 @@ public class EhCacheConfiguration {
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
             String.class,
-            GoalResponse.class,
+            Goal.class,
             resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }
 
-    private CacheConfiguration<Integer, PageGoalResponse> getPageGoalsResponseCache() {
+    private CacheConfiguration<Integer, Page<Goal>> getPageGoalsCache() {
+        Class<Page<Goal>> goalPageClass = cast(Page.class);
         var resourcePools = ResourcePoolsBuilder.newResourcePoolsBuilder()
             .offheap(1, MemoryUnit.MB)
             .build();
@@ -321,7 +304,7 @@ public class EhCacheConfiguration {
 
         return CacheConfigurationBuilder.newCacheConfigurationBuilder(
             Integer.class,
-            PageGoalResponse.class,
+            goalPageClass,
             resourcePools
         ).withExpiry(expirationPolicyBuilder).build();
     }

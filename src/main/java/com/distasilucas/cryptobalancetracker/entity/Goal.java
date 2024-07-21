@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Entity
 @Table(name = "Goals")
@@ -31,7 +32,15 @@ public class Goal {
     @JoinColumn(name = "crypto_id", nullable = false, unique = true)
     private Crypto crypto;
 
-    public GoalResponse toGoalResponse(BigDecimal actualQuantity) {
+    public Goal withNewGoalQuantity(BigDecimal newGoalQuantity) {
+        return new Goal(this.id, newGoalQuantity, this.crypto);
+    }
+
+    public GoalResponse toGoalResponse(List<UserCrypto> userCryptos) {
+        var actualQuantity = userCryptos
+            .stream()
+            .map(UserCrypto::getQuantity)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
         var progress = getProgress(actualQuantity);
         var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);
         var moneyNeeded = getMoneyNeeded(remainingQuantity);

@@ -22,13 +22,12 @@ import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRespon
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.ALL_PLATFORMS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_RESPONSE_GOAL_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_RESPONSE_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_PLATFORMS_IDS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_RESPONSE_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
@@ -178,11 +177,11 @@ class CacheServiceTest {
         var goalResponseGoalIdMap = Map.of("123e4567-e89b-12d3-a456-426614174111", getGoalResponse());
         var pageGoalsResponsePageMap = Map.of(0, new PageGoalResponse(0, 1, List.of(getGoalResponse())));
 
-        var goalResponseGoalIdCache = new ConcurrentMapCache(GOAL_RESPONSE_GOAL_ID_CACHE, new ConcurrentHashMap<>(goalResponseGoalIdMap), false);
-        var pageGoalsResponsePageCache = new ConcurrentMapCache(PAGE_GOALS_RESPONSE_PAGE_CACHE, new ConcurrentHashMap<>(pageGoalsResponsePageMap), false);
+        var goalResponseGoalIdCache = new ConcurrentMapCache(GOAL_CACHE, new ConcurrentHashMap<>(goalResponseGoalIdMap), false);
+        var pageGoalsResponsePageCache = new ConcurrentMapCache(PAGE_GOALS_CACHE, new ConcurrentHashMap<>(pageGoalsResponsePageMap), false);
 
-        when(cacheManagerMock.getCache(GOAL_RESPONSE_GOAL_ID_CACHE)).thenReturn(goalResponseGoalIdCache);
-        when(cacheManagerMock.getCache(PAGE_GOALS_RESPONSE_PAGE_CACHE)).thenReturn(pageGoalsResponsePageCache);
+        when(cacheManagerMock.getCache(GOAL_CACHE)).thenReturn(goalResponseGoalIdCache);
+        when(cacheManagerMock.getCache(PAGE_GOALS_CACHE)).thenReturn(pageGoalsResponsePageCache);
 
         cacheService.invalidateGoalsCaches();
 
@@ -191,14 +190,14 @@ class CacheServiceTest {
 
         assertTrue(goalResponseGoalIdStore.isEmpty());
         assertTrue(pageGoalsResponsePageStore.isEmpty());
-        verify(cacheManagerMock, times(1)).getCache(GOAL_RESPONSE_GOAL_ID_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(PAGE_GOALS_RESPONSE_PAGE_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(GOAL_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PAGE_GOALS_CACHE);
     }
 
     @Test
     void  shouldThrowNullPointerExceptionIfGoalsCacheDoesNotExists() {
-        when(cacheManagerMock.getCache(GOAL_RESPONSE_GOAL_ID_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(PAGE_GOALS_RESPONSE_PAGE_CACHE)).thenReturn(null);
+        when(cacheManagerMock.getCache(GOAL_CACHE)).thenReturn(null);
+        when(cacheManagerMock.getCache(PAGE_GOALS_CACHE)).thenReturn(null);
 
         assertThrows(
             NullPointerException.class,
@@ -217,35 +216,28 @@ class CacheServiceTest {
             50F
         );
         var priceTargetIdMap = Map.of("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTarget);
-        var priceTargetResponseIdMap = Map.of("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetResponse);
         var priceTargetResponsePageMap = Map.of(0, new PagePriceTargetResponse(0, 1, List.of(priceTargetResponse)));
 
         var priceTargetIdCache = new ConcurrentMapCache(PRICE_TARGET_ID_CACHE, new ConcurrentHashMap<>(priceTargetIdMap), false);
-        var priceTargetResponseIdCache = new ConcurrentMapCache(PRICE_TARGET_RESPONSE_ID_CACHE, new ConcurrentHashMap<>(priceTargetResponseIdMap), false);
         var priceTargetResponsePageCache = new ConcurrentMapCache(PRICE_TARGET_PAGE_CACHE, new ConcurrentHashMap<>(priceTargetResponsePageMap), false);
 
         when(cacheManagerMock.getCache(PRICE_TARGET_ID_CACHE)).thenReturn(priceTargetIdCache);
-        when(cacheManagerMock.getCache(PRICE_TARGET_RESPONSE_ID_CACHE)).thenReturn(priceTargetResponseIdCache);
         when(cacheManagerMock.getCache(PRICE_TARGET_PAGE_CACHE)).thenReturn(priceTargetResponsePageCache);
 
         cacheService.invalidatePriceTargetCaches();
 
         var priceTargetIdStore = priceTargetIdCache.getNativeCache();
-        var priceTargetResponseIdStore = priceTargetResponseIdCache.getNativeCache();
         var priceTargetResponsePageStore = priceTargetResponsePageCache.getNativeCache();
 
         assertTrue(priceTargetIdStore.isEmpty());
-        assertTrue(priceTargetResponseIdStore.isEmpty());
         assertTrue(priceTargetResponsePageStore.isEmpty());
         verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_ID_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_RESPONSE_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_PAGE_CACHE);
     }
 
     @Test
     void  shouldThrowNullPointerExceptionIfPriceTargetsCacheDoesNotExists() {
         when(cacheManagerMock.getCache(PRICE_TARGET_ID_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(PRICE_TARGET_RESPONSE_ID_CACHE)).thenReturn(null);
         when(cacheManagerMock.getCache(PRICE_TARGET_PAGE_CACHE)).thenReturn(null);
 
         assertThrows(
