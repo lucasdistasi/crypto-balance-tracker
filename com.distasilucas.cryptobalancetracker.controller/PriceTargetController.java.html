@@ -42,7 +42,7 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     public ResponseEntity&lt;PriceTargetResponse&gt; retrievePriceTarget(
         @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
     ) {
-<span class="fc" id="L45">        var priceTarget = priceTargetService.retrievePriceTarget(priceTargetId);</span>
+<span class="fc" id="L45">        var priceTarget = priceTargetService.retrievePriceTargetById(priceTargetId);</span>
 
 <span class="fc" id="L47">        return ResponseEntity.ok(priceTarget.toPriceTargetResponse());</span>
     }

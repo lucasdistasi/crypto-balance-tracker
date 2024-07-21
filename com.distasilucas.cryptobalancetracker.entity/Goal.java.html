@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.List;
 
 @Entity
 @Table(name = &quot;Goals&quot;)
@@ -31,33 +32,41 @@ public class Goal {
     @JoinColumn(name = &quot;crypto_id&quot;, nullable = false, unique = true)
     private Crypto crypto;
 
-    public GoalResponse toGoalResponse(BigDecimal actualQuantity) {
-<span class="fc" id="L35">        var progress = getProgress(actualQuantity);</span>
-<span class="fc" id="L36">        var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);</span>
-<span class="fc" id="L37">        var moneyNeeded = getMoneyNeeded(remainingQuantity);</span>
+    public Goal withNewGoalQuantity(BigDecimal newGoalQuantity) {
+<span class="fc" id="L36">        return new Goal(this.id, newGoalQuantity, this.crypto);</span>
+    }
 
-<span class="fc" id="L39">        return new GoalResponse(id, crypto.getCryptoInfo().getName(), actualQuantity.toPlainString(), progress,</span>
-<span class="fc" id="L40">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
+    public GoalResponse toGoalResponse(List&lt;UserCrypto&gt; userCryptos) {
+<span class="fc" id="L40">        var actualQuantity = userCryptos</span>
+<span class="fc" id="L41">            .stream()</span>
+<span class="fc" id="L42">            .map(UserCrypto::getQuantity)</span>
+<span class="fc" id="L43">            .reduce(BigDecimal.ZERO, BigDecimal::add);</span>
+<span class="fc" id="L44">        var progress = getProgress(actualQuantity);</span>
+<span class="fc" id="L45">        var remainingQuantity = getRemainingQuantity(goalQuantity, actualQuantity);</span>
+<span class="fc" id="L46">        var moneyNeeded = getMoneyNeeded(remainingQuantity);</span>
+
+<span class="fc" id="L48">        return new GoalResponse(id, crypto.getCryptoInfo().getName(), actualQuantity.toPlainString(), progress,</span>
+<span class="fc" id="L49">            remainingQuantity.toPlainString(), goalQuantity.toPlainString(), moneyNeeded.toPlainString());</span>
     }
 
     private Float getProgress(BigDecimal actualQuantity) {
-<span class="fc bfc" id="L44" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? 100F :</span>
-<span class="fc" id="L45">            actualQuantity.multiply(new BigDecimal(&quot;100&quot;))</span>
-<span class="fc" id="L46">                .divide(goalQuantity, 2, RoundingMode.HALF_UP)</span>
-<span class="fc" id="L47">                .floatValue();</span>
+<span class="fc bfc" id="L53" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? 100F :</span>
+<span class="fc" id="L54">            actualQuantity.multiply(new BigDecimal(&quot;100&quot;))</span>
+<span class="fc" id="L55">                .divide(goalQuantity, 2, RoundingMode.HALF_UP)</span>
+<span class="fc" id="L56">                .floatValue();</span>
     }
 
     private BigDecimal getRemainingQuantity(BigDecimal goalQuantity, BigDecimal actualQuantity) {
-<span class="fc bfc" id="L51" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? BigDecimal.ZERO : goalQuantity.subtract(actualQuantity);</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        return goalQuantity.compareTo(actualQuantity) &lt;= 0 ? BigDecimal.ZERO : goalQuantity.subtract(actualQuantity);</span>
     }
 
     private BigDecimal getMoneyNeeded(BigDecimal remainingQuantity) {
-<span class="fc" id="L55">        return crypto.getLastKnownPrices().getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
+<span class="fc" id="L64">        return crypto.getLastKnownPrices().getLastKnownPrice().multiply(remainingQuantity).setScale(2, RoundingMode.HALF_UP);</span>
     }
 
     @Override
     public String toString() {
-<span class="fc" id="L60">        return String.format(&quot;Goal[id=%s, cryptoName=%s, goalQuantity=%s]&quot;, id, crypto.getCryptoInfo().getName(), goalQuantity);</span>
+<span class="fc" id="L69">        return String.format(&quot;Goal[id=%s, cryptoName=%s, goalQuantity=%s]&quot;, id, crypto.getCryptoInfo().getName(), goalQuantity);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
