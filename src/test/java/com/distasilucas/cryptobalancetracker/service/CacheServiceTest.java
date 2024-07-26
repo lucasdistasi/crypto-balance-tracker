@@ -2,7 +2,20 @@ package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalanceChanges;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DateBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DifferencesChanges;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PlatformInsight;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsBalancesInsightsResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.platform.PlatformsInsights;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,19 +28,26 @@ import org.springframework.cache.interceptor.SimpleKey;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalResponse;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.ALL_PLATFORMS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_BALANCES_INSIGHTS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_INSIGHTS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.DATES_BALANCES_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_BALANCES_INSIGHTS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_PLATFORMS_IDS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_INSIGHTS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.TOTAL_BALANCES_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
@@ -62,37 +82,62 @@ class CacheServiceTest {
         var userCryptosCoingeckoCryptoIdMap = Map.of("bitcoin", List.of(userCrypto));
         var userCryptoIdMap = Map.of("bc7a8ee5-13f9-4405-a7fb-887458c21bed", List.of(userCrypto));
         var userCryptosPageMap = Map.of(0, List.of(userCrypto));
+        var totalBalancesMap = Map.of(SimpleKey.class, new BalancesResponse("1000", "927.30", "0.015384615"));
+        var datesBalancesMap = Map.of(DateRange.class, getDateBalanceResponse());
+        var platformInsightsMap = Map.of(String.class, getPlatformInsightsResponse());
+        var cryptoInsightsMap = Map.of(String.class, getCryptoInsightResponse());
+        var platformsBalancesInsightsMap = Map.of(SimpleKey.class, getPlatformsBalancesInsightsResponse());
+        var cryptosBalancesInsightsMap = Map.of(SimpleKey.class, getCryptosBalancesInsightsResponse());
 
-        var userCryptosCacheCache = new ConcurrentMapCache(USER_CRYPTOS_CACHE, new ConcurrentHashMap<>(userCryptosCacheMap), false);
-        var userCryptosPlatformIdCache = new ConcurrentMapCache(USER_CRYPTOS_PLATFORM_ID_CACHE, new ConcurrentHashMap<>(userCryptosPlatformIdMap), false);
-        var userCryptosCoingeckoCryptoIdCache = new ConcurrentMapCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, new ConcurrentHashMap<>(userCryptosCoingeckoCryptoIdMap), false);
-        var userCryptoIdCache = new ConcurrentMapCache(USER_CRYPTO_ID_CACHE, new ConcurrentHashMap<>(userCryptoIdMap), false);
-        var userCryptosPageCache = new ConcurrentMapCache(USER_CRYPTOS_PAGE_CACHE, new ConcurrentHashMap<>(userCryptosPageMap), false);
+        var userCryptosCacheCache = getMapCache(USER_CRYPTOS_CACHE, userCryptosCacheMap);
+        var userCryptosPlatformIdCache = getMapCache(USER_CRYPTOS_PLATFORM_ID_CACHE, userCryptosPlatformIdMap);
+        var userCryptosCoingeckoCryptoIdCache = getMapCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, userCryptosCoingeckoCryptoIdMap);
+        var userCryptoIdCache = getMapCache(USER_CRYPTO_ID_CACHE, userCryptoIdMap);
+        var userCryptosPageCache = getMapCache(USER_CRYPTOS_PAGE_CACHE, userCryptosPageMap);
+        var totalBalancesCache = getMapCache(TOTAL_BALANCES_CACHE, totalBalancesMap);
+        var datesBalancesCache = getMapCache(DATES_BALANCES_CACHE, datesBalancesMap);
+        var platformInsightsCache = getMapCache(PLATFORM_INSIGHTS_CACHE, platformInsightsMap);
+        var cryptoInsightsCache = getMapCache(CRYPTO_INSIGHTS_CACHE, cryptoInsightsMap);
+        var platformsBalancesInsightsCache = getMapCache(PLATFORMS_BALANCES_INSIGHTS_CACHE, platformsBalancesInsightsMap);
+        var cryptosBalancesInsightsCache = getMapCache(CRYPTOS_BALANCES_INSIGHTS_CACHE, cryptosBalancesInsightsMap);
 
         when(cacheManagerMock.getCache(USER_CRYPTOS_CACHE)).thenReturn(userCryptosCacheCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_PLATFORM_ID_CACHE)).thenReturn(userCryptosPlatformIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE)).thenReturn(userCryptosCoingeckoCryptoIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTO_ID_CACHE)).thenReturn(userCryptoIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_PAGE_CACHE)).thenReturn(userCryptosPageCache);
+        when(cacheManagerMock.getCache(TOTAL_BALANCES_CACHE)).thenReturn(totalBalancesCache);
+        when(cacheManagerMock.getCache(DATES_BALANCES_CACHE)).thenReturn(datesBalancesCache);
+        when(cacheManagerMock.getCache(PLATFORM_INSIGHTS_CACHE)).thenReturn(platformInsightsCache);
+        when(cacheManagerMock.getCache(CRYPTO_INSIGHTS_CACHE)).thenReturn(cryptoInsightsCache);
+        when(cacheManagerMock.getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE)).thenReturn(platformsBalancesInsightsCache);
+        when(cacheManagerMock.getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE)).thenReturn(cryptosBalancesInsightsCache);
 
         cacheService.invalidateUserCryptosCaches();
 
-        var userCryptosCacheStore = userCryptosCacheCache.getNativeCache();
-        var userCryptosPlatformIdStore = userCryptosPlatformIdCache.getNativeCache();
-        var userCryptosCoingeckoCryptoIdStore = userCryptosCoingeckoCryptoIdCache.getNativeCache();
-        var userCryptoIdStore = userCryptoIdCache.getNativeCache();
-        var userCryptosPageStore = userCryptosPageCache.getNativeCache();
+        assertTrue(userCryptosCacheCache.getNativeCache().isEmpty());
+        assertTrue(userCryptosPlatformIdCache.getNativeCache().isEmpty());
+        assertTrue(userCryptosCoingeckoCryptoIdCache.getNativeCache().isEmpty());
+        assertTrue(userCryptoIdCache.getNativeCache().isEmpty());
+        assertTrue(userCryptosPageCache.getNativeCache().isEmpty());
+        assertTrue(totalBalancesCache.getNativeCache().isEmpty());
+        assertTrue(datesBalancesCache.getNativeCache().isEmpty());
+        assertTrue(platformInsightsCache.getNativeCache().isEmpty());
+        assertTrue(cryptoInsightsCache.getNativeCache().isEmpty());
+        assertTrue(platformsBalancesInsightsCache.getNativeCache().isEmpty());
+        assertTrue(cryptosBalancesInsightsCache.getNativeCache().isEmpty());
 
-        assertTrue(userCryptosCacheStore.isEmpty());
-        assertTrue(userCryptosPlatformIdStore.isEmpty());
-        assertTrue(userCryptosCoingeckoCryptoIdStore.isEmpty());
-        assertTrue(userCryptoIdStore.isEmpty());
-        assertTrue(userCryptosPageStore.isEmpty());
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_PLATFORM_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTO_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_PAGE_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(TOTAL_BALANCES_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(DATES_BALANCES_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PLATFORM_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(CRYPTO_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE);
     }
 
     @Test
@@ -246,4 +291,104 @@ class CacheServiceTest {
         );
     }
 
+    public ConcurrentMapCache getMapCache(String name, Map<?, ?> map) {
+        return new ConcurrentMapCache(name, new ConcurrentHashMap<>(map), false);
+    }
+
+    private PlatformInsightsResponse getPlatformInsightsResponse() {
+        return new PlatformInsightsResponse(
+            "BINANCE",
+            new BalancesResponse("7500.00", "0.25", "6750.00"),
+            List.of(
+                new CryptoInsights(
+                    "123e4567-e89b-12d3-a456-426614174000",
+                    "Bitcoin",
+                    "bitcoin",
+                    "0.25",
+                    new BalancesResponse("7500.00", "0.25", "6750.00"),
+                    100f
+                )
+            )
+        );
+    }
+
+    private DatesBalanceResponse getDateBalanceResponse() {
+        return new DatesBalanceResponse(
+            List.of(
+                new DateBalances("16 March 2024", new BalancesResponse("1000", "918.45", "0.01438911")),
+                new DateBalances("17 March 2024", new BalancesResponse("1500", "1377.67", "0.021583665"))
+            ),
+            new BalanceChanges(50F, 50F, 49.99F),
+            new DifferencesChanges("500", "459.22", "0.007194555")
+        );
+    }
+
+    private CryptosBalancesInsightsResponse getCryptosBalancesInsightsResponse() {
+        return new CryptosBalancesInsightsResponse(
+            new BalancesResponse("7108.39", "0.2512793593", "6484.23"),
+            List.of(
+                new CryptoInsights(
+                    "Bitcoin",
+                    "bitcoin",
+                    "0.15",
+                    new BalancesResponse("4500.00", "0.15", "4050.00"),
+                    63.31f
+                ),
+                new CryptoInsights(
+                    "Ethereum",
+                    "ethereum",
+                    "1.372",
+                    new BalancesResponse("2219.13", "0.0861664843", "2070.86"),
+                     31.22f
+                ),
+                new CryptoInsights(
+                    "Tether",
+                    "tether",
+                    "200",
+                    new BalancesResponse("199.92", "0.00776", "186.62"),
+                    2.81f
+                ),
+                new CryptoInsights(
+                    "Litecoin",
+                    "litecoin",
+                    "3.125",
+                    new BalancesResponse("189.34", "0.007352875", "176.75"),
+                    2.66f
+                )
+            )
+        );
+    }
+
+    private PlatformsBalancesInsightsResponse getPlatformsBalancesInsightsResponse() {
+        return new PlatformsBalancesInsightsResponse(
+            new BalancesResponse("7108.39", "0.2512793593", "6484.23"),
+            List.of(
+                new PlatformsInsights(
+                    "BINANCE",
+                    new BalancesResponse("5120.45", "0.1740889256", "4629.06"),
+                    72.03f
+                ),
+                new PlatformsInsights(
+                    "COINBASE",
+                    new BalancesResponse("1987.93", "0.0771904337", "1855.17"),
+                    27.97f
+                )
+            )
+        );
+    }
+
+    private CryptoInsightResponse getCryptoInsightResponse() {
+        return new CryptoInsightResponse(
+            "Bitcoin",
+            new BalancesResponse("7500.00", "0.25", "6750.00"),
+            List.of(
+                new PlatformInsight(
+                    "0.25",
+                    new BalancesResponse("7500.00", "0.25", "6750.00"),
+                    100f,
+                    "BINANCE"
+                )
+            )
+        );
+    }
 }

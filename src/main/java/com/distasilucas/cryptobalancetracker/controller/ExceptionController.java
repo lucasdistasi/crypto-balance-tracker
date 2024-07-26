@@ -291,7 +291,7 @@ public class ExceptionController {
         Exception exception,
         WebRequest webRequest
     ) {
-        log.warn("An unhandled Exception has occurred", exception);
+        log.error("An unhandled Exception has occurred", exception);
 
         var request = (ServletWebRequest) webRequest;
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);

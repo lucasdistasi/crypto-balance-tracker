@@ -4,13 +4,15 @@ import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalanceChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DateBalances;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DifferencesChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
@@ -90,8 +92,14 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveDatesBalancesResponseWithStatus200() throws Exception {
-        var datesBalances = new DatesBalances("22 February 2024", "1000");
-        var datesBalanceResponse = new DatesBalanceResponse(List.of(datesBalances), 5, "0");
+        var datesBalanceResponse = new DatesBalanceResponse(
+            List.of(
+                new DateBalances("22 February 2024", new BalancesResponse("1000", "918.45", "0.01438911")),
+                new DateBalances("23 February 2024", new BalancesResponse("1500", "1377.67", "0.021583665"))
+            ),
+            new BalanceChanges(50F, 50F, 49.99F),
+            new DifferencesChanges("500", "459.22", "0.007194555")
+        );
 
         when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
             .thenReturn(Optional.of(datesBalanceResponse));
@@ -99,8 +107,19 @@ class InsightsControllerMvcTest {
         mockMvc.perform(retrieveDatesBalances())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.datesBalances[0].date", is("22 February 2024")))
-            .andExpect(jsonPath("$.datesBalances[0].balance", is("1000")))
-            .andExpect(jsonPath("$.change", is(5.0)));
+            .andExpect(jsonPath("$.datesBalances[0].balances.totalUSDBalance", is("1000")))
+            .andExpect(jsonPath("$.datesBalances[0].balances.totalEURBalance", is("918.45")))
+            .andExpect(jsonPath("$.datesBalances[0].balances.totalBTCBalance", is("0.01438911")))
+            .andExpect(jsonPath("$.datesBalances[1].date", is("23 February 2024")))
+            .andExpect(jsonPath("$.datesBalances[1].balances.totalUSDBalance", is("1500")))
+            .andExpect(jsonPath("$.datesBalances[1].balances.totalEURBalance", is("1377.67")))
+            .andExpect(jsonPath("$.datesBalances[1].balances.totalBTCBalance", is("0.021583665")))
+            .andExpect(jsonPath("$.change.usdChange", is(50.0)))
+            .andExpect(jsonPath("$.change.eurChange", is(50.0)))
+            .andExpect(jsonPath("$.change.btcChange", is(49.99)))
+            .andExpect(jsonPath("$.priceDifference.usdDifference", is("500")))
+            .andExpect(jsonPath("$.priceDifference.eurDifference", is("459.22")))
+            .andExpect(jsonPath("$.priceDifference.btcDifference", is("0.007194555")));
     }
 
     @Test

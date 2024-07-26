@@ -4,9 +4,11 @@ import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalanceChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DateBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DifferencesChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
@@ -18,7 +20,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.http.ResponseEntity;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,17 +70,23 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveDatesBalancesWithStatus200() {
-        var datesBalances = new DatesBalances("22 February 2024", "1000");
-        var datesBalancesResponse = new DatesBalanceResponse(List.of(datesBalances), 5, "0");
+        var datesBalanceResponse = new DatesBalanceResponse(
+            List.of(
+                new DateBalances("22 February 2024", new BalancesResponse("1000", "918.45", "0.01438911")),
+                new DateBalances("23 February 2024", new BalancesResponse("1500", "1377.67", "0.021583665"))
+            ),
+            new BalanceChanges(50F, 50F, 49.99F),
+            new DifferencesChanges("500", "459.22", "0.007194555")
+        );
 
         when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
-            .thenReturn(Optional.of(datesBalancesResponse));
+            .thenReturn(Optional.of(datesBalanceResponse));
 
         var optionalDatesBalances = insightsController.retrieveDatesBalancesResponse(DateRange.ONE_WEEK);
 
         assertThat(optionalDatesBalances)
             .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.ok(datesBalancesResponse));
+            .isEqualTo(ResponseEntity.ok(datesBalanceResponse));
     }
 
     @Test

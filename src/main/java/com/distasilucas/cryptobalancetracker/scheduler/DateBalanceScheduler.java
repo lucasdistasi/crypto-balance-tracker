@@ -1,7 +1,6 @@
 package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
-import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import com.distasilucas.cryptobalancetracker.service.InsightsService;
 import lombok.RequiredArgsConstructor;
@@ -26,18 +25,17 @@ public class DateBalanceScheduler {
         log.info("Running cron to save daily balance");
 
         var now = LocalDate.now(clock);
-        var totalUSDBalance = insightsService.retrieveTotalBalancesInsights()
-            .map(BalancesResponse::totalUSDBalance);
+        var totalBalances = insightsService.retrieveTotalBalancesInsights();
         var optionalDateBalance = dateBalancesRepository.findDateBalanceByDate(now);
 
-        totalUSDBalance.ifPresent(balance -> optionalDateBalance.ifPresentOrElse(
+        totalBalances.ifPresent(balances -> optionalDateBalance.ifPresentOrElse(
             dateBalance -> {
-                log.info("Updating balance for date {}. Old Balance: {}. New balance {}", now, dateBalance.getBalance(), balance);
-                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balance));
+                log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, balances);
+                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balances));
             },
             () -> {
-                log.info("Saving balance {} for date {}", balance, now);
-                dateBalancesRepository.save(new DateBalance(now, balance));
+                log.info("Saving balances {} for date {}", balances, now);
+                dateBalancesRepository.save(new DateBalance(now, balances));
             }
         ));
     }

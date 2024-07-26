@@ -29,5 +29,11 @@ public class Constants {
     public static final String PAGE_GOALS_CACHE = "PAGE_GOALS_CACHE";
     public static final String PRICE_TARGET_ID_CACHE = "PRICE_TARGET_ID_CACHE";
     public static final String PRICE_TARGET_PAGE_CACHE = "PRICE_TARGET_PAGE_CACHE";
+    public static final String TOTAL_BALANCES_CACHE = "TOTAL_BALANCES_CACHE";
+    public static final String DATES_BALANCES_CACHE = "DATES_BALANCES_CACHE";
+    public static final String PLATFORM_INSIGHTS_CACHE = "PLATFORM_INSIGHTS_CACHE";
+    public static final String CRYPTO_INSIGHTS_CACHE = "CRYPTO_INSIGHTS_CACHE";
+    public static final String PLATFORMS_BALANCES_INSIGHTS_CACHE = "PLATFORMS_BALANCES_INSIGHTS_CACHE";
+    public static final String CRYPTOS_BALANCES_INSIGHTS_CACHE = "CRYPTOS_BALANCES_INSIGHTS_CACHE";
 
 }

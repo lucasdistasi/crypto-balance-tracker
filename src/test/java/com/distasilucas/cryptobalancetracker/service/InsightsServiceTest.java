@@ -10,13 +10,15 @@ import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
 import com.distasilucas.cryptobalancetracker.model.SortType;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalanceChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CurrentPrice;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DateBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DifferencesChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.PriceChange;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
@@ -97,7 +99,7 @@ class InsightsServiceTest {
 
         assertThat(balances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(new BalancesResponse("7108.39", "6484.23", "0.25127935932")));
+            .isEqualTo(Optional.of(new BalancesResponse("7108.39", "6484.23", "0.2512793593")));
     }
 
     @Test
@@ -116,8 +118,8 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(1), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(1), new BalancesResponse("900", "838.04", "0.0148760331")),
+            new DateBalance("", now, new BalancesResponse("1000", "931.15", "0.0165289256"))
         );
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
@@ -131,11 +133,11 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("7 February 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("7 February 2024", new BalancesResponse("900", "838.04", "0.0148760331")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "931.15", "0.0165289256"))
                     ),
-                    11.11F,
-                    "100"
+                    new BalanceChanges(11.11F, 11.11F, 11.11F),
+                    new DifferencesChanges("100", "93.11", "0.0016528925")
                 )
             ));
     }
@@ -145,9 +147,9 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(2), "1100"),
-            new DateBalance("", now.minusDays(1), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(2), new BalancesResponse("1100", "1024.27", "0.0181818182")),
+            new DateBalance("", now.minusDays(1), new BalancesResponse("900", "838.04", "0.0148760331")),
+            new DateBalance("", now, new BalancesResponse("1000", "931.15", "0.0165289256"))
         );
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
@@ -161,12 +163,12 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("6 February 2024", "1100"),
-                        new DatesBalances("7 February 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("6 February 2024", new BalancesResponse("1100", "1024.27", "0.0181818182")),
+                        new DateBalances("7 February 2024", new BalancesResponse("900", "838.04", "0.0148760331")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "931.15", "0.0165289256"))
                     ),
-                    -9.09F,
-                    "-100"
+                    new BalanceChanges(-9.09F, -9.09F, -9.09F),
+                    new DifferencesChanges("-100", "-93.12", "-0.0016528926")
                 )
             ));
     }
@@ -176,10 +178,10 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(5), "1500"),
-            new DateBalance("", now.minusDays(4), "1250.75"),
-            new DateBalance("", now.minusDays(3), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(5), new BalancesResponse("1500", "1377.53", "0.0239616613")),
+            new DateBalance("", now.minusDays(4), new BalancesResponse("1250.75", "1148.63", "0.0199800319")),
+            new DateBalance("", now.minusDays(3), new BalancesResponse("900", "826.51", "0.0143769968")),
+            new DateBalance("", now, new BalancesResponse("1000", "918.35", "0.0159744409"))
         );
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
@@ -194,13 +196,13 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("3 February 2024", "1500"),
-                        new DatesBalances("4 February 2024", "1250.75"),
-                        new DatesBalances("5 February 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("3 February 2024", new BalancesResponse("1500", "1377.53", "0.0239616613")),
+                        new DateBalances("4 February 2024", new BalancesResponse("1250.75", "1148.63", "0.0199800319")),
+                        new DateBalances("5 February 2024", new BalancesResponse("900", "826.51", "0.0143769968")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "918.35", "0.0159744409"))
                     ),
-                    -33.33F,
-                    "-500"
+                    new BalanceChanges(-33.33F, -33.33F, -33.33F),
+                    new DifferencesChanges("-500", "-459.18", "-0.0079872204")
                 )
             ));
     }
@@ -210,14 +212,14 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(14), "1350"),
-            new DateBalance("", now.minusDays(12), "1450"),
-            new DateBalance("", now.minusDays(10), "1250"),
-            new DateBalance("", now.minusDays(8), "1450"),
-            new DateBalance("", now.minusDays(6), "1500"),
-            new DateBalance("", now.minusDays(4), "1500"),
-            new DateBalance("", now.minusDays(2), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(14), new BalancesResponse("1350", "1239.77", "0.0215654952")),
+            new DateBalance("", now.minusDays(12), new BalancesResponse("1450", "1331.61", "0.0231629393")),
+            new DateBalance("", now.minusDays(10), new BalancesResponse("1250", "1147.94", "0.0199680511")),
+            new DateBalance("", now.minusDays(8), new BalancesResponse("1450", "1331.61", "0.0231629393")),
+            new DateBalance("", now.minusDays(6), new BalancesResponse("1500", "1377.53", "0.0239616613")),
+            new DateBalance("", now.minusDays(4), new BalancesResponse("1500", "1377.53", "0.0239616613")),
+            new DateBalance("", now.minusDays(2), new BalancesResponse("900", "826.51", "0.0143769968")),
+            new DateBalance("", now, new BalancesResponse("1000", "918.35", "0.0159744409"))
         );
         var dates = getMockDates(now, 16, 2);
 
@@ -232,17 +234,17 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("25 January 2024", "1350"),
-                        new DatesBalances("27 January 2024", "1450"),
-                        new DatesBalances("29 January 2024", "1250"),
-                        new DatesBalances("31 January 2024", "1450"),
-                        new DatesBalances("2 February 2024", "1500"),
-                        new DatesBalances("4 February 2024", "1500"),
-                        new DatesBalances("6 February 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("25 January 2024", new BalancesResponse("1350", "1239.77", "0.0215654952")),
+                        new DateBalances("27 January 2024", new BalancesResponse("1450", "1331.61", "0.0231629393")),
+                        new DateBalances("29 January 2024", new BalancesResponse("1250", "1147.94", "0.0199680511")),
+                        new DateBalances("31 January 2024", new BalancesResponse("1450", "1331.61", "0.0231629393")),
+                        new DateBalances("2 February 2024", new BalancesResponse("1500", "1377.53", "0.0239616613")),
+                        new DateBalances("4 February 2024", new BalancesResponse("1500", "1377.53", "0.0239616613")),
+                        new DateBalances("6 February 2024", new BalancesResponse("900", "826.51", "0.0143769968")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "918.35", "0.0159744409"))
                     ),
-                    -25.93F,
-                    "-350"
+                    new BalanceChanges(-25.93F, -25.93F, -25.93F),
+                    new DifferencesChanges("-350", "-321.42", "-0.0055910543")
                 )
             ));
     }
@@ -252,14 +254,14 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(42), "1400"),
-            new DateBalance("", now.minusDays(36), "1350"),
-            new DateBalance("", now.minusDays(30), "1250"),
-            new DateBalance("", now.minusDays(24), "1150"),
-            new DateBalance("", now.minusDays(18), "1200"),
-            new DateBalance("", now.minusDays(12), "1100"),
-            new DateBalance("", now.minusDays(6), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(42), new BalancesResponse("1400", "1298.22", "0.0253164557")),
+            new DateBalance("", now.minusDays(36), new BalancesResponse("1350", "1251.86", "0.0244122966")),
+            new DateBalance("", now.minusDays(30), new BalancesResponse("1250", "1159.13", "0.0226039783")),
+            new DateBalance("", now.minusDays(24), new BalancesResponse("1150", "1066.39", "0.0207956600")),
+            new DateBalance("", now.minusDays(18), new BalancesResponse("1200", "1112.76", "0.0216998192")),
+            new DateBalance("", now.minusDays(12), new BalancesResponse("1100", "1020.03", "0.0198915009")),
+            new DateBalance("", now.minusDays(6), new BalancesResponse("900", "834.57", "0.0162748644")),
+            new DateBalance("", now, new BalancesResponse("1000", "927.30", "0.0180831826"))
         );
         var dates = getMockDates(now, 16, 6);
 
@@ -274,17 +276,17 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("28 December 2023", "1400"),
-                        new DatesBalances("3 January 2024", "1350"),
-                        new DatesBalances("9 January 2024", "1250"),
-                        new DatesBalances("15 January 2024", "1150"),
-                        new DatesBalances("21 January 2024", "1200"),
-                        new DatesBalances("27 January 2024", "1100"),
-                        new DatesBalances("2 February 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("28 December 2023", new BalancesResponse("1400", "1298.22", "0.0253164557")),
+                        new DateBalances("3 January 2024", new BalancesResponse("1350", "1251.86", "0.0244122966")),
+                        new DateBalances("9 January 2024", new BalancesResponse("1250", "1159.13", "0.0226039783")),
+                        new DateBalances("15 January 2024", new BalancesResponse("1150", "1066.39", "0.0207956600")),
+                        new DateBalances("21 January 2024", new BalancesResponse("1200", "1112.76", "0.0216998192")),
+                        new DateBalances("27 January 2024", new BalancesResponse("1100", "1020.03", "0.0198915009")),
+                        new DateBalances("2 February 2024", new BalancesResponse("900", "834.57", "0.0162748644")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "927.30", "0.0180831826"))
                     ),
-                    -28.57F,
-                    "-400"
+                    new BalanceChanges(-28.57F, -28.57F, -28.57F),
+                    new DifferencesChanges("-400", "-370.92", "-0.0072332731")
                 )
             ));
     }
@@ -294,14 +296,14 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 2, 8);
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var balances = List.of(
-            new DateBalance("", now.minusDays(70), "1400"),
-            new DateBalance("", now.minusDays(60), "1350"),
-            new DateBalance("", now.minusDays(50), "1250"),
-            new DateBalance("", now.minusDays(40), "1150"),
-            new DateBalance("", now.minusDays(30), "1200"),
-            new DateBalance("", now.minusDays(20), "1100"),
-            new DateBalance("", now.minusDays(10), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(70), new BalancesResponse("1400", "1298.22", "0.0253164557")),
+            new DateBalance("", now.minusDays(60), new BalancesResponse("1350", "1251.86", "0.0244122966")),
+            new DateBalance("", now.minusDays(50), new BalancesResponse("1250", "1159.13", "0.0226039783")),
+            new DateBalance("", now.minusDays(40), new BalancesResponse("1150", "1066.39", "0.0207956600")),
+            new DateBalance("", now.minusDays(30), new BalancesResponse("1200", "1112.76", "0.0216998192")),
+            new DateBalance("", now.minusDays(20), new BalancesResponse("1100", "1020.03", "0.0198915009")),
+            new DateBalance("", now.minusDays(10), new BalancesResponse("900", "834.57", "0.0162748644")),
+            new DateBalance("", now, new BalancesResponse("1000", "927.30", "0.0180831826"))
         );
         var dates = getMockDates(now, 19, 10);
 
@@ -316,17 +318,17 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("30 November 2023", "1400"),
-                        new DatesBalances("10 December 2023", "1350"),
-                        new DatesBalances("20 December 2023", "1250"),
-                        new DatesBalances("30 December 2023", "1150"),
-                        new DatesBalances("9 January 2024", "1200"),
-                        new DatesBalances("19 January 2024", "1100"),
-                        new DatesBalances("29 January 2024", "900"),
-                        new DatesBalances("8 February 2024", "1000")
+                        new DateBalances("30 November 2023", new BalancesResponse("1400", "1298.22", "0.0253164557")),
+                        new DateBalances("10 December 2023", new BalancesResponse("1350", "1251.86", "0.0244122966")),
+                        new DateBalances("20 December 2023", new BalancesResponse("1250", "1159.13", "0.0226039783")),
+                        new DateBalances("30 December 2023", new BalancesResponse("1150", "1066.39", "0.0207956600")),
+                        new DateBalances("9 January 2024", new BalancesResponse("1200", "1112.76", "0.0216998192")),
+                        new DateBalances("19 January 2024", new BalancesResponse("1100", "1020.03", "0.0198915009")),
+                        new DateBalances("29 January 2024", new BalancesResponse("900", "834.57", "0.0162748644")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1000", "927.30", "0.0180831826"))
                     ),
-                    -28.57F,
-                    "-400"
+                    new BalanceChanges(-28.57F, -28.57F, -28.57F),
+                    new DifferencesChanges("-400", "-370.92", "-0.0072332731")
                 )
             ));
     }
@@ -338,9 +340,9 @@ class InsightsServiceTest {
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var dateRange = DateRange.valueOf(range);
         var balances = List.of(
-            new DateBalance("", now.minusDays(2), "1100"),
-            new DateBalance("", now.minusDays(1), "900"),
-            new DateBalance("", now, "1000")
+            new DateBalance("", now.minusDays(2), new BalancesResponse("1100", "1020.03", "0.0188034188")),
+            new DateBalance("", now.minusDays(1), new BalancesResponse("900", "834.57", "0.0153846154")),
+            new DateBalance("", now, new BalancesResponse("1000", "927.30", "0.0170940171"))
         );
         var dates = getMockDates(now, 19, 10);
         var twelveDaysBefore = now.minusDays(12);
@@ -358,16 +360,16 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("5 March 2024", "1000"),
-                        new DatesBalances("6 March 2024", "850"),
-                        new DatesBalances("7 March 2024", "900"),
-                        new DatesBalances("8 March 2024", "1150"),
-                        new DatesBalances("9 March 2024", "1050"),
-                        new DatesBalances("10 March 2024", "1200"),
-                        new DatesBalances("11 March 2024", "1150")
+                        new DateBalances("5 March 2024", new BalancesResponse("1000", "927.30", "0.018181818")),
+                        new DateBalances("6 March 2024", new BalancesResponse("850", "788.21", "0.015454545")),
+                        new DateBalances("7 March 2024", new BalancesResponse("900", "834.57", "0.016363636")),
+                        new DateBalances("8 March 2024", new BalancesResponse("1150", "1066.39", "0.020909091")),
+                        new DateBalances("9 March 2024", new BalancesResponse("1050", "973.66", "0.019090909")),
+                        new DateBalances("10 March 2024", new BalancesResponse("1200", "1112.76", "0.021818182")),
+                        new DateBalances("11 March 2024", new BalancesResponse("1150", "1066.39", "0.019166667"))
                     ),
-                    15F,
-                    "150"
+                    new BalanceChanges(15F, 15F, 5.42F),
+                    new DifferencesChanges("150", "139.09", "0.000984849")
                 )
             ));
     }
@@ -378,14 +380,14 @@ class InsightsServiceTest {
         var zonedDateTime = now.atStartOfDay().atZone(ZoneOffset.UTC);
         var dates = getMockDates(now);
         var balances = List.of(
-            new DateBalance("", now.minusMonths(7), "1000"),
-            new DateBalance("", now.minusMonths(6), "1300"),
-            new DateBalance("", now.minusMonths(5), "1400"),
-            new DateBalance("", now.minusMonths(4), "950"),
-            new DateBalance("", now.minusMonths(3), "1110"),
-            new DateBalance("", now.minusMonths(2), "1250"),
-            new DateBalance("", now.minusMonths(1), "900"),
-            new DateBalance("", now, "1400")
+            new DateBalance("", now.minusMonths(7), new BalancesResponse("1000", "927.30", "0.0170940171")),
+            new DateBalance("", now.minusMonths(6), new BalancesResponse("1300", "1205.49", "0.0222222222")),
+            new DateBalance("", now.minusMonths(5), new BalancesResponse("1400", "1298.22", "0.0239316239")),
+            new DateBalance("", now.minusMonths(4), new BalancesResponse("950", "880.94", "0.0162393162")),
+            new DateBalance("", now.minusMonths(3), new BalancesResponse("1110", "1029.30", "0.0189743590")),
+            new DateBalance("", now.minusMonths(2), new BalancesResponse("1250", "1159.13", "0.0213675214")),
+            new DateBalance("", now.minusMonths(1), new BalancesResponse("900", "834.57", "0.0153846154")),
+            new DateBalance("", now, new BalancesResponse("1400", "1298.22", "0.0239316239"))
         );
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
@@ -399,20 +401,19 @@ class InsightsServiceTest {
             .isEqualTo(Optional.of(
                 new DatesBalanceResponse(
                     List.of(
-                        new DatesBalances("8 July 2023", "1000"),
-                        new DatesBalances("8 August 2023", "1300"),
-                        new DatesBalances("8 September 2023", "1400"),
-                        new DatesBalances("8 October 2023", "950"),
-                        new DatesBalances("8 November 2023", "1110"),
-                        new DatesBalances("8 December 2023", "1250"),
-                        new DatesBalances("8 January 2024", "900"),
-                        new DatesBalances("8 February 2024", "1400")
+                        new DateBalances("8 July 2023", new BalancesResponse("1000", "927.30", "0.0170940171")),
+                        new DateBalances("8 August 2023", new BalancesResponse("1300", "1205.49", "0.0222222222")),
+                        new DateBalances("8 September 2023", new BalancesResponse("1400", "1298.22", "0.0239316239")),
+                        new DateBalances("8 October 2023", new BalancesResponse("950", "880.94", "0.0162393162")),
+                        new DateBalances("8 November 2023", new BalancesResponse("1110", "1029.30", "0.0189743590")),
+                        new DateBalances("8 December 2023", new BalancesResponse("1250", "1159.13", "0.0213675214")),
+                        new DateBalances("8 January 2024", new BalancesResponse("900", "834.57", "0.0153846154")),
+                        new DateBalances("8 February 2024", new BalancesResponse("1400", "1298.22", "0.0239316239"))
                     ),
-                    40,
-                    "400"
+                    new BalanceChanges(40F, 40F, 40F),
+                    new DifferencesChanges("400", "370.92", "0.0068376068")
                 )
             ));
-
     }
 
     @Test
@@ -614,7 +615,7 @@ class InsightsServiceTest {
         var platformBalancesInsightsResponse = insightsService.retrievePlatformsBalancesInsights();
 
         var expected = new PlatformsBalancesInsightsResponse(
-            new BalancesResponse("7108.39", "6484.23", "0.25127935932"),
+            new BalancesResponse("7108.39", "6484.23", "0.2512793593"),
             List.of(
                 new PlatformsInsights(
                     "BINANCE",
@@ -623,7 +624,7 @@ class InsightsServiceTest {
                 ),
                 new PlatformsInsights(
                     "COINBASE",
-                    new BalancesResponse("1987.93", "1855.17", "0.07719043372"),
+                    new BalancesResponse("1987.93", "1855.17", "0.0771904337"),
                     27.97f
                 )
             )
@@ -654,7 +655,7 @@ class InsightsServiceTest {
         var cryptosBalancesInsightsResponse = insightsService.retrieveCryptosBalancesInsights();
 
         var expected = new CryptosBalancesInsightsResponse(
-            new BalancesResponse("7108.39", "6484.23", "0.25127935932"),
+            new BalancesResponse("7108.39", "6484.23", "0.2512793593"),
             List.of(
                 new CryptoInsights(
                     null,
@@ -669,7 +670,7 @@ class InsightsServiceTest {
                     "Ethereum",
                     "ethereum",
                     "1.372",
-                    new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                    new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                     31.22f
                 ),
                 new CryptoInsights(
@@ -724,7 +725,7 @@ class InsightsServiceTest {
             .isEqualTo(
                 Optional.of(
                     new CryptosBalancesInsightsResponse(
-                        new BalancesResponse("8373.63", "7663.61", "0.29959591932"),
+                        new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
                         List.of(
                             new CryptoInsights(
                                 null,
@@ -739,7 +740,7 @@ class InsightsServiceTest {
                                 "Ethereum",
                                 "ethereum",
                                 "1.372",
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 26.5f
                             ),
                             new CryptoInsights(
@@ -1001,7 +1002,7 @@ class InsightsServiceTest {
                         1,
                         2,
                         true,
-                        new BalancesResponse("8373.63", "7663.61", "0.29959591932"),
+                        new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1038,7 +1039,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.112",
                                 21.48f,
-                                new BalancesResponse("1798.59", "1678.42", "0.06983755872"),
+                                new BalancesResponse("1798.59", "1678.42", "0.0698375587"),
                                 2,
                                 ethereumMarketData,
                                 List.of("COINBASE")
@@ -1262,7 +1263,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1297,7 +1298,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1365,7 +1366,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1400,7 +1401,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1468,7 +1469,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1479,7 +1480,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1571,7 +1572,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1582,7 +1583,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1674,7 +1675,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1709,7 +1710,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1777,7 +1778,7 @@ class InsightsServiceTest {
                         1,
                         1,
                         false,
-                        new BalancesResponse("6919.05", "6307.48", "0.24392648432"),
+                        new BalancesResponse("6919.05", "6307.48", "0.2439264843"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1836,7 +1837,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 32.07f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -1897,7 +1898,7 @@ class InsightsServiceTest {
                         1,
                         2,
                         true,
-                        new BalancesResponse("8373.63", "7663.61", "0.29959591932"),
+                        new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -1932,7 +1933,7 @@ class InsightsServiceTest {
                                 ),
                                 "1.372",
                                 26.5f,
-                                new BalancesResponse("2219.13", "2070.86", "0.08616648432"),
+                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
                                 2,
                                 new MarketData(
                                     new CirculatingSupply("120220572", 0),
@@ -2182,7 +2183,7 @@ class InsightsServiceTest {
                         2,
                         2,
                         false,
-                        new BalancesResponse("8373.63", "7663.61", "0.29959591932"),
+                        new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
                         List.of(
                             new UserCryptosInsights(
                                 new CryptoInfo(
@@ -2723,14 +2724,13 @@ class InsightsServiceTest {
         var now = LocalDate.of(2024, 3, 11);
 
         return List.of(
-            new DateBalance("", now.minusDays(6), "1000"),
-            new DateBalance("", now.minusDays(5), "850"),
-            new DateBalance("", now.minusDays(4), "900"),
-            new DateBalance("", now.minusDays(3), "1150"),
-            new DateBalance("", now.minusDays(2), "1050"),
-            new DateBalance("", now.minusDays(1), "1200"),
-            new DateBalance("", now, "1150")
+            new DateBalance("", now.minusDays(6), new BalancesResponse("1000", "927.30", "0.018181818")),
+            new DateBalance("", now.minusDays(5), new BalancesResponse("850", "788.21", "0.015454545")),
+            new DateBalance("", now.minusDays(4), new BalancesResponse("900", "834.57", "0.016363636")),
+            new DateBalance("", now.minusDays(3), new BalancesResponse("1150", "1066.39", "0.020909091")),
+            new DateBalance("", now.minusDays(2), new BalancesResponse("1050", "973.66", "0.019090909")),
+            new DateBalance("", now.minusDays(1), new BalancesResponse("1200", "1112.76", "0.021818182")),
+            new DateBalance("", now, new BalancesResponse("1150", "1066.39", "0.019166667"))
         );
     }
-
 }

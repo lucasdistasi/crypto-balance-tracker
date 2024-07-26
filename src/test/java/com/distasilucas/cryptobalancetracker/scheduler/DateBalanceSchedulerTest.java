@@ -80,7 +80,7 @@ class DateBalanceSchedulerTest {
         var localDate = LocalDate.of(2024, 2, 22);
         var zonedDateTime = ZonedDateTime.of(localDate, LocalTime.MAX, ZoneId.of("UTC"));
         var balancesResponse = new BalancesResponse("1050", "850", "0.00105");
-        var dateBalance = new DateBalance("48793270-ff28-4a0f-98a5-8b43ed3df0d4", localDate, "1050");
+        var dateBalance = new DateBalance("48793270-ff28-4a0f-98a5-8b43ed3df0d4", localDate, balancesResponse);
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());

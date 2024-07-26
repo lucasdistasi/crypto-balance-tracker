@@ -4,14 +4,17 @@ import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.model.BalanceType;
 import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortParams;
+import com.distasilucas.cryptobalancetracker.model.response.insights.BalanceChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CirculatingSupply;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
-import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DateBalances;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DifferencesChanges;
 import com.distasilucas.cryptobalancetracker.model.response.insights.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.insights.UserCryptosInsights;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
@@ -25,6 +28,7 @@ import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import kotlin.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -42,6 +46,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_BALANCES_INSIGHTS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_INSIGHTS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.DATES_BALANCES_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORMS_BALANCES_INSIGHTS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_INSIGHTS_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.TOTAL_BALANCES_CACHE;
 import static java.lang.Math.ceil;
 
 @Slf4j
@@ -72,6 +82,7 @@ public class InsightsService {
         this.clock = clock;
     }
 
+    @Cacheable(cacheNames = TOTAL_BALANCES_CACHE)
     public Optional<BalancesResponse> retrieveTotalBalancesInsights() {
         log.info("Retrieving total balances");
 
@@ -89,6 +100,7 @@ public class InsightsService {
         return Optional.of(totalBalances);
     }
 
+    @Cacheable(cacheNames = DATES_BALANCES_CACHE, key = "#dateRange")
     public Optional<DatesBalanceResponse> retrieveDatesBalances(DateRange dateRange) {
         log.info("Retrieving balances for date range: {}", dateRange);
         List<DateBalance> dateBalances = new ArrayList<>();
@@ -108,7 +120,8 @@ public class InsightsService {
             .stream()
             .map(dateBalance -> {
                 String formattedDate = dateBalance.getDate().format(DateTimeFormatter.ofPattern("d MMMM yyyy"));
-                return new DatesBalances(formattedDate, dateBalance.getBalance());
+                var balancesResponse = new BalancesResponse(dateBalance.getBalances());
+                return new DateBalances(formattedDate, balancesResponse);
             })
             .toList();
         log.info("Balances found: {}", datesBalances.size());
@@ -117,19 +130,12 @@ public class InsightsService {
             return Optional.empty();
         }
 
-        var newestValue = new BigDecimal(datesBalances.getLast().balance());
-        var oldestValue = new BigDecimal(datesBalances.getFirst().balance());
-        var change = newestValue
-            .subtract(oldestValue)
-            .divide(oldestValue, 4, RoundingMode.HALF_UP)
-            .multiply(new BigDecimal("100"))
-            .setScale(2, RoundingMode.HALF_UP)
-            .floatValue();
-        var priceDifference = newestValue.subtract(oldestValue).toPlainString();
+        var changesPair = changesPair(datesBalances);
 
-        return Optional.of(new DatesBalanceResponse(datesBalances, change, priceDifference));
+        return Optional.of(new DatesBalanceResponse(datesBalances, changesPair.getFirst(), changesPair.getSecond()));
     }
 
+    @Cacheable(cacheNames = PLATFORM_INSIGHTS_CACHE, key = "#platformId")
     public Optional<PlatformInsightsResponse> retrievePlatformInsights(String platformId) {
         log.info("Retrieving insights for platform with id {}", platformId);
 
@@ -169,6 +175,7 @@ public class InsightsService {
         return Optional.of(new PlatformInsightsResponse(platformResponse.getName(), totalBalances, cryptosInsights));
     }
 
+    @Cacheable(cacheNames = CRYPTO_INSIGHTS_CACHE, key = "#coingeckoCryptoId")
     public Optional<CryptoInsightResponse> retrieveCryptoInsights(String coingeckoCryptoId) {
         log.info("Retrieving insights for crypto with coingeckoCryptoId {}", coingeckoCryptoId);
 
@@ -207,6 +214,7 @@ public class InsightsService {
         return Optional.of(new CryptoInsightResponse(crypto.getCryptoInfo().getName(), totalBalances, platformInsights));
     }
 
+    @Cacheable(cacheNames = PLATFORMS_BALANCES_INSIGHTS_CACHE)
     public Optional<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
         log.info("Retrieving all platforms balances insights");
 
@@ -266,6 +274,7 @@ public class InsightsService {
         return Optional.of(new PlatformsBalancesInsightsResponse(totalBalances, platformsInsights));
     }
 
+    @Cacheable(cacheNames = CRYPTOS_BALANCES_INSIGHTS_CACHE)
     public Optional<CryptosBalancesInsightsResponse> retrieveCryptosBalancesInsights() {
         log.info("Retrieving all cryptos balances insights");
 
@@ -476,7 +485,7 @@ public class InsightsService {
         return new BalancesResponse(
             totalUSDBalance.toPlainString(),
             totalEURBalance.toPlainString(),
-            totalBTCBalance.setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
+            totalBTCBalance.setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
         );
     }
 
@@ -484,7 +493,7 @@ public class InsightsService {
         return new BalancesResponse(
             crypto.getLastKnownPrices().getLastKnownPrice().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
             crypto.getLastKnownPrices().getLastKnownPriceInEUR().multiply(quantity).setScale(2, RoundingMode.HALF_UP).toPlainString(),
-            crypto.getLastKnownPrices().getLastKnownPriceInBTC().multiply(quantity).setScale(12, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
+            crypto.getLastKnownPrices().getLastKnownPriceInBTC().multiply(quantity).setScale(10, RoundingMode.HALF_EVEN).stripTrailingZeros().toPlainString()
         );
     }
 
@@ -637,5 +646,42 @@ public class InsightsService {
 
         log.info("Not enough balances. Retrieving balances for the last twelve days from {} to {}", from, to);
         return dateBalanceRepository.findDateBalancesByDateBetween(from, to);
+    }
+
+    private Pair<BalanceChanges, DifferencesChanges> changesPair(List<DateBalances> dateBalances) {
+        var usdChange = getChange(BalanceType.USD_BALANCE, dateBalances);
+        var eurChange = getChange(BalanceType.EUR_BALANCE, dateBalances);
+        var btcChange = getChange(BalanceType.BTC_BALANCE, dateBalances);
+
+        return new Pair<>(
+            new BalanceChanges(usdChange.getFirst(), eurChange.getFirst(), btcChange.getFirst()),
+            new DifferencesChanges(usdChange.getSecond(), eurChange.getSecond(), btcChange.getSecond())
+        );
+    }
+
+    private Pair<Float, String> getChange(BalanceType balanceType, List<DateBalances> dateBalances) {
+        var newestValues = dateBalances.getLast().balances();
+        var oldestValues = dateBalances.getFirst().balances();
+        var divisionScale = 4;
+        if (BalanceType.BTC_BALANCE == balanceType) divisionScale = 10;
+
+        var values = switch (balanceType) {
+            case USD_BALANCE -> new Pair<>(new BigDecimal(oldestValues.totalUSDBalance()), new BigDecimal(newestValues.totalUSDBalance()));
+            case EUR_BALANCE -> new Pair<>(new BigDecimal(oldestValues.totalEURBalance()), new BigDecimal(newestValues.totalEURBalance()));
+            case BTC_BALANCE -> new Pair<>(new BigDecimal(oldestValues.totalBTCBalance()), new BigDecimal(newestValues.totalBTCBalance()));
+        };
+
+        var newestValue = values.getSecond();
+        var oldestValue = values.getFirst();
+
+        var change = newestValue
+            .subtract(oldestValue)
+            .divide(oldestValue, divisionScale, RoundingMode.HALF_UP)
+            .multiply(new BigDecimal("100"))
+            .setScale(2, RoundingMode.HALF_UP)
+            .floatValue();
+        var difference = newestValue.subtract(oldestValue).toPlainString();
+
+        return new Pair<>(change, difference);
     }
 }
