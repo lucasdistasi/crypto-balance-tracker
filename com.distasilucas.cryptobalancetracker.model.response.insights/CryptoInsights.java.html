@@ -2,22 +2,24 @@
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.io.Serializable;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-<span class="fc" id="L6">public record CryptoInsights(</span>
+<span class="fc" id="L8">public record CryptoInsights(</span>
     String id,
     String cryptoName,
     String cryptoId,
     String quantity,
     BalancesResponse balances,
     float percentage
-) {
+) implements Serializable {
 
     public CryptoInsights(String cryptoName, BalancesResponse balancesResponse, float percentage) {
-<span class="fc" id="L16">        this(null, cryptoName, null, null, balancesResponse, percentage);</span>
-<span class="fc" id="L17">    }</span>
+<span class="fc" id="L18">        this(null, cryptoName, null, null, balancesResponse, percentage);</span>
+<span class="fc" id="L19">    }</span>
 
     public CryptoInsights(String cryptoName, String cryptoId, String quantity, BalancesResponse balancesResponse, float percentage) {
-<span class="fc" id="L20">        this(null, cryptoName, cryptoId, quantity, balancesResponse, percentage);</span>
-<span class="fc" id="L21">    }</span>
+<span class="fc" id="L22">        this(null, cryptoName, cryptoId, quantity, balancesResponse, percentage);</span>
+<span class="fc" id="L23">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

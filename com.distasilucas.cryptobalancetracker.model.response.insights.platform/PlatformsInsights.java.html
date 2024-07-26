@@ -2,10 +2,12 @@
 
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 
-<span class="fc" id="L5">public record PlatformsInsights(</span>
+import java.io.Serializable;
+
+<span class="fc" id="L7">public record PlatformsInsights(</span>
     String platformName,
     BalancesResponse balances,
     float percentage
-) {
+) implements Serializable {
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -291,7 +291,7 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         Exception exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L294">        log.warn(&quot;An unhandled Exception has occurred&quot;, exception);</span>
+<span class="fc" id="L294">        log.error(&quot;An unhandled Exception has occurred&quot;, exception);</span>
 
 <span class="fc" id="L296">        var request = (ServletWebRequest) webRequest;</span>
 <span class="fc" id="L297">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);</span>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DateBalanceScheduler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">crypto-balance-tracker</a> &gt; <a href="index.source.html" class="el_package">com.distasilucas.cryptobalancetracker.scheduler</a> &gt; <span class="el_source">DateBalanceScheduler.java</span></div><h1>DateBalanceScheduler.java</h1><pre class="source lang-java linenums">package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
-import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import com.distasilucas.cryptobalancetracker.service.InsightsService;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.Clock;
 import java.time.LocalDate;
 
-<span class="fc" id="L15">@Slf4j</span>
+<span class="fc" id="L14">@Slf4j</span>
 @Component
 @RequiredArgsConstructor
 public class DateBalanceScheduler {
@@ -23,23 +22,22 @@ public class DateBalanceScheduler {
 
     @Scheduled(cron = &quot;${save-day-balance-cron}&quot;)
     public void saveDateBalance() {
-<span class="fc" id="L26">        log.info(&quot;Running cron to save daily balance&quot;);</span>
+<span class="fc" id="L25">        log.info(&quot;Running cron to save daily balance&quot;);</span>
 
-<span class="fc" id="L28">        var now = LocalDate.now(clock);</span>
-<span class="fc" id="L29">        var totalUSDBalance = insightsService.retrieveTotalBalancesInsights()</span>
-<span class="fc" id="L30">            .map(BalancesResponse::totalUSDBalance);</span>
-<span class="fc" id="L31">        var optionalDateBalance = dateBalancesRepository.findDateBalanceByDate(now);</span>
+<span class="fc" id="L27">        var now = LocalDate.now(clock);</span>
+<span class="fc" id="L28">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
+<span class="fc" id="L29">        var optionalDateBalance = dateBalancesRepository.findDateBalanceByDate(now);</span>
 
-<span class="fc" id="L33">        totalUSDBalance.ifPresent(balance -&gt; optionalDateBalance.ifPresentOrElse(</span>
+<span class="fc" id="L31">        totalBalances.ifPresent(balances -&gt; optionalDateBalance.ifPresentOrElse(</span>
             dateBalance -&gt; {
-<span class="fc" id="L35">                log.info(&quot;Updating balance for date {}. Old Balance: {}. New balance {}&quot;, now, dateBalance.getBalance(), balance);</span>
-<span class="fc" id="L36">                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balance));</span>
-<span class="fc" id="L37">            },</span>
+<span class="fc" id="L33">                log.info(&quot;Updating balances for date {}. Old Balance: {}. New balances {}&quot;, now, dateBalance, balances);</span>
+<span class="fc" id="L34">                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balances));</span>
+<span class="fc" id="L35">            },</span>
             () -&gt; {
-<span class="fc" id="L39">                log.info(&quot;Saving balance {} for date {}&quot;, balance, now);</span>
-<span class="fc" id="L40">                dateBalancesRepository.save(new DateBalance(now, balance));</span>
-<span class="fc" id="L41">            }</span>
+<span class="fc" id="L37">                log.info(&quot;Saving balances {} for date {}&quot;, balances, now);</span>
+<span class="fc" id="L38">                dateBalancesRepository.save(new DateBalance(now, balances));</span>
+<span class="fc" id="L39">            }</span>
         ));
-<span class="fc" id="L43">    }</span>
+<span class="fc" id="L41">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -3,12 +3,13 @@
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 
+import java.io.Serializable;
 import java.util.List;
 
-<span class="fc" id="L8">public record PlatformInsightsResponse(</span>
+<span class="fc" id="L9">public record PlatformInsightsResponse(</span>
     String platformName,
     BalancesResponse balances,
     List&lt;CryptoInsights&gt; cryptos
-) {
+) implements Serializable {
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
