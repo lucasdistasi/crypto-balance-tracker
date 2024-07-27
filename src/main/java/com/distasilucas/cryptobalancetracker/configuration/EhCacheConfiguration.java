@@ -29,6 +29,7 @@ import javax.cache.Caching;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.ALL_PLATFORMS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.COINGECKO_CRYPTOS_CACHE;
@@ -49,8 +50,8 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TA
 import static com.distasilucas.cryptobalancetracker.constants.Constants.TOTAL_BALANCES_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
 import static org.springframework.data.util.CastUtils.cast;
 
@@ -60,6 +61,12 @@ public class EhCacheConfiguration {
     @Bean
     public CacheManager ehcacheManager() {
         var cacheManager = Caching.getCachingProvider().getCacheManager();
+        getAllCaches().forEach(cacheManager::createCache);
+
+        return cacheManager;
+    }
+
+    private Map<String, javax.cache.configuration.Configuration<?, ?>> getAllCaches() {
         Class<List<CoingeckoCrypto>> coingeckoCryptoList = cast(List.class);
         Class<List<UserCrypto>> userCryptoList = cast(List.class);
         Class<Page<UserCrypto>> userCryptoPage = cast(Page.class);
@@ -69,56 +76,33 @@ public class EhCacheConfiguration {
         Class<Page<PriceTarget>> priceTargetPage = cast(Page.class);
         Class<Page<Goal>> goalPage = cast(Page.class);
 
-        var coingeckoCryptosCache = getCacheConfig(SimpleKey.class, coingeckoCryptoList, Duration.ofDays(3));
-        var coingeckoCryptoInfoCache = getCacheConfig(String.class, CoingeckoCryptoInfo.class, Duration.ofMinutes(10));
-        var userCryptosCache = getCacheConfig(SimpleKey.class, userCryptoList);
-        var userCryptosPlatformIdCache = getCacheConfig(String.class, userCryptoList);
-        var userCryptosCoingeckoCryptoIdCache = getCacheConfig(String.class, userCryptoList);
-        var userCryptoIdCache = getCacheConfig(String.class, UserCrypto.class);
-        var userCryptosPageCache = getCacheConfig(Integer.class, userCryptoPage);
-        var platformsIdsCache = getCacheConfig(stringCollection, platformList);
-        var cryptoCoingeckoCryptoIdCache = getCacheConfig(String.class, Crypto.class, Duration.ofMinutes(2));
-        var cryptosIdsCache = getCacheConfig(stringCollection, cryptoList, Duration.ofMinutes(2));
-        var allPlatformsCache = getCacheConfig(SimpleKey.class, platformList, Duration.ofDays(10));
-        var platformCache = getCacheConfig(String.class, Platform.class, Duration.ofDays(10));
-        var priceTargetCache = getCacheConfig(String.class, PriceTarget.class);
-        var pagePriceTargetCache = getCacheConfig(Integer.class, priceTargetPage);
-        var goalCache = getCacheConfig(String.class, Goal.class);
-        var pageGoalsCache = getCacheConfig(Integer.class, goalPage);
-        var totalBalancesCache = getCacheConfig(SimpleKey.class, BalancesResponse.class, Duration.ofMinutes(5));
-        var datesBalancesCache = getCacheConfig(DateRange.class, DatesBalanceResponse.class, Duration.ofMinutes(5));
-        var platformInsightsCache = getCacheConfig(String.class, PlatformInsightsResponse.class, Duration.ofMinutes(5));
-        var cryptoInsightsCache = getCacheConfig(String.class, CryptoInsightResponse.class, Duration.ofMinutes(5));
-        var platformsBalancesInsightsCache = getCacheConfig(SimpleKey.class, PlatformsBalancesInsightsResponse.class, Duration.ofMinutes(5));
-        var cryptosBalancesInsightsCache = getCacheConfig(SimpleKey.class, CryptosBalancesInsightsResponse.class, Duration.ofMinutes(5));
-
-        cacheManager.createCache(COINGECKO_CRYPTOS_CACHE, coingeckoCryptosCache);
-        cacheManager.createCache(CRYPTO_INFO_CACHE, coingeckoCryptoInfoCache);
-        cacheManager.createCache(USER_CRYPTOS_CACHE, userCryptosCache);
-        cacheManager.createCache(USER_CRYPTOS_PLATFORM_ID_CACHE, userCryptosPlatformIdCache);
-        cacheManager.createCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, userCryptosCoingeckoCryptoIdCache);
-        cacheManager.createCache(USER_CRYPTO_ID_CACHE, userCryptoIdCache);
-        cacheManager.createCache(USER_CRYPTOS_PAGE_CACHE, userCryptosPageCache);
-        cacheManager.createCache(PLATFORMS_PLATFORMS_IDS_CACHE, platformsIdsCache);
-        cacheManager.createCache(CRYPTO_COINGECKO_CRYPTO_ID_CACHE, cryptoCoingeckoCryptoIdCache);
-        cacheManager.createCache(CRYPTOS_CRYPTOS_IDS_CACHE, cryptosIdsCache);
-        cacheManager.createCache(ALL_PLATFORMS_CACHE, allPlatformsCache);
-        cacheManager.createCache(PLATFORM_PLATFORM_ID_CACHE, platformCache);
-        cacheManager.createCache(PRICE_TARGET_ID_CACHE, priceTargetCache);
-        cacheManager.createCache(PRICE_TARGET_PAGE_CACHE, pagePriceTargetCache);
-        cacheManager.createCache(GOAL_CACHE, goalCache);
-        cacheManager.createCache(PAGE_GOALS_CACHE, pageGoalsCache);
-        cacheManager.createCache(TOTAL_BALANCES_CACHE, totalBalancesCache);
-        cacheManager.createCache(DATES_BALANCES_CACHE, datesBalancesCache);
-        cacheManager.createCache(PLATFORM_INSIGHTS_CACHE, platformInsightsCache);
-        cacheManager.createCache(CRYPTO_INSIGHTS_CACHE, cryptoInsightsCache);
-        cacheManager.createCache(PLATFORMS_BALANCES_INSIGHTS_CACHE, platformsBalancesInsightsCache);
-        cacheManager.createCache(CRYPTOS_BALANCES_INSIGHTS_CACHE, cryptosBalancesInsightsCache);
-
-        return cacheManager;
+        return Map.ofEntries(
+            Map.entry(COINGECKO_CRYPTOS_CACHE, getCacheConfig(SimpleKey.class, coingeckoCryptoList, Duration.ofDays(3))),
+            Map.entry(CRYPTO_INFO_CACHE, getCacheConfig(String.class, CoingeckoCryptoInfo.class, Duration.ofMinutes(10))),
+            Map.entry(USER_CRYPTOS_CACHE, getCacheConfig(SimpleKey.class, userCryptoList)),
+            Map.entry(USER_CRYPTOS_PLATFORM_ID_CACHE, getCacheConfig(String.class, userCryptoList)),
+            Map.entry(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, getCacheConfig(String.class, userCryptoList)),
+            Map.entry(USER_CRYPTO_ID_CACHE, getCacheConfig(String.class, UserCrypto.class)),
+            Map.entry(USER_CRYPTOS_PAGE_CACHE, getCacheConfig(Integer.class, userCryptoPage)),
+            Map.entry(PLATFORMS_PLATFORMS_IDS_CACHE, getCacheConfig(stringCollection, platformList)),
+            Map.entry(CRYPTO_COINGECKO_CRYPTO_ID_CACHE, getCacheConfig(String.class, Crypto.class, Duration.ofMinutes(2))),
+            Map.entry(CRYPTOS_CRYPTOS_IDS_CACHE, getCacheConfig(stringCollection, cryptoList, Duration.ofMinutes(2))),
+            Map.entry(ALL_PLATFORMS_CACHE, getCacheConfig(SimpleKey.class, platformList, Duration.ofDays(10))),
+            Map.entry(PLATFORM_PLATFORM_ID_CACHE, getCacheConfig(String.class, Platform.class, Duration.ofDays(10))),
+            Map.entry(PRICE_TARGET_ID_CACHE, getCacheConfig(String.class, PriceTarget.class)),
+            Map.entry(PRICE_TARGET_PAGE_CACHE, getCacheConfig(Integer.class, priceTargetPage)),
+            Map.entry(GOAL_CACHE, getCacheConfig(String.class, Goal.class)),
+            Map.entry(PAGE_GOALS_CACHE, getCacheConfig(Integer.class, goalPage)),
+            Map.entry(TOTAL_BALANCES_CACHE, getCacheConfig(SimpleKey.class, BalancesResponse.class, Duration.ofMinutes(5))),
+            Map.entry(DATES_BALANCES_CACHE, getCacheConfig(DateRange.class, DatesBalanceResponse.class, Duration.ofMinutes(5))),
+            Map.entry(PLATFORM_INSIGHTS_CACHE, getCacheConfig(String.class, PlatformInsightsResponse.class, Duration.ofMinutes(5))),
+            Map.entry(CRYPTO_INSIGHTS_CACHE, getCacheConfig(String.class, CryptoInsightResponse.class, Duration.ofMinutes(5))),
+            Map.entry(PLATFORMS_BALANCES_INSIGHTS_CACHE, getCacheConfig(SimpleKey.class, PlatformsBalancesInsightsResponse.class, Duration.ofMinutes(5))),
+            Map.entry(CRYPTOS_BALANCES_INSIGHTS_CACHE, getCacheConfig(SimpleKey.class, CryptosBalancesInsightsResponse.class, Duration.ofMinutes(5)))
+        );
     }
 
-    private <K,V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
+    private <K, V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
         Class<K> key,
         Class<V> value,
         ResourcePoolsBuilder resourcePoolsBuilder,
@@ -134,7 +118,7 @@ public class EhCacheConfiguration {
         return Eh107Configuration.fromEhcacheCacheConfiguration(cache);
     }
 
-    private <K,V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
+    private <K, V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
         Class<K> key,
         Class<V> value
     ) {
@@ -143,7 +127,7 @@ public class EhCacheConfiguration {
         return getCacheConfig(key, value, resourcePools, Duration.ofMinutes(60));
     }
 
-    private <K,V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
+    private <K, V> javax.cache.configuration.Configuration<K, V> getCacheConfig(
         Class<K> key,
         Class<V> value,
         Duration duration

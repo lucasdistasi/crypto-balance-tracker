@@ -30,8 +30,9 @@ public class DateBalanceScheduler {
 
         totalBalances.ifPresent(balances -> optionalDateBalance.ifPresentOrElse(
             dateBalance -> {
-                log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, balances);
-                dateBalancesRepository.save(new DateBalance(dateBalance.getId(), now, balances));
+                var updatedDateBalances = new DateBalance(dateBalance.getId(), now, balances);
+                log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, updatedDateBalances);
+                dateBalancesRepository.save(updatedDateBalances);
             },
             () -> {
                 log.info("Saving balances {} for date {}", balances, now);

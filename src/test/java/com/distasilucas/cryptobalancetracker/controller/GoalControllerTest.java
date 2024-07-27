@@ -17,7 +17,6 @@ import java.util.List;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoal;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalResponse;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getPageGoal;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static org.assertj.core.api.Assertions.assertThat;

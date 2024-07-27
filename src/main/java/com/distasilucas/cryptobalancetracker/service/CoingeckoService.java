@@ -55,8 +55,7 @@ public class CoingeckoService {
         return coingeckoRestClient.get()
             .uri(coingeckoCryptosURI)
             .retrieve()
-            .body(new ParameterizedTypeReference<>() {
-            });
+            .body(new ParameterizedTypeReference<>() {});
     }
 
     @Cacheable(cacheNames = CRYPTO_INFO_CACHE, key = "#coingeckoCryptoId")
@@ -90,6 +89,7 @@ public class CoingeckoService {
         commonParams.add("tickers", "false");
         commonParams.add("community_data", "false");
         commonParams.add("developer_data", "false");
+        commonParams.add("localization", "false");
 
         Function<UriBuilder, URI> proCoingeckoURI = uriBuilder -> uriBuilder.path(url)
             .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)
