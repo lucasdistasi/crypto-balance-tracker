@@ -32,7 +32,7 @@ public class CacheService {
 
     private final CacheManager cacheManager;
 
-    public void invalidateUserCryptosCaches() {
+    public void invalidateUserCryptosAndInsightsCaches() {
         log.info("Invalidating user cryptos cache");
 
         cacheManager.getCache(USER_CRYPTOS_CACHE).invalidate();

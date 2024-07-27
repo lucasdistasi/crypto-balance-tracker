@@ -70,7 +70,7 @@ public class UserCryptoService {
         userCryptoRepository.save(userCrypto);
 
         log.info("Saved user crypto {}", userCrypto.toSavedUserCryptoString());
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
 
         return userCrypto;
     }
@@ -94,7 +94,7 @@ public class UserCryptoService {
         var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);
         log.info("Updating user crypto. Before: {} | After: {}", userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());
         userCryptoRepository.save(updatedUserCrypto);
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
 
         return updatedUserCrypto;
     }
@@ -103,7 +103,7 @@ public class UserCryptoService {
         var userCrypto = self.findUserCryptoById(userCryptoId);
         userCryptoRepository.deleteById(userCryptoId);
         cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
 
         log.info("Deleted user crypto {} from platform {}", userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());
     }
@@ -121,7 +121,7 @@ public class UserCryptoService {
 
     public void saveOrUpdateAll(List<UserCrypto> userCryptos) {
         userCryptoRepository.saveAll(userCryptos);
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
     }
 
     @Cacheable(cacheNames = USER_CRYPTOS_CACHE)

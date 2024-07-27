@@ -332,10 +332,11 @@ class ExceptionControllerTest {
     @Test
     void shouldHandleMethodArgumentTypeMismatchException() {
         var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
-        var detail = INVALID_VALUE_FOR.formatted("idontknow", "idontknow", "");
+        var detail = "Invalid value %s for %s".formatted("idontknow", "idontknow");
 
         when(exceptionMock.getName()).thenReturn("idontknow");
         when(exceptionMock.getValue()).thenReturn("idontknow");
+        when(exceptionMock.getRequiredType()).thenReturn(null);
 
         var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
@@ -349,17 +350,15 @@ class ExceptionControllerTest {
 
     @Test
     void shouldHandleMethodArgumentTypeMismatchExceptionForSortBy() {
-        var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+        var methodParameter = createMethodParameter(String.class, "compareTo", String.class);
+        var exception = new MethodArgumentTypeMismatchException("idontknow", SortBy.class, "sortBy", methodParameter, new RuntimeException());
         var detail = INVALID_VALUE_FOR.formatted("idontknow", "sortBy", Arrays.toString(SortBy.values()));
-
-        when(exceptionMock.getName()).thenReturn("sortBy");
-        when(exceptionMock.getValue()).thenReturn("idontknow");
 
         var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
         problemDetail.setDetail(detail);
 
-        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
+        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exception, servletRequest);
 
         assertThat(responseEntity)
             .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));
@@ -367,17 +366,15 @@ class ExceptionControllerTest {
 
     @Test
     void shouldHandleMethodArgumentTypeMismatchExceptionForSortType() {
-        var exceptionMock = mock(MethodArgumentTypeMismatchException.class);
+        var methodParameter = createMethodParameter(String.class, "compareTo", String.class);
+        var exception = new MethodArgumentTypeMismatchException("idontknow", SortType.class, "sortType", methodParameter, new RuntimeException());
         var detail = INVALID_VALUE_FOR.formatted("idontknow", "sortType", Arrays.toString(SortType.values()));
-
-        when(exceptionMock.getName()).thenReturn("sortType");
-        when(exceptionMock.getValue()).thenReturn("idontknow");
 
         var problemDetail = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
         problemDetail.setType(URI.create(httpServletRequest.getRequestURL().toString()));
         problemDetail.setDetail(detail);
 
-        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exceptionMock, servletRequest);
+        var responseEntity = exceptionController.handleMethodArgumentTypeMismatchException(exception, servletRequest);
 
         assertThat(responseEntity)
             .isEqualTo(ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail)));

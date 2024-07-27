@@ -154,7 +154,7 @@ class UserCryptoServiceTest {
         var userCryptoResponse = userCryptoService.saveUserCrypto(userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(new UserCrypto(
@@ -211,7 +211,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -244,7 +244,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -272,7 +272,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
 
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
@@ -322,7 +322,7 @@ class UserCryptoServiceTest {
 
         verify(userCryptoRepositoryMock, times(1)).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
     }
 
     @Test
@@ -389,7 +389,7 @@ class UserCryptoServiceTest {
         userCryptoService.saveOrUpdateAll(userCryptos);
 
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
     }
 
     @Test

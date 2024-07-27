@@ -187,7 +187,7 @@ class PlatformServiceTest {
 
         verify(platformRepositoryMock, times(1)).delete(platformEntity);
         verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
     }
 
     @Test

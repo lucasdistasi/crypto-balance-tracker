@@ -12,8 +12,6 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.SortBy;
-import com.distasilucas.cryptobalancetracker.model.SortType;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -277,9 +275,15 @@ public class ExceptionController {
         log.info("A MethodArgumentTypeMismatchException has occurred", exception);
 
         var name = exception.getName();
-        var availableValues = getAvailableValues(name);
+        var message = String.format("Invalid value %s for %s", exception.getValue(), name);
+        var requiredType = exception.getRequiredType();
+
+        if (requiredType != null) {
+            var availableValues = Arrays.toString(requiredType.getEnumConstants());
+            message = String.format(INVALID_VALUE_FOR, exception.getValue(), name, availableValues);
+        }
+
         var request = (ServletWebRequest) webRequest;
-        var message = String.format(INVALID_VALUE_FOR, exception.getValue(), name, availableValues);
         var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, message);
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
@@ -298,13 +302,5 @@ public class ExceptionController {
         problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail));
-    }
-
-    private String getAvailableValues(String field) {
-        return switch (field) {
-            case "sortBy" -> Arrays.toString(SortBy.values());
-            case "sortType" -> Arrays.toString(SortType.values());
-            default -> "";
-        };
     }
 }

@@ -80,7 +80,7 @@ public class PlatformService {
         userCryptoRepository.deleteAll(userCryptosToDelete);
         platformRepository.delete(platform);
         cacheService.invalidatePlatformsCaches();
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
         log.info("Deleted platform {} and cryptos {}", platform, userCryptosToDelete);
     }
 

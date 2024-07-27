@@ -73,7 +73,7 @@ class CacheServiceTest {
     }
 
     @Test
-    void shouldInvalidateUserCryptosCacheIfItExists() {
+    void shouldInvalidateUserCryptosAndInsightsCachesIfItExists() {
         var userCrypto = getUserCrypto();
 
         var userCryptosCacheMap = Map.of(SimpleKey.class, List.of(userCrypto));
@@ -112,7 +112,7 @@ class CacheServiceTest {
         when(cacheManagerMock.getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE)).thenReturn(platformsBalancesInsightsCache);
         when(cacheManagerMock.getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE)).thenReturn(cryptosBalancesInsightsCache);
 
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidateUserCryptosAndInsightsCaches();
 
         assertTrue(userCryptosCacheCache.getNativeCache().isEmpty());
         assertTrue(userCryptosPlatformIdCache.getNativeCache().isEmpty());
@@ -147,7 +147,7 @@ class CacheServiceTest {
 
         assertThrows(
             NullPointerException.class,
-            () -> cacheService.invalidateUserCryptosCaches()
+            () -> cacheService.invalidateUserCryptosAndInsightsCaches()
         );
     }
 
