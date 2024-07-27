@@ -55,41 +55,41 @@ public class CoingeckoService {
 <span class="fc" id="L55">        return coingeckoRestClient.get()</span>
 <span class="fc" id="L56">            .uri(coingeckoCryptosURI)</span>
 <span class="fc" id="L57">            .retrieve()</span>
-<span class="fc" id="L58">            .body(new ParameterizedTypeReference&lt;&gt;() {</span>
-            });
+<span class="fc" id="L58">            .body(new ParameterizedTypeReference&lt;&gt;() {});</span>
     }
 
     @Cacheable(cacheNames = CRYPTO_INFO_CACHE, key = &quot;#coingeckoCryptoId&quot;)
     @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public CoingeckoCryptoInfo retrieveCryptoInfo(String coingeckoCryptoId) {
-<span class="fc" id="L65">        var coinURI = COIN_URI.concat(coingeckoCryptoId);</span>
-<span class="fc" id="L66">        var coingeckoCryptoInfoURI = getCoingeckoCryptoInfoURI(coinURI);</span>
-<span class="fc" id="L67">        var uriAsString = coingeckoCryptoInfoURI.apply(UriComponentsBuilder.newInstance());</span>
-<span class="fc" id="L68">        log.info(&quot;Hitting Coingecko API for URI [{}] Retrieving information for {}.&quot;, uriAsString, coingeckoCryptoId);</span>
+<span class="fc" id="L64">        var coinURI = COIN_URI.concat(coingeckoCryptoId);</span>
+<span class="fc" id="L65">        var coingeckoCryptoInfoURI = getCoingeckoCryptoInfoURI(coinURI);</span>
+<span class="fc" id="L66">        var uriAsString = coingeckoCryptoInfoURI.apply(UriComponentsBuilder.newInstance());</span>
+<span class="fc" id="L67">        log.info(&quot;Hitting Coingecko API for URI [{}] Retrieving information for {}.&quot;, uriAsString, coingeckoCryptoId);</span>
 
-<span class="fc" id="L70">        return coingeckoRestClient.get()</span>
-<span class="fc" id="L71">            .uri(coingeckoCryptoInfoURI)</span>
-<span class="fc" id="L72">            .retrieve()</span>
-<span class="fc" id="L73">            .body(CoingeckoCryptoInfo.class);</span>
+<span class="fc" id="L69">        return coingeckoRestClient.get()</span>
+<span class="fc" id="L70">            .uri(coingeckoCryptoInfoURI)</span>
+<span class="fc" id="L71">            .retrieve()</span>
+<span class="fc" id="L72">            .body(CoingeckoCryptoInfo.class);</span>
     }
 
     private Function&lt;UriBuilder, URI&gt; getCryptosURI() {
-<span class="fc" id="L77">        Function&lt;UriBuilder, URI&gt; proCoingeckoURI = uriBuilder -&gt; uriBuilder.path(COINS_URI)</span>
-<span class="fc" id="L78">            .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)</span>
-<span class="fc" id="L79">            .build();</span>
+<span class="fc" id="L76">        Function&lt;UriBuilder, URI&gt; proCoingeckoURI = uriBuilder -&gt; uriBuilder.path(COINS_URI)</span>
+<span class="fc" id="L77">            .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)</span>
+<span class="fc" id="L78">            .build();</span>
 
-<span class="fc" id="L81">        Function&lt;UriBuilder, URI&gt; freeCoingeckoURI = uriBuilder -&gt; uriBuilder.path(COINS_URI)</span>
-<span class="fc" id="L82">            .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)</span>
-<span class="fc" id="L83">            .build();</span>
+<span class="fc" id="L80">        Function&lt;UriBuilder, URI&gt; freeCoingeckoURI = uriBuilder -&gt; uriBuilder.path(COINS_URI)</span>
+<span class="fc" id="L81">            .queryParam(DEMO_API_KEY_QUERY_PARAM, demoCoingeckoApiKey)</span>
+<span class="fc" id="L82">            .build();</span>
 
-<span class="fc bfc" id="L85" title="All 2 branches covered.">        return StringUtils.hasText(proCoingeckoApiKey) ? proCoingeckoURI : freeCoingeckoURI;</span>
+<span class="fc bfc" id="L84" title="All 2 branches covered.">        return StringUtils.hasText(proCoingeckoApiKey) ? proCoingeckoURI : freeCoingeckoURI;</span>
     }
 
     private Function&lt;UriBuilder, URI&gt; getCoingeckoCryptoInfoURI(String url) {
-<span class="fc" id="L89">        MultiValueMap&lt;String, String&gt; commonParams = new HttpHeaders();</span>
-<span class="fc" id="L90">        commonParams.add(&quot;tickers&quot;, &quot;false&quot;);</span>
-<span class="fc" id="L91">        commonParams.add(&quot;community_data&quot;, &quot;false&quot;);</span>
-<span class="fc" id="L92">        commonParams.add(&quot;developer_data&quot;, &quot;false&quot;);</span>
+<span class="fc" id="L88">        MultiValueMap&lt;String, String&gt; commonParams = new HttpHeaders();</span>
+<span class="fc" id="L89">        commonParams.add(&quot;tickers&quot;, &quot;false&quot;);</span>
+<span class="fc" id="L90">        commonParams.add(&quot;community_data&quot;, &quot;false&quot;);</span>
+<span class="fc" id="L91">        commonParams.add(&quot;developer_data&quot;, &quot;false&quot;);</span>
+<span class="fc" id="L92">        commonParams.add(&quot;localization&quot;, &quot;false&quot;);</span>
 
 <span class="fc" id="L94">        Function&lt;UriBuilder, URI&gt; proCoingeckoURI = uriBuilder -&gt; uriBuilder.path(url)</span>
 <span class="fc" id="L95">            .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)</span>
