@@ -9,6 +9,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
@@ -66,12 +68,28 @@ class GoalControllerTest {
 
     @Test
     void shouldRetrieveGoalsForPageWithStatus200() {
-        var pageGoalResponse = new PageGoalResponse(0, 1, List.of(
-            new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 25F, "0.75", "1", "22500.00")
-        ));
+        var goalResponse = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 25F, "0.75", "1", "22500.00");
+        var pageGoalResponse = new PageGoalResponse(0, 1, List.of(goalResponse));
         var userCryptos = List.of(getUserCrypto());
 
         when(goalServiceMock.retrieveGoalsForPage(0)).thenReturn(getPageGoal());
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(userCryptos);
+
+        var responseEntity = goalController.retrieveGoalsForPage(0);
+
+        assertThat(responseEntity)
+            .usingRecursiveAssertion()
+            .isEqualTo(ResponseEntity.ok(pageGoalResponse));
+    }
+
+    @Test
+    void shouldRetrieveGoalsForPageWithStatus200AndNextPage() {
+        var goalResponse = new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "0.25", 25F, "0.75", "1", "22500.00");
+        var pageGoalResponse = new PageGoalResponse(1, 2, true, List.of(goalResponse));
+        var userCryptos = List.of(getUserCrypto());
+        var goalsPage = new PageImpl<>(List.of(getGoal()), PageRequest.of(0, 10), 20);
+
+        when(goalServiceMock.retrieveGoalsForPage(0)).thenReturn(goalsPage);
         when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(userCryptos);
 
         var responseEntity = goalController.retrieveGoalsForPage(0);

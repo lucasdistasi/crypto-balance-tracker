@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -64,6 +65,21 @@ class UserCryptoControllerTest {
         var userCryptoResponse = userCrypto.toUserCryptoResponse();
         var pageUserCryptoResponse = new PageUserCryptoResponse(1, 1, false, List.of(userCryptoResponse));
         var userCryptoPage = new PageImpl<>(Collections.singletonList(userCrypto));
+
+        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(userCryptoPage);
+
+        var responseEntity = userCryptoController.retrieveUserCryptosForPage(0);
+
+        assertThat(responseEntity)
+            .isEqualTo(ResponseEntity.ok(pageUserCryptoResponse));
+    }
+
+    @Test
+    void shouldRetrieveUserCryptosForPageWithStatus200AndNextPage() {
+        var userCrypto = getUserCrypto();
+        var userCryptoResponse = userCrypto.toUserCryptoResponse();
+        var pageUserCryptoResponse = new PageUserCryptoResponse(1, 2, true, List.of(userCryptoResponse));
+        var userCryptoPage = new PageImpl<>(Collections.singletonList(userCrypto), PageRequest.of(0, 10), 20);
 
         when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(userCryptoPage);
 
