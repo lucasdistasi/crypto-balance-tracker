@@ -80,7 +80,7 @@ public class PlatformService {
 <span class="fc" id="L80">        userCryptoRepository.deleteAll(userCryptosToDelete);</span>
 <span class="fc" id="L81">        platformRepository.delete(platform);</span>
 <span class="fc" id="L82">        cacheService.invalidatePlatformsCaches();</span>
-<span class="fc" id="L83">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L83">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
 <span class="fc" id="L84">        log.info(&quot;Deleted platform {} and cryptos {}&quot;, platform, userCryptosToDelete);</span>
 <span class="fc" id="L85">    }</span>
 

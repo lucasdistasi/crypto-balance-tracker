@@ -70,7 +70,7 @@ public class UserCryptoService {
 <span class="fc" id="L70">        userCryptoRepository.save(userCrypto);</span>
 
 <span class="fc" id="L72">        log.info(&quot;Saved user crypto {}&quot;, userCrypto.toSavedUserCryptoString());</span>
-<span class="fc" id="L73">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L73">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
 
 <span class="fc" id="L75">        return userCrypto;</span>
     }
@@ -94,7 +94,7 @@ public class UserCryptoService {
 <span class="fc" id="L94">        var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);</span>
 <span class="fc" id="L95">        log.info(&quot;Updating user crypto. Before: {} | After: {}&quot;, userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());</span>
 <span class="fc" id="L96">        userCryptoRepository.save(updatedUserCrypto);</span>
-<span class="fc" id="L97">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L97">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
 
 <span class="fc" id="L99">        return updatedUserCrypto;</span>
     }
@@ -103,7 +103,7 @@ public class UserCryptoService {
 <span class="fc" id="L103">        var userCrypto = self.findUserCryptoById(userCryptoId);</span>
 <span class="fc" id="L104">        userCryptoRepository.deleteById(userCryptoId);</span>
 <span class="fc" id="L105">        cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());</span>
-<span class="fc" id="L106">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L106">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
 
 <span class="fc" id="L108">        log.info(&quot;Deleted user crypto {} from platform {}&quot;, userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());</span>
 <span class="fc" id="L109">    }</span>
@@ -121,7 +121,7 @@ public class UserCryptoService {
 
     public void saveOrUpdateAll(List&lt;UserCrypto&gt; userCryptos) {
 <span class="fc" id="L123">        userCryptoRepository.saveAll(userCryptos);</span>
-<span class="fc" id="L124">        cacheService.invalidateUserCryptosCaches();</span>
+<span class="fc" id="L124">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
 <span class="fc" id="L125">    }</span>
 
     @Cacheable(cacheNames = USER_CRYPTOS_CACHE)

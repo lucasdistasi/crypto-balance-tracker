@@ -12,8 +12,6 @@ import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException
 import com.distasilucas.cryptobalancetracker.exception.TooManyRequestsException;
 import com.distasilucas.cryptobalancetracker.exception.UserCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.exception.UsernameNotFoundException;
-import com.distasilucas.cryptobalancetracker.model.SortBy;
-import com.distasilucas.cryptobalancetracker.model.SortType;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -35,25 +33,25 @@ import java.util.List;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.UNKNOWN_ERROR;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.INVALID_VALUE_FOR;
 
-<span class="fc" id="L38">@Slf4j</span>
+<span class="fc" id="L36">@Slf4j</span>
 @RestControllerAdvice
-<span class="fc" id="L40">public class ExceptionController {</span>
+<span class="fc" id="L38">public class ExceptionController {</span>
 
-<span class="fc" id="L42">    private static final HttpStatus NOT_FOUND_STATUS = HttpStatus.NOT_FOUND;</span>
-<span class="fc" id="L43">    private static final HttpStatus BAD_REQUEST_STATUS = HttpStatus.BAD_REQUEST;</span>
+<span class="fc" id="L40">    private static final HttpStatus NOT_FOUND_STATUS = HttpStatus.NOT_FOUND;</span>
+<span class="fc" id="L41">    private static final HttpStatus BAD_REQUEST_STATUS = HttpStatus.BAD_REQUEST;</span>
 
     @ExceptionHandler(PlatformNotFoundException.class)
     public ResponseEntity&lt;List&lt;ProblemDetail&gt;&gt; handlePlatformNotFoundException(
         PlatformNotFoundException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L50">        log.info(&quot;A PlatformNotFoundException has occurred&quot;, exception);</span>
+<span class="fc" id="L48">        log.info(&quot;A PlatformNotFoundException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L52">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L53">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
-<span class="fc" id="L54">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L50">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L51">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L52">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L56">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L54">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(DuplicatedPlatformException.class)
@@ -61,13 +59,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         DuplicatedPlatformException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L64">        log.info(&quot;A DuplicatedPlatformException has occurred&quot;, exception);</span>
+<span class="fc" id="L62">        log.info(&quot;A DuplicatedPlatformException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L66">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L67">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
-<span class="fc" id="L68">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L64">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L65">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
+<span class="fc" id="L66">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L70">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L68">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(GoalNotFoundException.class)
@@ -75,13 +73,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         GoalNotFoundException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L78">        log.info(&quot;A GoalNotFoundException has occurred&quot;, exception);</span>
+<span class="fc" id="L76">        log.info(&quot;A GoalNotFoundException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L80">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L81">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
-<span class="fc" id="L82">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L78">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L79">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L80">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L84">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L82">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(DuplicatedGoalException.class)
@@ -89,13 +87,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         DuplicatedGoalException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L92">        log.info(&quot;A DuplicatedGoalException has occurred&quot;, exception);</span>
+<span class="fc" id="L90">        log.info(&quot;A DuplicatedGoalException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L94">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L95">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
-<span class="fc" id="L96">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L92">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L93">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
+<span class="fc" id="L94">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L98">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L96">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(CoingeckoCryptoNotFoundException.class)
@@ -103,13 +101,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         CoingeckoCryptoNotFoundException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L106">        log.info(&quot;A CoingeckoCryptoNotFoundException has occurred&quot;, exception);</span>
+<span class="fc" id="L104">        log.info(&quot;A CoingeckoCryptoNotFoundException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L108">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L109">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
-<span class="fc" id="L110">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L106">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L107">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L108">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L112">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L110">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(DuplicatedCryptoPlatFormException.class)
@@ -117,13 +115,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         DuplicatedCryptoPlatFormException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L120">        log.info(&quot;A DuplicatedCryptoPlatFormException has occurred&quot;, exception);</span>
+<span class="fc" id="L118">        log.info(&quot;A DuplicatedCryptoPlatFormException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L122">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L123">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
-<span class="fc" id="L124">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L120">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L121">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, exception.getMessage());</span>
+<span class="fc" id="L122">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L126">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L124">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(UserCryptoNotFoundException.class)
@@ -131,13 +129,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         UserCryptoNotFoundException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L134">        log.info(&quot;An UserCryptoNotFoundException has occurred&quot;, exception);</span>
+<span class="fc" id="L132">        log.info(&quot;An UserCryptoNotFoundException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L136">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L137">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
-<span class="fc" id="L138">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L134">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L135">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L136">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L140">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L138">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(TooManyRequestsException.class)
@@ -145,13 +143,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         TooManyRequestsException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L148">        log.info(&quot;A TooManyRequestsException has occurred&quot;, exception);</span>
+<span class="fc" id="L146">        log.info(&quot;A TooManyRequestsException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L150">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L151">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());</span>
-<span class="fc" id="L152">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L148">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L149">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.TOO_MANY_REQUESTS, exception.getMessage());</span>
+<span class="fc" id="L150">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L154">        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail));</span>
+<span class="fc" id="L152">        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(InsufficientBalanceException.class)
@@ -159,13 +157,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         InsufficientBalanceException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L162">        log.info(&quot;An InsufficientBalanceException has occurred&quot;, exception);</span>
+<span class="fc" id="L160">        log.info(&quot;An InsufficientBalanceException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L164">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L165">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());</span>
-<span class="fc" id="L166">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L162">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L163">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, exception.getMessage());</span>
+<span class="fc" id="L164">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L168">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail));</span>
+<span class="fc" id="L166">        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)
@@ -173,13 +171,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         UsernameNotFoundException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L176">        log.info(&quot;An UsernameNotFoundException has occurred&quot;, exception);</span>
+<span class="fc" id="L174">        log.info(&quot;An UsernameNotFoundException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L178">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L179">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
-<span class="fc" id="L180">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L176">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L177">        var problemDetail = ProblemDetail.forStatusAndDetail(NOT_FOUND_STATUS, exception.getMessage());</span>
+<span class="fc" id="L178">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L182">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L180">        return ResponseEntity.status(NOT_FOUND_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(ApiValidationException.class)
@@ -187,13 +185,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         ApiValidationException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L190">        log.info(&quot;An ApiValidationException has occurred&quot;, exception);</span>
+<span class="fc" id="L188">        log.info(&quot;An ApiValidationException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L192">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L193">        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());</span>
-<span class="fc" id="L194">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L190">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L191">        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());</span>
+<span class="fc" id="L192">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L196">        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));</span>
+<span class="fc" id="L194">        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(ApiException.class)
@@ -201,13 +199,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         ApiException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L204">        log.info(&quot;An ApiException has occurred&quot;, exception);</span>
+<span class="fc" id="L202">        log.info(&quot;An ApiException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L206">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L207">        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());</span>
-<span class="fc" id="L208">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L204">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L205">        var problemDetail = ProblemDetail.forStatusAndDetail(exception.getHttpStatus(), exception.getMessage());</span>
+<span class="fc" id="L206">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L210">        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));</span>
+<span class="fc" id="L208">        return ResponseEntity.status(exception.getHttpStatus()).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
@@ -215,20 +213,20 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         ConstraintViolationException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L218">        log.info(&quot;A ConstraintViolationException has occurred&quot;, exception);</span>
+<span class="fc" id="L216">        log.info(&quot;A ConstraintViolationException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L220">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L221">        var constraintViolations = exception.getConstraintViolations().stream().toList();</span>
-<span class="fc" id="L222">        var problemDetails = constraintViolations.stream()</span>
-<span class="fc" id="L223">            .map(constraintViolation -&gt; {</span>
-<span class="fc" id="L224">                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, constraintViolation.getMessage());</span>
-<span class="fc" id="L225">                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L218">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L219">        var constraintViolations = exception.getConstraintViolations().stream().toList();</span>
+<span class="fc" id="L220">        var problemDetails = constraintViolations.stream()</span>
+<span class="fc" id="L221">            .map(constraintViolation -&gt; {</span>
+<span class="fc" id="L222">                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, constraintViolation.getMessage());</span>
+<span class="fc" id="L223">                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L227">                return problemDetail;</span>
+<span class="fc" id="L225">                return problemDetail;</span>
             })
-<span class="fc" id="L229">            .toList();</span>
+<span class="fc" id="L227">            .toList();</span>
 
-<span class="fc" id="L231">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(problemDetails);</span>
+<span class="fc" id="L229">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(problemDetails);</span>
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -236,21 +234,21 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         MethodArgumentNotValidException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L239">        log.info(&quot;A MethodArgumentNotValidException has occurred&quot;, exception);</span>
+<span class="fc" id="L237">        log.info(&quot;A MethodArgumentNotValidException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L241">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L242">        var allErrors = exception.getAllErrors()</span>
-<span class="fc" id="L243">            .stream()</span>
-<span class="fc" id="L244">            .map(error -&gt; {</span>
-<span class="fc bfc" id="L245" title="All 2 branches covered.">                var errorMessage = StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : UNKNOWN_ERROR;</span>
-<span class="fc" id="L246">                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, errorMessage);</span>
-<span class="fc" id="L247">                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L239">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L240">        var allErrors = exception.getAllErrors()</span>
+<span class="fc" id="L241">            .stream()</span>
+<span class="fc" id="L242">            .map(error -&gt; {</span>
+<span class="fc bfc" id="L243" title="All 2 branches covered.">                var errorMessage = StringUtils.hasText(error.getDefaultMessage()) ? error.getDefaultMessage() : UNKNOWN_ERROR;</span>
+<span class="fc" id="L244">                var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, errorMessage);</span>
+<span class="fc" id="L245">                problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L249">                return problemDetail;</span>
+<span class="fc" id="L247">                return problemDetail;</span>
             })
-<span class="fc" id="L251">            .toList();</span>
+<span class="fc" id="L249">            .toList();</span>
 
-<span class="fc" id="L253">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);</span>
+<span class="fc" id="L251">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(allErrors);</span>
     }
 
     @ExceptionHandler(MissingServletRequestParameterException.class)
@@ -258,15 +256,15 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         MissingServletRequestParameterException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L261">        log.info(&quot;A MissingServletRequestParameterException has occurred&quot;, exception);</span>
+<span class="fc" id="L259">        log.info(&quot;A MissingServletRequestParameterException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L263">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L264">        var bodyDetail = exception.getBody().getDetail();</span>
-<span class="fc bfc" id="L265" title="All 2 branches covered.">        var detail = StringUtils.hasText(bodyDetail) ? bodyDetail : exception.getMessage();</span>
-<span class="fc" id="L266">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, detail);</span>
-<span class="fc" id="L267">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L261">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L262">        var bodyDetail = exception.getBody().getDetail();</span>
+<span class="fc bfc" id="L263" title="All 2 branches covered.">        var detail = StringUtils.hasText(bodyDetail) ? bodyDetail : exception.getMessage();</span>
+<span class="fc" id="L264">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, detail);</span>
+<span class="fc" id="L265">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L269">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+<span class="fc" id="L267">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -274,16 +272,22 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         MethodArgumentTypeMismatchException exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L277">        log.info(&quot;A MethodArgumentTypeMismatchException has occurred&quot;, exception);</span>
+<span class="fc" id="L275">        log.info(&quot;A MethodArgumentTypeMismatchException has occurred&quot;, exception);</span>
 
-<span class="fc" id="L279">        var name = exception.getName();</span>
-<span class="fc" id="L280">        var availableValues = getAvailableValues(name);</span>
-<span class="fc" id="L281">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L282">        var message = String.format(INVALID_VALUE_FOR, exception.getValue(), name, availableValues);</span>
-<span class="fc" id="L283">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, message);</span>
-<span class="fc" id="L284">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L277">        var name = exception.getName();</span>
+<span class="fc" id="L278">        var message = String.format(&quot;Invalid value %s for %s&quot;, exception.getValue(), name);</span>
+<span class="fc" id="L279">        var requiredType = exception.getRequiredType();</span>
 
-<span class="fc" id="L286">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
+<span class="fc bfc" id="L281" title="All 2 branches covered.">        if (requiredType != null) {</span>
+<span class="fc" id="L282">            var availableValues = Arrays.toString(requiredType.getEnumConstants());</span>
+<span class="fc" id="L283">            message = String.format(INVALID_VALUE_FOR, exception.getValue(), name, availableValues);</span>
+        }
+
+<span class="fc" id="L286">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L287">        var problemDetail = ProblemDetail.forStatusAndDetail(BAD_REQUEST_STATUS, message);</span>
+<span class="fc" id="L288">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+
+<span class="fc" id="L290">        return ResponseEntity.status(BAD_REQUEST_STATUS).body(List.of(problemDetail));</span>
     }
 
     @ExceptionHandler(Exception.class)
@@ -291,21 +295,13 @@ import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants
         Exception exception,
         WebRequest webRequest
     ) {
-<span class="fc" id="L294">        log.error(&quot;An unhandled Exception has occurred&quot;, exception);</span>
+<span class="fc" id="L298">        log.error(&quot;An unhandled Exception has occurred&quot;, exception);</span>
 
-<span class="fc" id="L296">        var request = (ServletWebRequest) webRequest;</span>
-<span class="fc" id="L297">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);</span>
-<span class="fc" id="L298">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
+<span class="fc" id="L300">        var request = (ServletWebRequest) webRequest;</span>
+<span class="fc" id="L301">        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, UNKNOWN_ERROR);</span>
+<span class="fc" id="L302">        problemDetail.setType(URI.create(request.getRequest().getRequestURL().toString()));</span>
 
-<span class="fc" id="L300">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail));</span>
-    }
-
-    private String getAvailableValues(String field) {
-<span class="fc bfc" id="L304" title="All 3 branches covered.">        return switch (field) {</span>
-<span class="fc" id="L305">            case &quot;sortBy&quot; -&gt; Arrays.toString(SortBy.values());</span>
-<span class="fc" id="L306">            case &quot;sortType&quot; -&gt; Arrays.toString(SortType.values());</span>
-<span class="fc" id="L307">            default -&gt; &quot;&quot;;</span>
-        };
+<span class="fc" id="L304">        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(problemDetail));</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
