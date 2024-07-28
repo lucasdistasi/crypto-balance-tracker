@@ -99,7 +99,7 @@ class InsightsServiceTest {
 
         assertThat(balances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(new BalancesResponse("7108.39", "6484.23", "0.2512793593")));
+            .isEqualTo(new BalancesResponse("7108.39", "6484.23", "0.2512793593"));
     }
 
     @Test
@@ -110,7 +110,7 @@ class InsightsServiceTest {
 
         assertThat(balances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.empty());
+            .isEqualTo(BalancesResponse.empty());
     }
 
     @Test
@@ -130,7 +130,7 @@ class InsightsServiceTest {
 
         assertThat(datesBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("7 February 2024", new BalancesResponse("900", "838.04", "0.0148760331")),
@@ -139,7 +139,7 @@ class InsightsServiceTest {
                     new BalanceChanges(11.11F, 11.11F, 11.11F),
                     new DifferencesChanges("100", "93.11", "0.0016528925")
                 )
-            ));
+            );
     }
 
     @Test
@@ -160,7 +160,7 @@ class InsightsServiceTest {
 
         assertThat(datesBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("6 February 2024", new BalancesResponse("1100", "1024.27", "0.0181818182")),
@@ -170,7 +170,7 @@ class InsightsServiceTest {
                     new BalanceChanges(-9.09F, -9.09F, -9.09F),
                     new DifferencesChanges("-100", "-93.12", "-0.0016528926")
                 )
-            ));
+            );
     }
 
     @Test
@@ -193,7 +193,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("3 February 2024", new BalancesResponse("1500", "1377.53", "0.0239616613")),
@@ -204,7 +204,7 @@ class InsightsServiceTest {
                     new BalanceChanges(-33.33F, -33.33F, -33.33F),
                     new DifferencesChanges("-500", "-459.18", "-0.0079872204")
                 )
-            ));
+            );
     }
 
     @Test
@@ -231,7 +231,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("25 January 2024", new BalancesResponse("1350", "1239.77", "0.0215654952")),
@@ -246,7 +246,7 @@ class InsightsServiceTest {
                     new BalanceChanges(-25.93F, -25.93F, -25.93F),
                     new DifferencesChanges("-350", "-321.42", "-0.0055910543")
                 )
-            ));
+            );
     }
 
     @Test
@@ -273,7 +273,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("28 December 2023", new BalancesResponse("1400", "1298.22", "0.0253164557")),
@@ -288,7 +288,7 @@ class InsightsServiceTest {
                     new BalanceChanges(-28.57F, -28.57F, -28.57F),
                     new DifferencesChanges("-400", "-370.92", "-0.0072332731")
                 )
-            ));
+            );
     }
 
     @Test
@@ -315,7 +315,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("30 November 2023", new BalancesResponse("1400", "1298.22", "0.0253164557")),
@@ -330,7 +330,7 @@ class InsightsServiceTest {
                     new BalanceChanges(-28.57F, -28.57F, -28.57F),
                     new DifferencesChanges("-400", "-370.92", "-0.0072332731")
                 )
-            ));
+            );
     }
 
     @ParameterizedTest
@@ -357,7 +357,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("5 March 2024", new BalancesResponse("1000", "927.30", "0.018181818")),
@@ -371,7 +371,7 @@ class InsightsServiceTest {
                     new BalanceChanges(15F, 15F, 5.42F),
                     new DifferencesChanges("150", "139.09", "0.000984849")
                 )
-            ));
+            );
     }
 
     @Test
@@ -398,7 +398,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(
+            .isEqualTo(
                 new DatesBalanceResponse(
                     List.of(
                         new DateBalances("8 July 2023", new BalancesResponse("1000", "927.30", "0.0170940171")),
@@ -413,7 +413,7 @@ class InsightsServiceTest {
                     new BalanceChanges(40F, 40F, 40F),
                     new DifferencesChanges("400", "370.92", "0.0068376068")
                 )
-            ));
+            );
     }
 
     @Test
@@ -431,7 +431,7 @@ class InsightsServiceTest {
 
         assertThat(dateBalances)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.empty());
+            .isEqualTo(DatesBalanceResponse.empty());
     }
 
     @Test
@@ -462,7 +462,7 @@ class InsightsServiceTest {
         );
         assertThat(platformInsightsResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -503,7 +503,7 @@ class InsightsServiceTest {
         );
         assertThat(platformInsightsResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -512,7 +512,10 @@ class InsightsServiceTest {
 
         var platformInsights = insightsService.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
 
-        assertTrue(platformInsights.isEmpty());
+        assertThat(platformInsights)
+            .usingRecursiveComparison()
+            .isEqualTo(PlatformInsightsResponse.empty());
+
     }
 
     @Test
@@ -541,7 +544,7 @@ class InsightsServiceTest {
         );
         assertThat(cryptoInsightsResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -587,7 +590,7 @@ class InsightsServiceTest {
         );
         assertThat(cryptoInsightResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -596,7 +599,9 @@ class InsightsServiceTest {
 
         var cryptoInsightResponse = insightsService.retrieveCryptoInsights("bitcoin");
 
-        assertTrue(cryptoInsightResponse.isEmpty());
+        assertThat(cryptoInsightResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(CryptoInsightResponse.empty());
     }
 
     @Test
@@ -631,7 +636,7 @@ class InsightsServiceTest {
         );
         assertThat(platformBalancesInsightsResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -640,7 +645,9 @@ class InsightsServiceTest {
 
         var platformBalancesInsightsResponse = insightsService.retrievePlatformsBalancesInsights();
 
-        assertTrue(platformBalancesInsightsResponse.isEmpty());
+        assertThat(platformBalancesInsightsResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(PlatformsBalancesInsightsResponse.empty());
     }
 
     @Test
@@ -693,7 +700,7 @@ class InsightsServiceTest {
         );
         assertThat(cryptosBalancesInsightsResponse)
             .usingRecursiveComparison()
-            .isEqualTo(Optional.of(expected));
+            .isEqualTo(expected);
     }
 
     @Test
@@ -723,111 +730,109 @@ class InsightsServiceTest {
         assertThat(cryptosBalancesInsightsResponse)
             .usingRecursiveComparison()
             .isEqualTo(
-                Optional.of(
-                    new CryptosBalancesInsightsResponse(
-                        new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
-                        List.of(
-                            new CryptoInsights(
-                                null,
-                                "Bitcoin",
-                                "bitcoin",
-                                "0.15",
-                                new BalancesResponse("4500.00", "4050.00", "0.15"),
-                                53.74f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Ethereum",
-                                "ethereum",
-                                "1.372",
-                                new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
-                                26.5f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Avalanche",
-                                "avalanche-2",
-                                "25",
-                                new BalancesResponse("232.50", "216.75", "0.008879"),
-                                2.78f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "BNB",
-                                "binancecoin",
-                                "1",
-                                new BalancesResponse("211.79", "197.80", "0.00811016"),
-                                2.53f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Chainlink",
-                                "chainlink",
-                                "35",
-                                new BalancesResponse("209.65", "195.30", "0.0080031"),
-                                2.5f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Tether",
-                                "tether",
-                                "200",
-                                new BalancesResponse("199.92", "186.62", "0.00776"),
-                                2.39f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Litecoin",
-                                "litecoin",
-                                "3.125",
-                                new BalancesResponse("189.34", "176.75", "0.007352875"),
-                                2.26f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Solana",
-                                "solana",
-                                "10",
-                                new BalancesResponse("180.40", "168.20", "0.0068809"),
-                                2.15f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Polkadot",
-                                "polkadot",
-                                "40",
-                                new BalancesResponse("160.40", "149.20", "0.0061208"),
-                                1.92f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Uniswap",
-                                "uniswap",
-                                "30",
-                                new BalancesResponse("127.50", "118.80", "0.0048591"),
-                                1.52f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Polygon",
-                                "matic-network",
-                                "100",
-                                new BalancesResponse("51.00", "47.54", "0.001947"),
-                                0.61f
-                            ),
-                            new CryptoInsights(
-                                null,
-                                "Cardano",
-                                "cardano",
-                                "150",
-                                new BalancesResponse("37.34", "34.80", "0.001425"),
-                                0.45f
-                            ),
-                            new CryptoInsights(
-                                "Others",
-                                new BalancesResponse("54.66", "50.99", "0.0020915"),
-                                0.65f
-                            )
+                new CryptosBalancesInsightsResponse(
+                    new BalancesResponse("8373.63", "7663.61", "0.2995959193"),
+                    List.of(
+                        new CryptoInsights(
+                            null,
+                            "Bitcoin",
+                            "bitcoin",
+                            "0.15",
+                            new BalancesResponse("4500.00", "4050.00", "0.15"),
+                            53.74f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Ethereum",
+                            "ethereum",
+                            "1.372",
+                            new BalancesResponse("2219.13", "2070.86", "0.0861664843"),
+                            26.5f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Avalanche",
+                            "avalanche-2",
+                            "25",
+                            new BalancesResponse("232.50", "216.75", "0.008879"),
+                            2.78f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "BNB",
+                            "binancecoin",
+                            "1",
+                            new BalancesResponse("211.79", "197.80", "0.00811016"),
+                            2.53f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Chainlink",
+                            "chainlink",
+                            "35",
+                            new BalancesResponse("209.65", "195.30", "0.0080031"),
+                            2.5f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Tether",
+                            "tether",
+                            "200",
+                            new BalancesResponse("199.92", "186.62", "0.00776"),
+                            2.39f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Litecoin",
+                            "litecoin",
+                            "3.125",
+                            new BalancesResponse("189.34", "176.75", "0.007352875"),
+                            2.26f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Solana",
+                            "solana",
+                            "10",
+                            new BalancesResponse("180.40", "168.20", "0.0068809"),
+                            2.15f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Polkadot",
+                            "polkadot",
+                            "40",
+                            new BalancesResponse("160.40", "149.20", "0.0061208"),
+                            1.92f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Uniswap",
+                            "uniswap",
+                            "30",
+                            new BalancesResponse("127.50", "118.80", "0.0048591"),
+                            1.52f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Polygon",
+                            "matic-network",
+                            "100",
+                            new BalancesResponse("51.00", "47.54", "0.001947"),
+                            0.61f
+                        ),
+                        new CryptoInsights(
+                            null,
+                            "Cardano",
+                            "cardano",
+                            "150",
+                            new BalancesResponse("37.34", "34.80", "0.001425"),
+                            0.45f
+                        ),
+                        new CryptoInsights(
+                            "Others",
+                            new BalancesResponse("54.66", "50.99", "0.0020915"),
+                            0.65f
                         )
                     )
                 )
@@ -840,7 +845,9 @@ class InsightsServiceTest {
 
         var cryptosBalancesInsightsResponse = insightsService.retrieveCryptosBalancesInsights();
 
-        assertTrue(cryptosBalancesInsightsResponse.isEmpty());
+        assertThat(cryptosBalancesInsightsResponse)
+            .usingRecursiveComparison()
+            .isEqualTo(CryptosBalancesInsightsResponse.empty());
     }
 
     @Test

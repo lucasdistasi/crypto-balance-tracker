@@ -1,8 +1,10 @@
 package com.distasilucas.cryptobalancetracker.controller.swagger;
 
+import com.distasilucas.cryptobalancetracker.model.DateRange;
 import com.distasilucas.cryptobalancetracker.model.SortBy;
 import com.distasilucas.cryptobalancetracker.model.SortType;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
+import com.distasilucas.cryptobalancetracker.model.response.insights.DatesBalanceResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptoInsightResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.CryptosBalancesInsightsResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.crypto.PageUserCryptosInsightsResponse;
@@ -44,6 +46,27 @@ public interface InsightsControllerAPI {
         )
     )
     ResponseEntity<BalancesResponse> retrieveTotalBalancesInsights();
+
+    @Operation(summary = "Retrieve balances for the given Date Range")
+    @ApiResponse(
+        responseCode = "200",
+        description = "Balances",
+        content = @Content(
+            mediaType = "application/json",
+            schema = @Schema(implementation = DatesBalanceResponse.class)
+        )
+    )
+    @ApiResponse(
+        responseCode = "500",
+        description = "Internal Server Error",
+        content = @Content(
+            mediaType = "application/json",
+            array = @ArraySchema(
+                schema = @Schema(implementation = ProblemDetail.class)
+            )
+        )
+    )
+    ResponseEntity<DatesBalanceResponse> retrieveDatesBalancesResponse(DateRange dateRange);
 
     @Operation(summary = "Retrieves information of each user crypto, like its balance, information about the crypto, where it's stored")
     @ApiResponse(

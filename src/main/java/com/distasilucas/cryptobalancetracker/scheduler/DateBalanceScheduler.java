@@ -28,16 +28,13 @@ public class DateBalanceScheduler {
         var totalBalances = insightsService.retrieveTotalBalancesInsights();
         var optionalDateBalance = dateBalancesRepository.findDateBalanceByDate(now);
 
-        totalBalances.ifPresent(balances -> optionalDateBalance.ifPresentOrElse(
-            dateBalance -> {
-                var updatedDateBalances = new DateBalance(dateBalance.getId(), now, balances);
-                log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, updatedDateBalances);
-                dateBalancesRepository.save(updatedDateBalances);
-            },
-            () -> {
-                log.info("Saving balances {} for date {}", balances, now);
-                dateBalancesRepository.save(new DateBalance(now, balances));
-            }
-        ));
+        optionalDateBalance.ifPresentOrElse(dateBalance -> {
+            var updatedDateBalances = new DateBalance(dateBalance.getId(), now, totalBalances);
+            log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, updatedDateBalances);
+            dateBalancesRepository.save(updatedDateBalances);
+        }, () -> {
+            log.info("Saving balances {} for date {}", totalBalances, now);
+            dateBalancesRepository.save(new DateBalance(now, totalBalances));
+        });
     }
 }

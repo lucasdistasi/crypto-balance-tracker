@@ -37,6 +37,7 @@ public class GoalController implements GoalControllerAPI {
     private final GoalService goalService;
     private final UserCryptoService userCryptoService;
 
+    @Override
     @GetMapping("/{goalId}")
     public ResponseEntity<GoalResponse> retrieveGoalById(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
         var goal = goalService.retrieveGoalById(goalId);
@@ -46,6 +47,7 @@ public class GoalController implements GoalControllerAPI {
         return ResponseEntity.ok(goalResponse);
     }
 
+    @Override
     @GetMapping
     public ResponseEntity<PageGoalResponse> retrieveGoalsForPage(@RequestParam @Min(value = 0, message = INVALID_PAGE_NUMBER) int page) {
         var goals = goalService.retrieveGoalsForPage(page);
@@ -63,6 +65,7 @@ public class GoalController implements GoalControllerAPI {
             ResponseEntity.ok(pageGoalsResponse);
     }
 
+    @Override
     @PostMapping
     public ResponseEntity<GoalResponse> saveGoal(@RequestBody @Valid GoalRequest goalRequest) {
         var goal = goalService.saveGoal(goalRequest);
@@ -72,6 +75,7 @@ public class GoalController implements GoalControllerAPI {
         return ResponseEntity.ok(goalResponse);
     }
 
+    @Override
     @PutMapping("/{goalId}")
     public ResponseEntity<GoalResponse> updateGoal(
         @PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId,
@@ -84,6 +88,7 @@ public class GoalController implements GoalControllerAPI {
         return ResponseEntity.ok(goalResponse);
     }
 
+    @Override
     @DeleteMapping("/{goalId}")
     public ResponseEntity<Void> deleteGoal(@PathVariable @UUID(message = INVALID_GOAL_UUID) String goalId) {
         goalService.deleteGoal(goalId);

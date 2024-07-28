@@ -13,4 +13,8 @@ public record BalancesResponse(
     public BalancesResponse(Balances balances) {
         this(balances.getUsdBalance(), balances.getEurBalance(), balances.getBtcBalance());
     }
+
+    public static BalancesResponse empty() {
+        return new BalancesResponse("0", "0", "0");
+    }
 }

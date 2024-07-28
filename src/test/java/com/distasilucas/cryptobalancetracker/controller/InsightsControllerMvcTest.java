@@ -70,7 +70,7 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveTotalBalancesWithStatus200() throws Exception {
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(getBalances()));
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(getBalances());
 
         mockMvc.perform(retrieveTotalBalancesInsights())
             .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveZeroTotalBalancesWithStatus200() throws Exception {
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.empty());
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(BalancesResponse.empty());
 
         mockMvc.perform(retrieveTotalBalancesInsights())
             .andExpect(status().isOk())
@@ -101,8 +101,7 @@ class InsightsControllerMvcTest {
             new DifferencesChanges("500", "459.22", "0.007194555")
         );
 
-        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
-            .thenReturn(Optional.of(datesBalanceResponse));
+        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK)).thenReturn(datesBalanceResponse);
 
         mockMvc.perform(retrieveDatesBalances())
             .andExpect(status().isOk())
@@ -249,9 +248,7 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveCryptosBalancesInsightsWithStatus200() throws Exception {
-        var cryptosBalancesInsightsResponse = getCryptosBalancesInsightsResponse();
-
-        when(insightsServiceMock.retrieveCryptosBalancesInsights()).thenReturn(Optional.of(cryptosBalancesInsightsResponse));
+        when(insightsServiceMock.retrieveCryptosBalancesInsights()).thenReturn(getCryptosBalancesInsightsResponse());
 
         mockMvc.perform(retrieveCryptosBalancesInsights())
             .andExpect(status().isOk())
@@ -269,10 +266,7 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrievePlatformsBalancesInsightsWithStatus200() throws Exception {
-        var platformsBalancesInsightsResponse = getPlatformsBalancesInsightsResponse();
-
-        when(insightsServiceMock.retrievePlatformsBalancesInsights())
-            .thenReturn(Optional.of(platformsBalancesInsightsResponse));
+        when(insightsServiceMock.retrievePlatformsBalancesInsights()).thenReturn(getPlatformsBalancesInsightsResponse());
 
         mockMvc.perform(retrievePlatformsBalancesInsights())
             .andExpect(status().isOk())
@@ -288,9 +282,7 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrieveCryptoInsightsWithStatus200() throws Exception {
-        var cryptoInsightResponse = getCryptoInsightResponse();
-
-        when(insightsServiceMock.retrieveCryptoInsights("bitcoin")).thenReturn(Optional.of(cryptoInsightResponse));
+        when(insightsServiceMock.retrieveCryptoInsights("bitcoin")).thenReturn(getCryptoInsightResponse());
 
         mockMvc.perform(retrieveCryptoInsights("bitcoin"))
             .andExpect(status().isOk())
@@ -308,10 +300,8 @@ class InsightsControllerMvcTest {
 
     @Test
     void shouldRetrievePlatformInsightsWithStatus200() throws Exception {
-        var platformInsightsResponse = getPlatformInsightsResponse();
-
         when(insightsServiceMock.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111"))
-            .thenReturn(Optional.of(platformInsightsResponse));
+            .thenReturn(getPlatformInsightsResponse());
 
         mockMvc.perform(retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111"))
             .andExpect(status().isOk())

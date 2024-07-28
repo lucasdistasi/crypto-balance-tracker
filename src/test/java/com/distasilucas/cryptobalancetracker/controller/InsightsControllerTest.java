@@ -48,7 +48,7 @@ class InsightsControllerTest {
     void shouldRetrieveTotalBalancesWithStatus200() {
         var balances = getBalances();
 
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(balances));
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(balances);
 
         var totalBalancesInsights = insightsController.retrieveTotalBalancesInsights();
 
@@ -59,7 +59,7 @@ class InsightsControllerTest {
 
     @Test
     void shouldRetrieveZeroForTotalBalancesWhenEmptyCryptosWithStatus200() {
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.empty());
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(BalancesResponse.empty());
 
         var totalBalancesInsights = insightsController.retrieveTotalBalancesInsights();
 
@@ -80,25 +80,13 @@ class InsightsControllerTest {
         );
 
         when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
-            .thenReturn(Optional.of(datesBalanceResponse));
+            .thenReturn(datesBalanceResponse);
 
         var optionalDatesBalances = insightsController.retrieveDatesBalancesResponse(DateRange.ONE_WEEK);
 
         assertThat(optionalDatesBalances)
             .usingRecursiveComparison()
             .isEqualTo(ResponseEntity.ok(datesBalanceResponse));
-    }
-
-    @Test
-    void shouldRetrieveDatesBalancesWithStatus204() {
-        when(insightsServiceMock.retrieveDatesBalances(DateRange.ONE_WEEK))
-            .thenReturn(Optional.empty());
-
-        var datesBalances = insightsController.retrieveDatesBalancesResponse(DateRange.ONE_WEEK);
-
-        assertThat(datesBalances)
-            .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.noContent().build());
     }
 
     @Test
@@ -153,7 +141,7 @@ class InsightsControllerTest {
     void shouldRetrieveCryptosBalancesInsightsWithStatus200() {
         var cryptosBalancesInsightsResponse = new CryptosBalancesInsightsResponse(getBalances(), emptyList());
 
-        when(insightsServiceMock.retrieveCryptosBalancesInsights()).thenReturn(Optional.of(cryptosBalancesInsightsResponse));
+        when(insightsServiceMock.retrieveCryptosBalancesInsights()).thenReturn(cryptosBalancesInsightsResponse);
 
         var cryptosBalancesInsights = insightsController.retrieveCryptosBalancesInsights();
 
@@ -163,21 +151,10 @@ class InsightsControllerTest {
     }
 
     @Test
-    void shouldRetrieveEmptyForCryptosBalancesInsightsWithStatus204() {
-        when(insightsServiceMock.retrieveCryptosBalancesInsights()).thenReturn(Optional.empty());
-
-        var cryptosBalancesInsights = insightsController.retrieveCryptosBalancesInsights();
-
-        assertThat(cryptosBalancesInsights)
-            .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.noContent().build());
-    }
-
-    @Test
     void shouldRetrievePlatformsBalancesInsightsWithStatus200() {
         var platformsBalancesInsightsResponse = new PlatformsBalancesInsightsResponse(getBalances(), emptyList());
 
-        when(insightsServiceMock.retrievePlatformsBalancesInsights()).thenReturn(Optional.of(platformsBalancesInsightsResponse));
+        when(insightsServiceMock.retrievePlatformsBalancesInsights()).thenReturn(platformsBalancesInsightsResponse);
 
         var platformsBalancesInsights = insightsController.retrievePlatformsBalancesInsights();
 
@@ -187,21 +164,10 @@ class InsightsControllerTest {
     }
 
     @Test
-    void shouldRetrieveEmptyForPlatformsBalancesInsightsWithStatus204() {
-        when(insightsServiceMock.retrievePlatformsBalancesInsights()).thenReturn(Optional.empty());
-
-        var platformsBalancesInsights = insightsController.retrievePlatformsBalancesInsights();
-
-        assertThat(platformsBalancesInsights)
-            .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.noContent().build());
-    }
-
-    @Test
     void shouldRetrieveCryptoInsightsWithStatus200() {
         var cryptoInsightResponse = new CryptoInsightResponse("Bitcoin", getBalances(), emptyList());
 
-        when(insightsServiceMock.retrieveCryptoInsights("bitcoin")).thenReturn(Optional.of(cryptoInsightResponse));
+        when(insightsServiceMock.retrieveCryptoInsights("bitcoin")).thenReturn(cryptoInsightResponse);
 
         var cryptoInsights = insightsController.retrieveCryptoInsights("bitcoin");
 
@@ -211,39 +177,17 @@ class InsightsControllerTest {
     }
 
     @Test
-    void shouldRetrieveEmptyForCryptoInsightsWithStatus204() {
-        when(insightsServiceMock.retrieveCryptoInsights("bitcoin")).thenReturn(Optional.empty());
-
-        var cryptoInsights = insightsController.retrieveCryptoInsights("bitcoin");
-
-        assertThat(cryptoInsights)
-            .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.noContent().build());
-    }
-
-    @Test
     void shouldRetrievePlatformInsightsWithStatus200() {
         var platformInsightsResponse = new PlatformInsightsResponse("BINANCE", getBalances(), emptyList());
 
         when(insightsServiceMock.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111"))
-            .thenReturn(Optional.of(platformInsightsResponse));
+            .thenReturn(platformInsightsResponse);
 
         var platformInsights = insightsController.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
 
         assertThat(platformInsights)
             .usingRecursiveComparison()
             .isEqualTo(ResponseEntity.ok(platformInsightsResponse));
-    }
-
-    @Test
-    void shouldRetrieveEmptyForPlatformInsightsWithStatus204() {
-        when(insightsServiceMock.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111")).thenReturn(Optional.empty());
-
-        var platformInsights = insightsController.retrievePlatformInsights("123e4567-e89b-12d3-a456-426614174111");
-
-        assertThat(platformInsights)
-            .usingRecursiveComparison()
-            .isEqualTo(ResponseEntity.noContent().build());
     }
 
 }

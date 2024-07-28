@@ -62,7 +62,7 @@ class DateBalanceSchedulerTest {
 
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(balancesResponse));
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(balancesResponse);
         when(dateBalancesRepositoryMock.findDateBalanceByDate(localDate)).thenReturn(Optional.empty());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
         doAnswer(answer -> captor.getValue()).when(dateBalancesRepositoryMock).save(captor.capture());
@@ -83,7 +83,7 @@ class DateBalanceSchedulerTest {
         when(clockMock.instant()).thenReturn(zonedDateTime.toInstant());
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(dateBalancesRepositoryMock.findDateBalanceByDate(localDate)).thenReturn(Optional.of(dateBalance));
-        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(Optional.of(balancesResponse));
+        when(insightsServiceMock.retrieveTotalBalancesInsights()).thenReturn(balancesResponse);
         doAnswer(answer -> captor.getValue()).when(dateBalancesRepositoryMock).save(captor.capture());
 
         dateBalanceScheduler.saveDateBalance();

@@ -44,15 +44,15 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<BalancesResponse> retrieveTotalBalancesInsights() {
         var totalBalances = insightsService.retrieveTotalBalancesInsights();
 
-        return totalBalances.map(ResponseEntity::ok)
-            .orElse(ResponseEntity.ok(new BalancesResponse("0", "0", "0")));
+        return ResponseEntity.ok(totalBalances);
     }
 
+    @Override
     @GetMapping("/dates-balances")
     public ResponseEntity<DatesBalanceResponse> retrieveDatesBalancesResponse(@RequestParam DateRange dateRange) {
         var datesBalances = insightsService.retrieveDatesBalances(dateRange);
 
-        return okOrNoContent(datesBalances);
+        return ResponseEntity.ok(datesBalances);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<CryptosBalancesInsightsResponse> retrieveCryptosBalancesInsights() {
         var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();
 
-        return okOrNoContent(cryptosBalancesInsights);
+        return ResponseEntity.ok(cryptosBalancesInsights);
     }
 
     @Override
@@ -102,7 +102,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
         var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();
 
-        return okOrNoContent(platformsBalancesInsights);
+        return ResponseEntity.ok(platformsBalancesInsights);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity<CryptoInsightResponse> retrieveCryptoInsights(@PathVariable String coingeckoCryptoId) {
         var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);
 
-        return okOrNoContent(cryptoInsights);
+        return ResponseEntity.ok(cryptoInsights);
     }
 
     @Override
@@ -122,7 +122,7 @@ public class InsightsController implements InsightsControllerAPI {
     ) {
         var platformsInsights = insightsService.retrievePlatformInsights(platformId);
 
-        return okOrNoContent(platformsInsights);
+        return ResponseEntity.ok(platformsInsights);
     }
 
     private <T> ResponseEntity<T> okOrNoContent(Optional<T> body) {

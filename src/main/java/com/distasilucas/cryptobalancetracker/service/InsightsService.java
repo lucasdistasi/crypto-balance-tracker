@@ -83,25 +83,24 @@ public class InsightsService {
     }
 
     @Cacheable(cacheNames = TOTAL_BALANCES_CACHE)
-    public Optional<BalancesResponse> retrieveTotalBalancesInsights() {
+    public BalancesResponse retrieveTotalBalancesInsights() {
         log.info("Retrieving total balances");
 
         var userCryptos = userCryptoService.findAll();
 
         if (userCryptos.isEmpty()) {
-            return Optional.empty();
+            return BalancesResponse.empty();
         }
 
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
         var cryptosIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).collect(Collectors.toSet());
         var cryptos = cryptoService.findAllByIds(cryptosIds);
-        var totalBalances = getTotalBalances(cryptos, userCryptoQuantity);
 
-        return Optional.of(totalBalances);
+        return getTotalBalances(cryptos, userCryptoQuantity);
     }
 
     @Cacheable(cacheNames = DATES_BALANCES_CACHE, key = "#dateRange")
-    public Optional<DatesBalanceResponse> retrieveDatesBalances(DateRange dateRange) {
+    public DatesBalanceResponse retrieveDatesBalances(DateRange dateRange) {
         log.info("Retrieving balances for date range: {}", dateRange);
         List<DateBalance> dateBalances = new ArrayList<>();
         var now = LocalDateTime.now(clock).toLocalDate();
@@ -127,22 +126,22 @@ public class InsightsService {
         log.info("Balances found: {}", datesBalances.size());
 
         if (datesBalances.isEmpty()) {
-            return Optional.empty();
+            return DatesBalanceResponse.empty();
         }
 
         var changesPair = changesPair(datesBalances);
 
-        return Optional.of(new DatesBalanceResponse(datesBalances, changesPair.getFirst(), changesPair.getSecond()));
+        return new DatesBalanceResponse(datesBalances, changesPair.getFirst(), changesPair.getSecond());
     }
 
     @Cacheable(cacheNames = PLATFORM_INSIGHTS_CACHE, key = "#platformId")
-    public Optional<PlatformInsightsResponse> retrievePlatformInsights(String platformId) {
+    public PlatformInsightsResponse retrievePlatformInsights(String platformId) {
         log.info("Retrieving insights for platform with id {}", platformId);
 
         var userCryptosInPlatform = userCryptoService.findAllByPlatformId(platformId);
 
         if (userCryptosInPlatform.isEmpty()) {
-            return Optional.empty();
+            return PlatformInsightsResponse.empty();
         }
 
         var platformResponse = platformService.retrievePlatformById(platformId);
@@ -172,17 +171,17 @@ public class InsightsService {
             .sorted(Comparator.comparing(CryptoInsights::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new PlatformInsightsResponse(platformResponse.getName(), totalBalances, cryptosInsights));
+        return new PlatformInsightsResponse(platformResponse.getName(), totalBalances, cryptosInsights);
     }
 
     @Cacheable(cacheNames = CRYPTO_INSIGHTS_CACHE, key = "#coingeckoCryptoId")
-    public Optional<CryptoInsightResponse> retrieveCryptoInsights(String coingeckoCryptoId) {
+    public CryptoInsightResponse retrieveCryptoInsights(String coingeckoCryptoId) {
         log.info("Retrieving insights for crypto with coingeckoCryptoId {}", coingeckoCryptoId);
 
         var userCryptos = userCryptoService.findAllByCoingeckoCryptoId(coingeckoCryptoId);
 
         if (userCryptos.isEmpty()) {
-            return Optional.empty();
+            return CryptoInsightResponse.empty();
         }
 
         var platformsIds = userCryptos.stream().map(userCrypto -> userCrypto.getPlatform().getId()).toList();
@@ -211,17 +210,17 @@ public class InsightsService {
             .sorted(Comparator.comparing(PlatformInsight::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new CryptoInsightResponse(crypto.getCryptoInfo().getName(), totalBalances, platformInsights));
+        return new CryptoInsightResponse(crypto.getCryptoInfo().getName(), totalBalances, platformInsights);
     }
 
     @Cacheable(cacheNames = PLATFORMS_BALANCES_INSIGHTS_CACHE)
-    public Optional<PlatformsBalancesInsightsResponse> retrievePlatformsBalancesInsights() {
+    public PlatformsBalancesInsightsResponse retrievePlatformsBalancesInsights() {
         log.info("Retrieving all platforms balances insights");
 
         var userCryptos = userCryptoService.findAll();
 
         if (userCryptos.isEmpty()) {
-            return Optional.empty();
+            return PlatformsBalancesInsightsResponse.empty();
         }
 
         var platformsIds = userCryptos.stream()
@@ -271,17 +270,17 @@ public class InsightsService {
             .sorted(Comparator.comparing(PlatformsInsights::percentage, Comparator.reverseOrder()))
             .toList();
 
-        return Optional.of(new PlatformsBalancesInsightsResponse(totalBalances, platformsInsights));
+        return new PlatformsBalancesInsightsResponse(totalBalances, platformsInsights);
     }
 
     @Cacheable(cacheNames = CRYPTOS_BALANCES_INSIGHTS_CACHE)
-    public Optional<CryptosBalancesInsightsResponse> retrieveCryptosBalancesInsights() {
+    public CryptosBalancesInsightsResponse retrieveCryptosBalancesInsights() {
         log.info("Retrieving all cryptos balances insights");
 
         var userCryptos = userCryptoService.findAll();
 
         if (userCryptos.isEmpty()) {
-            return Optional.empty();
+            return CryptosBalancesInsightsResponse.empty();
         }
 
         var userCryptoQuantity = getUserCryptoQuantity(userCryptos);
@@ -315,7 +314,7 @@ public class InsightsService {
             getCryptoInsightsWithOthers(totalBalances, cryptosInsights) :
             cryptosInsights;
 
-        return Optional.of(new CryptosBalancesInsightsResponse(totalBalances, cryptosToReturn));
+        return new CryptosBalancesInsightsResponse(totalBalances, cryptosToReturn);
     }
 
     public Optional<PageUserCryptosInsightsResponse> retrieveUserCryptosInsights(int page, SortParams sortParams) {
