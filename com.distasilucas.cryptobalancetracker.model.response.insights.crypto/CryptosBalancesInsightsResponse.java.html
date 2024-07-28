@@ -4,11 +4,18 @@ import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesRes
 import com.distasilucas.cryptobalancetracker.model.response.insights.CryptoInsights;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
-<span class="fc" id="L9">public record CryptosBalancesInsightsResponse(</span>
+<span class="fc" id="L10">public record CryptosBalancesInsightsResponse(</span>
     BalancesResponse balances,
     List&lt;CryptoInsights&gt; cryptos
 ) implements Serializable {
+
+    public static CryptosBalancesInsightsResponse empty() {
+<span class="fc" id="L16">        var emptyBalances = new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;);</span>
+
+<span class="fc" id="L18">        return new CryptosBalancesInsightsResponse(emptyBalances, Collections.emptyList());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

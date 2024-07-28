@@ -3,11 +3,16 @@
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.List;
 
-<span class="fc" id="L8">public record PlatformsBalancesInsightsResponse(</span>
+<span class="fc" id="L9">public record PlatformsBalancesInsightsResponse(</span>
     BalancesResponse balances,
     List&lt;PlatformsInsights&gt; platforms
 ) implements Serializable {
+
+    public static PlatformsBalancesInsightsResponse empty() {
+<span class="fc" id="L15">        return new PlatformsBalancesInsightsResponse(BalancesResponse.empty(), Collections.emptyList());</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

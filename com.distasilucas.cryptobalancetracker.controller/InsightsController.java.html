@@ -44,15 +44,15 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity&lt;BalancesResponse&gt; retrieveTotalBalancesInsights() {
 <span class="fc" id="L45">        var totalBalances = insightsService.retrieveTotalBalancesInsights();</span>
 
-<span class="fc" id="L47">        return totalBalances.map(ResponseEntity::ok)</span>
-<span class="fc" id="L48">            .orElse(ResponseEntity.ok(new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;)));</span>
+<span class="fc" id="L47">        return ResponseEntity.ok(totalBalances);</span>
     }
 
+    @Override
     @GetMapping(&quot;/dates-balances&quot;)
     public ResponseEntity&lt;DatesBalanceResponse&gt; retrieveDatesBalancesResponse(@RequestParam DateRange dateRange) {
 <span class="fc" id="L53">        var datesBalances = insightsService.retrieveDatesBalances(dateRange);</span>
 
-<span class="fc" id="L55">        return okOrNoContent(datesBalances);</span>
+<span class="fc" id="L55">        return ResponseEntity.ok(datesBalances);</span>
     }
 
     @Override
@@ -94,7 +94,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity&lt;CryptosBalancesInsightsResponse&gt; retrieveCryptosBalancesInsights() {
 <span class="fc" id="L95">        var cryptosBalancesInsights = insightsService.retrieveCryptosBalancesInsights();</span>
 
-<span class="fc" id="L97">        return okOrNoContent(cryptosBalancesInsights);</span>
+<span class="fc" id="L97">        return ResponseEntity.ok(cryptosBalancesInsights);</span>
     }
 
     @Override
@@ -102,7 +102,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity&lt;PlatformsBalancesInsightsResponse&gt; retrievePlatformsBalancesInsights() {
 <span class="fc" id="L103">        var platformsBalancesInsights = insightsService.retrievePlatformsBalancesInsights();</span>
 
-<span class="fc" id="L105">        return okOrNoContent(platformsBalancesInsights);</span>
+<span class="fc" id="L105">        return ResponseEntity.ok(platformsBalancesInsights);</span>
     }
 
     @Override
@@ -110,7 +110,7 @@ public class InsightsController implements InsightsControllerAPI {
     public ResponseEntity&lt;CryptoInsightResponse&gt; retrieveCryptoInsights(@PathVariable String coingeckoCryptoId) {
 <span class="fc" id="L111">        var cryptoInsights = insightsService.retrieveCryptoInsights(coingeckoCryptoId);</span>
 
-<span class="fc" id="L113">        return okOrNoContent(cryptoInsights);</span>
+<span class="fc" id="L113">        return ResponseEntity.ok(cryptoInsights);</span>
     }
 
     @Override
@@ -122,7 +122,7 @@ public class InsightsController implements InsightsControllerAPI {
     ) {
 <span class="fc" id="L123">        var platformsInsights = insightsService.retrievePlatformInsights(platformId);</span>
 
-<span class="fc" id="L125">        return okOrNoContent(platformsInsights);</span>
+<span class="fc" id="L125">        return ResponseEntity.ok(platformsInsights);</span>
     }
 
     private &lt;T&gt; ResponseEntity&lt;T&gt; okOrNoContent(Optional&lt;T&gt; body) {

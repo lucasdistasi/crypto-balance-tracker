@@ -13,5 +13,9 @@ import java.io.Serializable;
     public BalancesResponse(Balances balances) {
 <span class="fc" id="L14">        this(balances.getUsdBalance(), balances.getEurBalance(), balances.getBtcBalance());</span>
 <span class="fc" id="L15">    }</span>
+
+    public static BalancesResponse empty() {
+<span class="fc" id="L18">        return new BalancesResponse(&quot;0&quot;, &quot;0&quot;, &quot;0&quot;);</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
