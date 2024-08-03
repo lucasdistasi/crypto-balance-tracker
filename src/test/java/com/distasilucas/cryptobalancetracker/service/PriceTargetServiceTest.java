@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -146,7 +147,7 @@ class PriceTargetServiceTest {
                 )
             );
         verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
@@ -165,7 +166,7 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
-        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
@@ -191,7 +192,7 @@ class PriceTargetServiceTest {
                 )
             );
         verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
@@ -210,7 +211,7 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
-        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
@@ -228,7 +229,7 @@ class PriceTargetServiceTest {
 
         assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).save(any());
-        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
@@ -241,7 +242,7 @@ class PriceTargetServiceTest {
 
         verify(priceTargetRepositoryMock, times(1)).delete(priceTargetEntity);
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
-        verify(cacheServiceMock, times(1)).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
@@ -259,7 +260,7 @@ class PriceTargetServiceTest {
         assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).delete(any());
         verify(cryptoServiceMock, never()).deleteCryptoIfNotUsed(any());
-        verify(cacheServiceMock, never()).invalidatePriceTargetCaches();
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
 }

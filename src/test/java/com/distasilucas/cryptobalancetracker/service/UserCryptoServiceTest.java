@@ -25,6 +25,9 @@ import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePla
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -154,7 +157,7 @@ class UserCryptoServiceTest {
         var userCryptoResponse = userCryptoService.saveUserCrypto(userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(new UserCrypto(
@@ -185,6 +188,7 @@ class UserCryptoServiceTest {
         );
 
         verify(userCryptoRepositoryMock, never()).save(any());
+        verify(cacheServiceMock, never()).invalidate(any());
 
         assertEquals(DUPLICATED_CRYPTO_PLATFORM.formatted("Bitcoin", "BINANCE"), exception.getMessage());
     }
@@ -211,7 +215,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -244,7 +248,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -272,7 +276,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
 
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
@@ -306,6 +310,7 @@ class UserCryptoServiceTest {
         );
 
         verify(userCryptoRepositoryMock, never()).save(any());
+        verify(cacheServiceMock, never()).invalidate(any());
 
         assertEquals(DUPLICATED_CRYPTO_PLATFORM.formatted("Bitcoin", "COINBASE"), exception.getMessage());
     }
@@ -322,7 +327,7 @@ class UserCryptoServiceTest {
 
         verify(userCryptoRepositoryMock, times(1)).deleteById("af827ac7-d642-4461-a73c-b31ca6f6d13d");
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
     }
 
     @Test
@@ -389,7 +394,7 @@ class UserCryptoServiceTest {
         userCryptoService.saveOrUpdateAll(userCryptos);
 
         verify(userCryptoRepositoryMock, times(1)).saveAll(userCryptos);
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
     }
 
     @Test

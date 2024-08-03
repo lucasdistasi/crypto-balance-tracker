@@ -52,6 +52,12 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRY
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.CRYPTOS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
@@ -73,7 +79,7 @@ class CacheServiceTest {
     }
 
     @Test
-    void shouldInvalidateUserCryptosAndInsightsCachesIfItExists() {
+    void shouldInvalidateUserCryptosCaches() {
         var userCrypto = getUserCrypto();
 
         var userCryptosCacheMap = Map.of(SimpleKey.class, List.of(userCrypto));
@@ -81,176 +87,94 @@ class CacheServiceTest {
         var userCryptosCoingeckoCryptoIdMap = Map.of("bitcoin", List.of(userCrypto));
         var userCryptoIdMap = Map.of("bc7a8ee5-13f9-4405-a7fb-887458c21bed", List.of(userCrypto));
         var userCryptosPageMap = Map.of(0, List.of(userCrypto));
-        var totalBalancesMap = Map.of(SimpleKey.class, new BalancesResponse("1000", "927.30", "0.015384615"));
-        var datesBalancesMap = Map.of(DateRange.class, getDateBalanceResponse());
-        var platformInsightsMap = Map.of(String.class, getPlatformInsightsResponse());
-        var cryptoInsightsMap = Map.of(String.class, getCryptoInsightResponse());
-        var platformsBalancesInsightsMap = Map.of(SimpleKey.class, getPlatformsBalancesInsightsResponse());
-        var cryptosBalancesInsightsMap = Map.of(SimpleKey.class, getCryptosBalancesInsightsResponse());
 
         var userCryptosCacheCache = getMapCache(USER_CRYPTOS_CACHE, userCryptosCacheMap);
         var userCryptosPlatformIdCache = getMapCache(USER_CRYPTOS_PLATFORM_ID_CACHE, userCryptosPlatformIdMap);
         var userCryptosCoingeckoCryptoIdCache = getMapCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, userCryptosCoingeckoCryptoIdMap);
         var userCryptoIdCache = getMapCache(USER_CRYPTO_ID_CACHE, userCryptoIdMap);
         var userCryptosPageCache = getMapCache(USER_CRYPTOS_PAGE_CACHE, userCryptosPageMap);
-        var totalBalancesCache = getMapCache(TOTAL_BALANCES_CACHE, totalBalancesMap);
-        var datesBalancesCache = getMapCache(DATES_BALANCES_CACHE, datesBalancesMap);
-        var platformInsightsCache = getMapCache(PLATFORM_INSIGHTS_CACHE, platformInsightsMap);
-        var cryptoInsightsCache = getMapCache(CRYPTO_INSIGHTS_CACHE, cryptoInsightsMap);
-        var platformsBalancesInsightsCache = getMapCache(PLATFORMS_BALANCES_INSIGHTS_CACHE, platformsBalancesInsightsMap);
-        var cryptosBalancesInsightsCache = getMapCache(CRYPTOS_BALANCES_INSIGHTS_CACHE, cryptosBalancesInsightsMap);
 
         when(cacheManagerMock.getCache(USER_CRYPTOS_CACHE)).thenReturn(userCryptosCacheCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_PLATFORM_ID_CACHE)).thenReturn(userCryptosPlatformIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE)).thenReturn(userCryptosCoingeckoCryptoIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTO_ID_CACHE)).thenReturn(userCryptoIdCache);
         when(cacheManagerMock.getCache(USER_CRYPTOS_PAGE_CACHE)).thenReturn(userCryptosPageCache);
-        when(cacheManagerMock.getCache(TOTAL_BALANCES_CACHE)).thenReturn(totalBalancesCache);
-        when(cacheManagerMock.getCache(DATES_BALANCES_CACHE)).thenReturn(datesBalancesCache);
-        when(cacheManagerMock.getCache(PLATFORM_INSIGHTS_CACHE)).thenReturn(platformInsightsCache);
-        when(cacheManagerMock.getCache(CRYPTO_INSIGHTS_CACHE)).thenReturn(cryptoInsightsCache);
-        when(cacheManagerMock.getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE)).thenReturn(platformsBalancesInsightsCache);
-        when(cacheManagerMock.getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE)).thenReturn(cryptosBalancesInsightsCache);
 
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(USER_CRYPTOS_CACHES);
 
         assertTrue(userCryptosCacheCache.getNativeCache().isEmpty());
         assertTrue(userCryptosPlatformIdCache.getNativeCache().isEmpty());
         assertTrue(userCryptosCoingeckoCryptoIdCache.getNativeCache().isEmpty());
         assertTrue(userCryptoIdCache.getNativeCache().isEmpty());
         assertTrue(userCryptosPageCache.getNativeCache().isEmpty());
-        assertTrue(totalBalancesCache.getNativeCache().isEmpty());
-        assertTrue(datesBalancesCache.getNativeCache().isEmpty());
-        assertTrue(platformInsightsCache.getNativeCache().isEmpty());
-        assertTrue(cryptoInsightsCache.getNativeCache().isEmpty());
-        assertTrue(platformsBalancesInsightsCache.getNativeCache().isEmpty());
-        assertTrue(cryptosBalancesInsightsCache.getNativeCache().isEmpty());
 
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_PLATFORM_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTO_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(USER_CRYPTOS_PAGE_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(TOTAL_BALANCES_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(DATES_BALANCES_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(PLATFORM_INSIGHTS_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(CRYPTO_INSIGHTS_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE);
-        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE);
     }
 
     @Test
-    void shouldThrowNullPointerExceptionIfUserCryptosCachesDontExists() {
-        when(cacheManagerMock.getCache(USER_CRYPTOS_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(USER_CRYPTOS_PLATFORM_ID_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE)).thenReturn(null);
+    void shouldInvalidateCryptosCaches() {
+        var crypto = getBitcoinCryptoEntity();
+        var map = Map.of(List.of("bitcoin"), List.of(crypto));
+        var cache = getMapCache(CRYPTOS_CRYPTOS_IDS_CACHE, map);
 
-        assertThrows(
-            NullPointerException.class,
-            () -> cacheService.invalidateUserCryptosAndInsightsCaches()
-        );
+        when(cacheManagerMock.getCache(CRYPTOS_CRYPTOS_IDS_CACHE)).thenReturn(cache);
+
+        cacheService.invalidate(CRYPTOS_CACHES);
+
+        assertTrue(cache.getNativeCache().isEmpty());
+        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_CRYPTOS_IDS_CACHE);
     }
 
     @Test
-    void shouldInvalidatePlatformsCacheIfItExists() {
+    void shouldInvalidatePlatformsCaches() {
         var platform = new Platform("123e4567-e89b-12d3-a456-426614174000", "BINANCE");
         var platformsIdsMap = Map.of(List.of("123e4567-e89b-12d3-a456-426614174000"), List.of(platform));
         var allPlatformsMap = Map.of(SimpleKey.class, List.of(platform));
         var platformIdMap = Map.of("123e4567-e89b-12d3-a456-426614174000", platform);
 
-        var platformsIdsCache = new ConcurrentMapCache(PLATFORMS_PLATFORMS_IDS_CACHE, new ConcurrentHashMap<>(platformsIdsMap), false);
-        var allPlatformsCache = new ConcurrentMapCache(ALL_PLATFORMS_CACHE, new ConcurrentHashMap<>(allPlatformsMap), false);
-        var platformIdCache = new ConcurrentMapCache(PLATFORM_PLATFORM_ID_CACHE, new ConcurrentHashMap<>(platformIdMap), false);
+        var platformsIdsCache = getMapCache(PLATFORMS_PLATFORMS_IDS_CACHE, platformsIdsMap);
+        var allPlatformsCache = getMapCache(ALL_PLATFORMS_CACHE, allPlatformsMap);
+        var platformIdCache = getMapCache(PLATFORM_PLATFORM_ID_CACHE, platformIdMap);
 
         when(cacheManagerMock.getCache(PLATFORMS_PLATFORMS_IDS_CACHE)).thenReturn(platformsIdsCache);
         when(cacheManagerMock.getCache(ALL_PLATFORMS_CACHE)).thenReturn(allPlatformsCache);
         when(cacheManagerMock.getCache(PLATFORM_PLATFORM_ID_CACHE)).thenReturn(platformIdCache);
 
-        cacheService.invalidatePlatformsCaches();
+        cacheService.invalidate(PLATFORMS_CACHES);
 
-        var platformsIdsStore = platformsIdsCache.getNativeCache();
-        var allPlatformsStore = allPlatformsCache.getNativeCache();
-        var platformIdStore = platformIdCache.getNativeCache();
-
-        assertTrue(platformsIdsStore.isEmpty());
-        assertTrue(allPlatformsStore.isEmpty());
-        assertTrue(platformIdStore.isEmpty());
+        assertTrue(platformsIdsCache.getNativeCache().isEmpty());
+        assertTrue(allPlatformsCache.getNativeCache().isEmpty());
+        assertTrue(platformIdCache.getNativeCache().isEmpty());
         verify(cacheManagerMock, times(1)).getCache(PLATFORMS_PLATFORMS_IDS_CACHE);
         verify(cacheManagerMock, times(1)).getCache(ALL_PLATFORMS_CACHE);
         verify(cacheManagerMock, times(1)).getCache(PLATFORM_PLATFORM_ID_CACHE);
     }
 
     @Test
-    void shouldThrowNullPointerExceptionIfPlatformsCacheDoesNotExists() {
-        when(cacheManagerMock.getCache(PLATFORMS_PLATFORMS_IDS_CACHE)).thenReturn(null);
-
-        assertThrows(
-            NullPointerException.class,
-            () -> cacheService.invalidatePlatformsCaches()
-        );
-    }
-
-    @Test
-    void shouldInvalidateCryptosCacheIfItExists() {
-        var crypto = getBitcoinCryptoEntity();
-        var map = Map.of(List.of("bitcoin"), List.of(crypto));
-        var cache = new ConcurrentMapCache(CRYPTOS_CRYPTOS_IDS_CACHE, new ConcurrentHashMap<>(map), false);
-
-        when(cacheManagerMock.getCache(CRYPTOS_CRYPTOS_IDS_CACHE)).thenReturn(cache);
-
-        cacheService.invalidateCryptosCache();
-
-        var store = cache.getNativeCache();
-
-        assertTrue(store.isEmpty());
-        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_CRYPTOS_IDS_CACHE);
-    }
-
-    @Test
-    void shouldThrowNullPointerExceptionIfCryptosCacheDoesNotExists() {
-        when(cacheManagerMock.getCache(CRYPTOS_CRYPTOS_IDS_CACHE)).thenReturn(null);
-
-        assertThrows(
-            NullPointerException.class,
-            () -> cacheService.invalidateCryptosCache()
-        );
-    }
-
-    @Test
-    void shouldInvalidateGoalsCacheIfItExists() {
+    void shouldInvalidateGoalsCaches() {
         var goalResponseGoalIdMap = Map.of("123e4567-e89b-12d3-a456-426614174111", getGoalResponse());
         var pageGoalsResponsePageMap = Map.of(0, new PageGoalResponse(0, 1, List.of(getGoalResponse())));
 
-        var goalResponseGoalIdCache = new ConcurrentMapCache(GOAL_CACHE, new ConcurrentHashMap<>(goalResponseGoalIdMap), false);
-        var pageGoalsResponsePageCache = new ConcurrentMapCache(PAGE_GOALS_CACHE, new ConcurrentHashMap<>(pageGoalsResponsePageMap), false);
+        var goalResponseGoalIdCache = getMapCache(GOAL_CACHE, goalResponseGoalIdMap);
+        var pageGoalsResponsePageCache = getMapCache(PAGE_GOALS_CACHE, pageGoalsResponsePageMap);
 
         when(cacheManagerMock.getCache(GOAL_CACHE)).thenReturn(goalResponseGoalIdCache);
         when(cacheManagerMock.getCache(PAGE_GOALS_CACHE)).thenReturn(pageGoalsResponsePageCache);
 
-        cacheService.invalidateGoalsCaches();
+        cacheService.invalidate(GOALS_CACHES);
 
-        var goalResponseGoalIdStore = goalResponseGoalIdCache.getNativeCache();
-        var pageGoalsResponsePageStore = pageGoalsResponsePageCache.getNativeCache();
-
-        assertTrue(goalResponseGoalIdStore.isEmpty());
-        assertTrue(pageGoalsResponsePageStore.isEmpty());
+        assertTrue(goalResponseGoalIdCache.getNativeCache().isEmpty());
+        assertTrue(pageGoalsResponsePageCache.getNativeCache().isEmpty());
         verify(cacheManagerMock, times(1)).getCache(GOAL_CACHE);
         verify(cacheManagerMock, times(1)).getCache(PAGE_GOALS_CACHE);
     }
 
     @Test
-    void  shouldThrowNullPointerExceptionIfGoalsCacheDoesNotExists() {
-        when(cacheManagerMock.getCache(GOAL_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(PAGE_GOALS_CACHE)).thenReturn(null);
-
-        assertThrows(
-            NullPointerException.class,
-            () -> cacheService.invalidateGoalsCaches()
-        );
-    }
-
-    @Test
-    void  shouldInvalidatePriceTargetsCacheIfItExists() {
+    void  shouldInvalidatePriceTargetsCaches() {
         var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
         var priceTargetResponse = new PriceTargetResponse(
             "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
@@ -262,35 +186,97 @@ class CacheServiceTest {
         var priceTargetIdMap = Map.of("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTarget);
         var priceTargetResponsePageMap = Map.of(0, new PagePriceTargetResponse(0, 1, List.of(priceTargetResponse)));
 
-        var priceTargetIdCache = new ConcurrentMapCache(PRICE_TARGET_ID_CACHE, new ConcurrentHashMap<>(priceTargetIdMap), false);
-        var priceTargetResponsePageCache = new ConcurrentMapCache(PRICE_TARGET_PAGE_CACHE, new ConcurrentHashMap<>(priceTargetResponsePageMap), false);
+        var priceTargetIdCache = getMapCache(PRICE_TARGET_ID_CACHE, priceTargetIdMap);
+        var priceTargetResponsePageCache = getMapCache(PRICE_TARGET_PAGE_CACHE, priceTargetResponsePageMap);
 
         when(cacheManagerMock.getCache(PRICE_TARGET_ID_CACHE)).thenReturn(priceTargetIdCache);
         when(cacheManagerMock.getCache(PRICE_TARGET_PAGE_CACHE)).thenReturn(priceTargetResponsePageCache);
 
-        cacheService.invalidatePriceTargetCaches();
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
 
-        var priceTargetIdStore = priceTargetIdCache.getNativeCache();
-        var priceTargetResponsePageStore = priceTargetResponsePageCache.getNativeCache();
-
-        assertTrue(priceTargetIdStore.isEmpty());
-        assertTrue(priceTargetResponsePageStore.isEmpty());
+        assertTrue(priceTargetIdCache.getNativeCache().isEmpty());
+        assertTrue(priceTargetResponsePageCache.getNativeCache().isEmpty());
         verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_ID_CACHE);
         verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_PAGE_CACHE);
     }
 
     @Test
-    void  shouldThrowNullPointerExceptionIfPriceTargetsCacheDoesNotExists() {
-        when(cacheManagerMock.getCache(PRICE_TARGET_ID_CACHE)).thenReturn(null);
-        when(cacheManagerMock.getCache(PRICE_TARGET_PAGE_CACHE)).thenReturn(null);
+    void  shouldInvalidateInsightsCaches() {
+        var totalBalancesMap = Map.of(SimpleKey.class, new BalancesResponse("1000", "927.30", "0.015384615"));
+        var datesBalancesMap = Map.of(DateRange.class, getDateBalanceResponse());
+        var platformInsightsMap = Map.of(String.class, getPlatformInsightsResponse());
+        var cryptoInsightsMap = Map.of(String.class, getCryptoInsightResponse());
+        var platformsBalancesInsightsMap = Map.of(SimpleKey.class, getPlatformsBalancesInsightsResponse());
+        var cryptosBalancesInsightsMap = Map.of(SimpleKey.class, getCryptosBalancesInsightsResponse());
 
-        assertThrows(
-            NullPointerException.class,
-            () -> cacheService.invalidatePriceTargetCaches()
-        );
+        var totalBalancesCache = getMapCache(TOTAL_BALANCES_CACHE, totalBalancesMap);
+        var datesBalancesCache = getMapCache(DATES_BALANCES_CACHE, datesBalancesMap);
+        var platformInsightsCache = getMapCache(PLATFORM_INSIGHTS_CACHE, platformInsightsMap);
+        var cryptoInsightsCache = getMapCache(CRYPTO_INSIGHTS_CACHE, cryptoInsightsMap);
+        var platformsBalancesInsightsCache = getMapCache(PLATFORMS_BALANCES_INSIGHTS_CACHE, platformsBalancesInsightsMap);
+        var cryptosBalancesInsightsCache = getMapCache(CRYPTOS_BALANCES_INSIGHTS_CACHE, cryptosBalancesInsightsMap);
+
+        when(cacheManagerMock.getCache(TOTAL_BALANCES_CACHE)).thenReturn(totalBalancesCache);
+        when(cacheManagerMock.getCache(DATES_BALANCES_CACHE)).thenReturn(datesBalancesCache);
+        when(cacheManagerMock.getCache(PLATFORM_INSIGHTS_CACHE)).thenReturn(platformInsightsCache);
+        when(cacheManagerMock.getCache(CRYPTO_INSIGHTS_CACHE)).thenReturn(cryptoInsightsCache);
+        when(cacheManagerMock.getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE)).thenReturn(platformsBalancesInsightsCache);
+        when(cacheManagerMock.getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE)).thenReturn(cryptosBalancesInsightsCache);
+
+        cacheService.invalidate(INSIGHTS_CACHES);
+
+        assertTrue(totalBalancesCache.getNativeCache().isEmpty());
+        assertTrue(datesBalancesCache.getNativeCache().isEmpty());
+        assertTrue(platformInsightsCache.getNativeCache().isEmpty());
+        assertTrue(cryptoInsightsCache.getNativeCache().isEmpty());
+        assertTrue(platformsBalancesInsightsCache.getNativeCache().isEmpty());
+        assertTrue(cryptosBalancesInsightsCache.getNativeCache().isEmpty());
+
+        verify(cacheManagerMock, times(1)).getCache(TOTAL_BALANCES_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(DATES_BALANCES_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PLATFORM_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(CRYPTO_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PLATFORMS_BALANCES_INSIGHTS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_BALANCES_INSIGHTS_CACHE);
     }
 
-    public ConcurrentMapCache getMapCache(String name, Map<?, ?> map) {
+    @Test
+    void shouldInvalidateCaches() {
+        var crypto = getBitcoinCryptoEntity();
+        var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
+        var priceTargetResponse = new PriceTargetResponse(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            "Bitcoin",
+            "58000",
+            "120000",
+            50F
+        );
+
+        var cryptosIdsMap = Map.of(List.of("bitcoin"), List.of(crypto));
+        var priceTargetIdMap = Map.of("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTarget);
+        var priceTargetResponsePageMap = Map.of(0, new PagePriceTargetResponse(0, 1, List.of(priceTargetResponse)));
+
+        var cryptosIdsCache = getMapCache(CRYPTOS_CRYPTOS_IDS_CACHE, cryptosIdsMap);
+        var priceTargetIdCache = getMapCache(PRICE_TARGET_ID_CACHE, priceTargetIdMap);
+        var priceTargetResponsePageCache = getMapCache(PRICE_TARGET_PAGE_CACHE, priceTargetResponsePageMap);
+
+
+        when(cacheManagerMock.getCache(CRYPTOS_CRYPTOS_IDS_CACHE)).thenReturn(cryptosIdsCache);
+        when(cacheManagerMock.getCache(PRICE_TARGET_ID_CACHE)).thenReturn(priceTargetIdCache);
+        when(cacheManagerMock.getCache(PRICE_TARGET_PAGE_CACHE)).thenReturn(priceTargetResponsePageCache);
+
+        cacheService.invalidate(CRYPTOS_CACHES, PRICE_TARGETS_CACHES);
+
+        assertTrue(cryptosIdsCache.getNativeCache().isEmpty());
+        assertTrue(priceTargetIdCache.getNativeCache().isEmpty());
+        assertTrue(priceTargetResponsePageCache.getNativeCache().isEmpty());
+
+        verify(cacheManagerMock, times(1)).getCache(CRYPTOS_CRYPTOS_IDS_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_ID_CACHE);
+        verify(cacheManagerMock, times(1)).getCache(PRICE_TARGET_PAGE_CACHE);
+    }
+
+    private ConcurrentMapCache getMapCache(String name, Map<?, ?> map) {
         return new ConcurrentMapCache(name, new ConcurrentHashMap<>(map), false);
     }
 

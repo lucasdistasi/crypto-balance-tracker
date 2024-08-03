@@ -24,6 +24,9 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRY
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 
 @Slf4j
 @Service
@@ -70,13 +73,13 @@ public class UserCryptoService {
         userCryptoRepository.save(userCrypto);
 
         log.info("Saved user crypto {}", userCrypto.toSavedUserCryptoString());
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
 
         return userCrypto;
     }
 
     public UserCrypto updateUserCrypto(String userCryptoId, UserCryptoRequest userCryptoRequest) {
-        final UserCrypto userCrypto = self.findUserCryptoById(userCryptoId);
+        var userCrypto = self.findUserCryptoById(userCryptoId);
         var platform = userCrypto.getPlatform();
         var requestPlatform = platformService.retrievePlatformById(userCryptoRequest.platformId());
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(userCrypto.getCrypto().getId());
@@ -94,7 +97,7 @@ public class UserCryptoService {
         var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);
         log.info("Updating user crypto. Before: {} | After: {}", userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());
         userCryptoRepository.save(updatedUserCrypto);
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
 
         return updatedUserCrypto;
     }
@@ -103,7 +106,7 @@ public class UserCryptoService {
         var userCrypto = self.findUserCryptoById(userCryptoId);
         userCryptoRepository.deleteById(userCryptoId);
         cryptoService.deleteCryptoIfNotUsed(userCrypto.getCrypto().getId());
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
 
         log.info("Deleted user crypto {} from platform {}", userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());
     }
@@ -121,7 +124,7 @@ public class UserCryptoService {
 
     public void saveOrUpdateAll(List<UserCrypto> userCryptos) {
         userCryptoRepository.saveAll(userCryptos);
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
     }
 
     @Cacheable(cacheNames = USER_CRYPTOS_CACHE)

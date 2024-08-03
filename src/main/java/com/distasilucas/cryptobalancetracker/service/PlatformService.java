@@ -21,6 +21,9 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 
 @Slf4j
 @Service
@@ -56,7 +59,7 @@ public class PlatformService {
         validatePlatformDoesNotExist(platformRequest.name());
         var platformEntity = platformRequest.toEntity();
         platformRepository.save(platformEntity);
-        cacheService.invalidatePlatformsCaches();
+        cacheService.invalidate(PLATFORMS_CACHES);
         log.info("Saved platform {}", platformEntity);
 
         return platformEntity;
@@ -69,7 +72,7 @@ public class PlatformService {
 
         log.info("Updating platform. Before: {}. After: {}", platform, updatedPlatform);
         platformRepository.save(updatedPlatform);
-        cacheService.invalidatePlatformsCaches();
+        cacheService.invalidate(PLATFORMS_CACHES, USER_CRYPTOS_CACHES, INSIGHTS_CACHES);
 
         return updatedPlatform;
     }
@@ -77,10 +80,11 @@ public class PlatformService {
     public void deletePlatform(String platformId) {
         var platform = self.retrievePlatformById(platformId);
         var userCryptosToDelete = userCryptoRepository.findAllByPlatformId(platformId);
+        // use CryptoService.deleteCryptoIfNotUsed
         userCryptoRepository.deleteAll(userCryptosToDelete);
         platformRepository.delete(platform);
-        cacheService.invalidatePlatformsCaches();
-        cacheService.invalidateUserCryptosAndInsightsCaches();
+        cacheService.invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES); // TODO - invalidate user cryptos cache?
+
         log.info("Deleted platform {} and cryptos {}", platform, userCryptosToDelete);
     }
 

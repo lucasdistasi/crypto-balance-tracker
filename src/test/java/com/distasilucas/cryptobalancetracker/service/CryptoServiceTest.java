@@ -32,6 +32,7 @@ import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCry
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getCoingeckoCryptoInfo;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.CRYPTOS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -197,7 +198,7 @@ class CryptoServiceTest {
         cryptoService.retrieveCryptoInfoById("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
+        verify(cacheServiceMock, times(1)).invalidate(CRYPTOS_CACHES);
 
         assertThat(captor.getValue())
             .usingRecursiveComparison()
@@ -232,7 +233,7 @@ class CryptoServiceTest {
         cryptoService.retrieveCryptoInfoById("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
+        verify(cacheServiceMock, times(1)).invalidate(CRYPTOS_CACHES);
 
         assertThat(captor.getValue())
             .usingRecursiveComparison()
@@ -251,24 +252,26 @@ class CryptoServiceTest {
     }
 
     @Test
-    void shouldDeleteCryptoIfItIsNotBeingUsed() {
+    void shouldNotDeleteCryptoIfItsBeingUsedByUserCryptosTable() {
         when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.empty());
 
         cryptoService.deleteCryptoIfNotUsed("bitcoin");
 
         verify(cryptoRepositoryMock, never()).deleteById("bitcoin");
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
-    void shouldNotDeleteCryptoIfItsBeingUsedByUserCryptosTable() {
+    void shouldDeleteCryptoIfItIsNotBeingUsed() {
         var nonUsedCryptosView = new NonUsedCryptosView("bitcoin", "Bitcoin", "btc");
 
-        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoId("bitcoin")).thenReturn(Optional.of(nonUsedCryptosView));
+        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoId("bitcoin"))
+            .thenReturn(Optional.of(nonUsedCryptosView));
 
         cryptoService.deleteCryptoIfNotUsed("bitcoin");
 
         verify(cryptoRepositoryMock, times(1)).deleteById("bitcoin");
-        verify(cacheServiceMock, times(1)).invalidateCryptosCache();
+        verify(cacheServiceMock, times(1)).invalidate(CRYPTOS_CACHES);
     }
 
     @Test

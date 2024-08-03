@@ -4,6 +4,8 @@ import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
 import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.entity.view.NonUsedCryptosView;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
@@ -15,12 +17,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.CRYPTOS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 
 @Slf4j
 @Service
@@ -41,7 +46,7 @@ public class CryptoService {
             .orElseGet(() -> {
                 var crypto = getCrypto(coingeckoCryptoId);
                 cryptoRepository.save(crypto);
-                cacheService.invalidateCryptosCache();
+                cacheService.invalidate(CRYPTOS_CACHES);
 
                 log.info("Saved crypto {}", crypto);
 
@@ -65,7 +70,7 @@ public class CryptoService {
 
         nonUsedCryptos.ifPresent(nonUsedCrypto -> {
             cryptoRepository.deleteById(nonUsedCrypto.getId());
-            cacheService.invalidateCryptosCache();
+            cacheService.invalidate(CRYPTOS_CACHES);
             log.info("Deleted crypto [{}] - ({}) {} because it was not used", nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());
         });
     }

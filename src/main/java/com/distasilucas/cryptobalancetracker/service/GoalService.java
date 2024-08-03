@@ -8,6 +8,8 @@ import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,15 +18,18 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_CAC
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class GoalService {
 
     private final GoalRepository goalRepository;
     private final CryptoService cryptoService;
     private final CacheService cacheService;
+    private final GoalService self;
 
     @Cacheable(cacheNames = GOAL_CACHE, key = "#goalId")
     public Goal retrieveGoalById(String goalId) {
@@ -53,7 +58,7 @@ public class GoalService {
         var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());
         var goalEntity = goalRequest.toEntity(crypto);
         var goal = goalRepository.save(goalEntity);
-        cacheService.invalidateGoalsCaches();
+        cacheService.invalidate(GOALS_CACHES);
 
         log.info("Saved goal {}", goal);
 
@@ -61,24 +66,22 @@ public class GoalService {
     }
 
     public Goal updateGoal(String goalId, GoalRequest goalRequest) {
-        var goal = goalRepository.findById(goalId)
-            .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
+        var goal = self.retrieveGoalById(goalId);
         var updatedGoal = goal.withNewGoalQuantity(goalRequest.goalQuantity());
 
         log.info("Updating goal. Before: {} | After: {}", goal, updatedGoal);
         var goalUpdated = goalRepository.save(updatedGoal);
-        cacheService.invalidateGoalsCaches();
+        cacheService.invalidate(GOALS_CACHES);
 
         return goalUpdated;
     }
 
     public void deleteGoal(String goalId) {
-        var goal = goalRepository.findById(goalId)
-            .orElseThrow(() -> new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));
+        var goal = self.retrieveGoalById(goalId);
 
         goalRepository.deleteById(goalId);
         cryptoService.deleteCryptoIfNotUsed(goal.getCrypto().getId());
-        cacheService.invalidateGoalsCaches();
+        cacheService.invalidate(GOALS_CACHES);
 
         log.info("Deleted goal {}", goal);
     }

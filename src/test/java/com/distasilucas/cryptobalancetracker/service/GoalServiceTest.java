@@ -22,6 +22,7 @@ import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalEntity
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,12 +45,15 @@ class GoalServiceTest {
     @Mock
     private CacheService cacheServiceMock;
 
+    @Mock
+    private GoalService goalServiceMock;
+
     private GoalService goalService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, cacheServiceMock);
+        goalService = new GoalService(goalRepositoryMock, cryptoServiceMock, cacheServiceMock, goalServiceMock);
     }
 
     @Test
@@ -106,11 +110,11 @@ class GoalServiceTest {
 
         var goalResponse = goalService.saveGoal(goalRequest);
 
-        verify(goalRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
         assertThat(goalResponse)
             .usingRecursiveComparison()
             .isEqualTo(new Goal(captor.getValue().getId(), new BigDecimal("1"), getBitcoinCryptoEntity()));
+        verify(goalRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidate(GOALS_CACHES);
     }
 
     @Test
@@ -126,8 +130,9 @@ class GoalServiceTest {
             () -> goalService.saveGoal(goalRequest)
         );
 
-        verify(goalRepositoryMock, never()).save(any());
         assertEquals(DUPLICATED_GOAL.formatted("Bitcoin"), exception.getMessage());
+        verify(goalRepositoryMock, never()).save(any());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
@@ -137,36 +142,22 @@ class GoalServiceTest {
         var updatedGoal = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("0.75"), getBitcoinCryptoEntity());
         var captor = ArgumentCaptor.forClass(Goal.class);
 
-        when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.of(goal));
+        when(goalServiceMock.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(goal);
         when(goalRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
         var goalUpdated = goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest);
 
-        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
         assertThat(goalUpdated)
             .usingRecursiveComparison()
             .isEqualTo(updatedGoal);
-    }
-
-    @Test
-    void shouldThrowGoalNotFoundExceptionWhenUpdatingGoal() {
-        var goalRequest = getGoalRequest();
-
-        when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.empty());
-
-        var exception = assertThrows(
-            GoalNotFoundException.class,
-            () -> goalService.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)
-        );
-
-        assertEquals(GOAL_ID_NOT_FOUND.formatted("10e3c7c1-0732-4294-9410-9708a21128e3"), exception.getMessage());
+        verify(cacheServiceMock, times(1)).invalidate(GOALS_CACHES);
     }
 
     @Test
     void shouldDeleteGoal() {
         var goalEntity = new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
 
-        when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.of(goalEntity));
+        when(goalServiceMock.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(goalEntity);
         doNothing().when(goalRepositoryMock).deleteById("10e3c7c1-0732-4294-9410-9708a21128e3");
         doNothing().when(cryptoServiceMock).deleteCryptoIfNotUsed("bitcoin");
 
@@ -174,20 +165,7 @@ class GoalServiceTest {
 
         verify(goalRepositoryMock, times(1)).deleteById("10e3c7c1-0732-4294-9410-9708a21128e3");
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
-        verify(cacheServiceMock, times(1)).invalidateGoalsCaches();
-    }
-
-    @Test
-    void shouldThrowGoalNotFoundExceptionWhenDeletingGoal() {
-        when(goalRepositoryMock.findById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(Optional.empty());
-
-        var exception = assertThrows(
-            GoalNotFoundException.class,
-            () -> goalService.deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3")
-        );
-
-        verify(goalRepositoryMock, never()).deleteById("10e3c7c1-0732-4294-9410-9708a21128e3");
-        assertEquals(GOAL_ID_NOT_FOUND.formatted("10e3c7c1-0732-4294-9410-9708a21128e3"), exception.getMessage());
+        verify(cacheServiceMock, times(1)).invalidate(GOALS_CACHES);
     }
 
 }

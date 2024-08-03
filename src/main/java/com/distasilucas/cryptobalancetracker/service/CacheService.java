@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.model.CacheType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.CacheManager;
@@ -32,7 +33,26 @@ public class CacheService {
 
     private final CacheManager cacheManager;
 
-    public void invalidateUserCryptosAndInsightsCaches() {
+    public void invalidate(CacheType firstCache, CacheType ...caches) {
+        invalidate(firstCache);
+
+        for (CacheType cache : caches) {
+            invalidate(cache);
+        }
+    }
+
+    private void invalidate(CacheType cache) {
+        switch (cache) {
+            case USER_CRYPTOS_CACHES -> invalidateUserCryptosCaches();
+            case CRYPTOS_CACHES -> invalidateCryptosCache();
+            case PLATFORMS_CACHES -> invalidatePlatformsCaches();
+            case GOALS_CACHES -> invalidateGoalsCaches();
+            case PRICE_TARGETS_CACHES -> invalidatePriceTargetCaches();
+            case INSIGHTS_CACHES -> invalidateInsightsCache();
+        }
+    }
+
+    private void invalidateUserCryptosCaches() {
         log.info("Invalidating user cryptos cache");
 
         cacheManager.getCache(USER_CRYPTOS_CACHE).invalidate();
@@ -40,10 +60,9 @@ public class CacheService {
         cacheManager.getCache(USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE).invalidate();
         cacheManager.getCache(USER_CRYPTO_ID_CACHE).invalidate();
         cacheManager.getCache(USER_CRYPTOS_PAGE_CACHE).invalidate();
-        invalidateInsightsCache();
     }
 
-    public void invalidatePlatformsCaches() {
+    private void invalidatePlatformsCaches() {
         log.info("Invalidating platforms cache");
 
         cacheManager.getCache(PLATFORMS_PLATFORMS_IDS_CACHE).invalidate();
@@ -51,20 +70,20 @@ public class CacheService {
         cacheManager.getCache(PLATFORM_PLATFORM_ID_CACHE).invalidate();
     }
 
-    public void invalidateCryptosCache() {
+    private void invalidateCryptosCache() {
         log.info("Invalidating cryptos cache");
 
         cacheManager.getCache(CRYPTOS_CRYPTOS_IDS_CACHE).invalidate();
     }
 
-    public void invalidateGoalsCaches() {
+    private void invalidateGoalsCaches() {
         log.info("Invalidating goals cache");
 
         cacheManager.getCache(GOAL_CACHE).invalidate();
         cacheManager.getCache(PAGE_GOALS_CACHE).invalidate();
     }
 
-    public void invalidatePriceTargetCaches() {
+    private void invalidatePriceTargetCaches() {
         log.info("Invalidating price target caches");
 
         cacheManager.getCache(PRICE_TARGET_ID_CACHE).invalidate();

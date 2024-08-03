@@ -17,6 +17,9 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -109,7 +112,7 @@ class PlatformServiceTest {
         var platform = platformService.savePlatform(platformRequest);
 
         verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES);
         assertThat(platform)
             .usingRecursiveComparison()
             .isEqualTo(new Platform(platformArgumentCaptor.getValue().getId(), "BINANCE"));
@@ -140,7 +143,7 @@ class PlatformServiceTest {
         var platform = platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
 
         verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES, USER_CRYPTOS_CACHES, INSIGHTS_CACHES);
         assertThat(platform)
             .usingRecursiveComparison()
             .isEqualTo(platformEntity);
@@ -186,8 +189,7 @@ class PlatformServiceTest {
         platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
         verify(platformRepositoryMock, times(1)).delete(platformEntity);
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosAndInsightsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES);
     }
 
     @Test

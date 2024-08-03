@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 
 @Slf4j
 @Service
@@ -55,7 +56,7 @@ public class PriceTargetService {
         var priceTargetEntity = priceTargetRequest.toEntity(crypto);
 
         var priceTarget = priceTargetRepository.save(priceTargetEntity);
-        cacheService.invalidatePriceTargetCaches();
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
 
         return priceTarget;
     }
@@ -70,7 +71,7 @@ public class PriceTargetService {
         validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());
 
         var updatedPriceTarget = priceTargetRepository.save(priceTarget);
-        cacheService.invalidatePriceTargetCaches();
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
 
         return updatedPriceTarget;
     }
@@ -81,7 +82,7 @@ public class PriceTargetService {
 
         priceTargetRepository.delete(priceTarget);
         cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());
-        cacheService.invalidatePriceTargetCaches();
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
     }
 
     private void validatePriceTargetIsNotDuplicated(String coingeckoCryptoId, BigDecimal target) {
@@ -92,5 +93,4 @@ public class PriceTargetService {
             throw new DuplicatedPriceTargetException(message);
         }
     }
-
 }
