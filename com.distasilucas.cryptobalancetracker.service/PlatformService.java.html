@@ -21,8 +21,11 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 
-<span class="fc" id="L25">@Slf4j</span>
+<span class="fc" id="L28">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -35,70 +38,71 @@ public class PlatformService {
 
     @Cacheable(cacheNames = ALL_PLATFORMS_CACHE)
     public List&lt;Platform&gt; retrieveAllPlatforms() {
-<span class="fc" id="L38">        log.info(&quot;Retrieving all platforms&quot;);</span>
+<span class="fc" id="L41">        log.info(&quot;Retrieving all platforms&quot;);</span>
 
-<span class="fc" id="L40">        return platformRepository.findAll();</span>
+<span class="fc" id="L43">        return platformRepository.findAll();</span>
     }
 
     @Cacheable(cacheNames = PLATFORM_PLATFORM_ID_CACHE, key = &quot;#platformId&quot;)
     public Platform retrievePlatformById(String platformId) {
-<span class="fc" id="L45">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
+<span class="fc" id="L48">        log.info(&quot;Retrieving platform with id {}&quot;, platformId);</span>
 
-<span class="fc" id="L47">        return platformRepository.findById(platformId)</span>
-<span class="fc" id="L48">            .orElseThrow(() -&gt; {</span>
-<span class="fc" id="L49">                var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
+<span class="fc" id="L50">        return platformRepository.findById(platformId)</span>
+<span class="fc" id="L51">            .orElseThrow(() -&gt; {</span>
+<span class="fc" id="L52">                var message = PLATFORM_ID_NOT_FOUND.formatted(platformId);</span>
 
-<span class="fc" id="L51">                return new PlatformNotFoundException(message);</span>
+<span class="fc" id="L54">                return new PlatformNotFoundException(message);</span>
             });
     }
 
     public Platform savePlatform(PlatformRequest platformRequest) {
-<span class="fc" id="L56">        validatePlatformDoesNotExist(platformRequest.name());</span>
-<span class="fc" id="L57">        var platformEntity = platformRequest.toEntity();</span>
-<span class="fc" id="L58">        platformRepository.save(platformEntity);</span>
-<span class="fc" id="L59">        cacheService.invalidatePlatformsCaches();</span>
-<span class="fc" id="L60">        log.info(&quot;Saved platform {}&quot;, platformEntity);</span>
+<span class="fc" id="L59">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L60">        var platformEntity = platformRequest.toEntity();</span>
+<span class="fc" id="L61">        platformRepository.save(platformEntity);</span>
+<span class="fc" id="L62">        cacheService.invalidate(PLATFORMS_CACHES);</span>
+<span class="fc" id="L63">        log.info(&quot;Saved platform {}&quot;, platformEntity);</span>
 
-<span class="fc" id="L62">        return platformEntity;</span>
+<span class="fc" id="L65">        return platformEntity;</span>
     }
 
     public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
-<span class="fc" id="L66">        validatePlatformDoesNotExist(platformRequest.name());</span>
-<span class="fc" id="L67">        var platform = self.retrievePlatformById(platformId);</span>
-<span class="fc" id="L68">        var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());</span>
+<span class="fc" id="L69">        validatePlatformDoesNotExist(platformRequest.name());</span>
+<span class="fc" id="L70">        var platform = self.retrievePlatformById(platformId);</span>
+<span class="fc" id="L71">        var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());</span>
 
-<span class="fc" id="L70">        log.info(&quot;Updating platform. Before: {}. After: {}&quot;, platform, updatedPlatform);</span>
-<span class="fc" id="L71">        platformRepository.save(updatedPlatform);</span>
-<span class="fc" id="L72">        cacheService.invalidatePlatformsCaches();</span>
+<span class="fc" id="L73">        log.info(&quot;Updating platform. Before: {}. After: {}&quot;, platform, updatedPlatform);</span>
+<span class="fc" id="L74">        platformRepository.save(updatedPlatform);</span>
+<span class="fc" id="L75">        cacheService.invalidate(PLATFORMS_CACHES, USER_CRYPTOS_CACHES, INSIGHTS_CACHES);</span>
 
-<span class="fc" id="L74">        return updatedPlatform;</span>
+<span class="fc" id="L77">        return updatedPlatform;</span>
     }
 
     public void deletePlatform(String platformId) {
-<span class="fc" id="L78">        var platform = self.retrievePlatformById(platformId);</span>
-<span class="fc" id="L79">        var userCryptosToDelete = userCryptoRepository.findAllByPlatformId(platformId);</span>
-<span class="fc" id="L80">        userCryptoRepository.deleteAll(userCryptosToDelete);</span>
-<span class="fc" id="L81">        platformRepository.delete(platform);</span>
-<span class="fc" id="L82">        cacheService.invalidatePlatformsCaches();</span>
-<span class="fc" id="L83">        cacheService.invalidateUserCryptosAndInsightsCaches();</span>
-<span class="fc" id="L84">        log.info(&quot;Deleted platform {} and cryptos {}&quot;, platform, userCryptosToDelete);</span>
-<span class="fc" id="L85">    }</span>
+<span class="fc" id="L81">        var platform = self.retrievePlatformById(platformId);</span>
+<span class="fc" id="L82">        var userCryptosToDelete = userCryptoRepository.findAllByPlatformId(platformId);</span>
+        // use CryptoService.deleteCryptoIfNotUsed
+<span class="fc" id="L84">        userCryptoRepository.deleteAll(userCryptosToDelete);</span>
+<span class="fc" id="L85">        platformRepository.delete(platform);</span>
+<span class="fc" id="L86">        cacheService.invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES); // TODO - invalidate user cryptos cache?</span>
+
+<span class="fc" id="L88">        log.info(&quot;Deleted platform {} and cryptos {}&quot;, platform, userCryptosToDelete);</span>
+<span class="fc" id="L89">    }</span>
 
     @Cacheable(cacheNames = PLATFORMS_PLATFORMS_IDS_CACHE, key = &quot;#ids&quot;)
     public List&lt;Platform&gt; findAllByIds(Collection&lt;String&gt; ids) {
-<span class="fc" id="L89">        log.info(&quot;Retrieving platforms for ids {}&quot;, ids);</span>
+<span class="fc" id="L93">        log.info(&quot;Retrieving platforms for ids {}&quot;, ids);</span>
 
-<span class="fc" id="L91">        return platformRepository.findAllByIdIn(ids);</span>
+<span class="fc" id="L95">        return platformRepository.findAllByIdIn(ids);</span>
     }
 
     private void validatePlatformDoesNotExist(String platformName) {
-<span class="fc" id="L95">        var platform = platformRepository.findByName(platformName.toUpperCase());</span>
+<span class="fc" id="L99">        var platform = platformRepository.findByName(platformName.toUpperCase());</span>
 
-<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (platform.isPresent()) {</span>
-<span class="fc" id="L98">            var message = DUPLICATED_PLATFORM.formatted(platformName.toUpperCase());</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">        if (platform.isPresent()) {</span>
+<span class="fc" id="L102">            var message = DUPLICATED_PLATFORM.formatted(platformName.toUpperCase());</span>
 
-<span class="fc" id="L100">            throw new DuplicatedPlatformException(message);</span>
+<span class="fc" id="L104">            throw new DuplicatedPlatformException(message);</span>
         }
-<span class="fc" id="L102">    }</span>
+<span class="fc" id="L106">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -8,6 +8,8 @@ import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -16,71 +18,72 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.GOAL_CAC
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PAGE_GOALS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_GOAL;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.GOAL_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.GOALS_CACHES;
 
-<span class="fc" id="L20">@Slf4j</span>
+<span class="fc" id="L23">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class GoalService {
 
     private final GoalRepository goalRepository;
     private final CryptoService cryptoService;
     private final CacheService cacheService;
+    private final GoalService self;
 
     @Cacheable(cacheNames = GOAL_CACHE, key = &quot;#goalId&quot;)
     public Goal retrieveGoalById(String goalId) {
-<span class="fc" id="L31">        log.info(&quot;Retrieving goal for id {}&quot;, goalId);</span>
+<span class="fc" id="L36">        log.info(&quot;Retrieving goal for id {}&quot;, goalId);</span>
 
-<span class="fc" id="L33">        return goalRepository.findById(goalId)</span>
-<span class="fc" id="L34">            .orElseThrow(() -&gt; new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));</span>
+<span class="fc" id="L38">        return goalRepository.findById(goalId)</span>
+<span class="fc" id="L39">            .orElseThrow(() -&gt; new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));</span>
     }
 
     @Cacheable(cacheNames = PAGE_GOALS_CACHE, key = &quot;#page&quot;)
     public Page&lt;Goal&gt; retrieveGoalsForPage(int page) {
-<span class="fc" id="L39">        log.info(&quot;Retrieving pageGoals for page {}&quot;, page);</span>
-<span class="fc" id="L40">        var pageRequest = PageRequest.of(page, 10);</span>
+<span class="fc" id="L44">        log.info(&quot;Retrieving pageGoals for page {}&quot;, page);</span>
+<span class="fc" id="L45">        var pageRequest = PageRequest.of(page, 10);</span>
 
-<span class="fc" id="L42">        return goalRepository.findAll(pageRequest);</span>
+<span class="fc" id="L47">        return goalRepository.findAll(pageRequest);</span>
     }
 
     public Goal saveGoal(GoalRequest goalRequest) {
-<span class="fc" id="L46">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(goalRequest.cryptoName());</span>
-<span class="fc" id="L47">        var existingGoal = goalRepository.findByCoingeckoCryptoId(coingeckoCrypto.id());</span>
+<span class="fc" id="L51">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(goalRequest.cryptoName());</span>
+<span class="fc" id="L52">        var existingGoal = goalRepository.findByCoingeckoCryptoId(coingeckoCrypto.id());</span>
 
-<span class="fc bfc" id="L49" title="All 2 branches covered.">        if (existingGoal.isPresent()) {</span>
-<span class="fc" id="L50">            throw new DuplicatedGoalException(DUPLICATED_GOAL.formatted(coingeckoCrypto.name()));</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (existingGoal.isPresent()) {</span>
+<span class="fc" id="L55">            throw new DuplicatedGoalException(DUPLICATED_GOAL.formatted(coingeckoCrypto.name()));</span>
         }
 
-<span class="fc" id="L53">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
-<span class="fc" id="L54">        var goalEntity = goalRequest.toEntity(crypto);</span>
-<span class="fc" id="L55">        var goal = goalRepository.save(goalEntity);</span>
-<span class="fc" id="L56">        cacheService.invalidateGoalsCaches();</span>
+<span class="fc" id="L58">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
+<span class="fc" id="L59">        var goalEntity = goalRequest.toEntity(crypto);</span>
+<span class="fc" id="L60">        var goal = goalRepository.save(goalEntity);</span>
+<span class="fc" id="L61">        cacheService.invalidate(GOALS_CACHES);</span>
 
-<span class="fc" id="L58">        log.info(&quot;Saved goal {}&quot;, goal);</span>
+<span class="fc" id="L63">        log.info(&quot;Saved goal {}&quot;, goal);</span>
 
-<span class="fc" id="L60">        return goal;</span>
+<span class="fc" id="L65">        return goal;</span>
     }
 
     public Goal updateGoal(String goalId, GoalRequest goalRequest) {
-<span class="fc" id="L64">        var goal = goalRepository.findById(goalId)</span>
-<span class="fc" id="L65">            .orElseThrow(() -&gt; new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));</span>
-<span class="fc" id="L66">        var updatedGoal = goal.withNewGoalQuantity(goalRequest.goalQuantity());</span>
+<span class="fc" id="L69">        var goal = self.retrieveGoalById(goalId);</span>
+<span class="fc" id="L70">        var updatedGoal = goal.withNewGoalQuantity(goalRequest.goalQuantity());</span>
 
-<span class="fc" id="L68">        log.info(&quot;Updating goal. Before: {} | After: {}&quot;, goal, updatedGoal);</span>
-<span class="fc" id="L69">        var goalUpdated = goalRepository.save(updatedGoal);</span>
-<span class="fc" id="L70">        cacheService.invalidateGoalsCaches();</span>
+<span class="fc" id="L72">        log.info(&quot;Updating goal. Before: {} | After: {}&quot;, goal, updatedGoal);</span>
+<span class="fc" id="L73">        var goalUpdated = goalRepository.save(updatedGoal);</span>
+<span class="fc" id="L74">        cacheService.invalidate(GOALS_CACHES);</span>
 
-<span class="fc" id="L72">        return goalUpdated;</span>
+<span class="fc" id="L76">        return goalUpdated;</span>
     }
 
     public void deleteGoal(String goalId) {
-<span class="fc" id="L76">        var goal = goalRepository.findById(goalId)</span>
-<span class="fc" id="L77">            .orElseThrow(() -&gt; new GoalNotFoundException(GOAL_ID_NOT_FOUND.formatted(goalId)));</span>
+<span class="fc" id="L80">        var goal = self.retrieveGoalById(goalId);</span>
 
-<span class="fc" id="L79">        goalRepository.deleteById(goalId);</span>
-<span class="fc" id="L80">        cryptoService.deleteCryptoIfNotUsed(goal.getCrypto().getId());</span>
-<span class="fc" id="L81">        cacheService.invalidateGoalsCaches();</span>
+<span class="fc" id="L82">        goalRepository.deleteById(goalId);</span>
+<span class="fc" id="L83">        cryptoService.deleteCryptoIfNotUsed(goal.getCrypto().getId());</span>
+<span class="fc" id="L84">        cacheService.invalidate(GOALS_CACHES);</span>
 
-<span class="fc" id="L83">        log.info(&quot;Deleted goal {}&quot;, goal);</span>
-<span class="fc" id="L84">    }</span>
+<span class="fc" id="L86">        log.info(&quot;Deleted goal {}&quot;, goal);</span>
+<span class="fc" id="L87">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

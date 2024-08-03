@@ -18,8 +18,9 @@ import java.math.BigDecimal;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 
-<span class="fc" id="L22">@Slf4j</span>
+<span class="fc" id="L23">@Slf4j</span>
 @Service
 @RequiredArgsConstructor
 @Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
@@ -32,66 +33,65 @@ public class PriceTargetService {
 
     @Cacheable(cacheNames = PRICE_TARGET_ID_CACHE, key = &quot;#priceTargetId&quot;)
     public PriceTarget retrievePriceTargetById(String priceTargetId) {
-<span class="fc" id="L35">        log.info(&quot;Retrieving price target for id {}&quot;, priceTargetId);</span>
+<span class="fc" id="L36">        log.info(&quot;Retrieving price target for id {}&quot;, priceTargetId);</span>
 
-<span class="fc" id="L37">        return priceTargetRepository.findById(priceTargetId)</span>
-<span class="fc" id="L38">            .orElseThrow(() -&gt; new PriceTargetNotFoundException(String.format(&quot;Price target with id %s not found&quot;, priceTargetId)));</span>
+<span class="fc" id="L38">        return priceTargetRepository.findById(priceTargetId)</span>
+<span class="fc" id="L39">            .orElseThrow(() -&gt; new PriceTargetNotFoundException(String.format(&quot;Price target with id %s not found&quot;, priceTargetId)));</span>
     }
 
     @Cacheable(cacheNames = PRICE_TARGET_PAGE_CACHE, key = &quot;#page&quot;)
     public Page&lt;PriceTarget&gt; retrievePriceTargetsByPage(int page) {
-<span class="fc" id="L43">        log.info(&quot;Retrieving price targets for page {}&quot;, page);</span>
-<span class="fc" id="L44">        var pageRequest = PageRequest.of(page, 10);</span>
+<span class="fc" id="L44">        log.info(&quot;Retrieving price targets for page {}&quot;, page);</span>
+<span class="fc" id="L45">        var pageRequest = PageRequest.of(page, 10);</span>
 
-<span class="fc" id="L46">        return priceTargetRepository.findAll(pageRequest);</span>
+<span class="fc" id="L47">        return priceTargetRepository.findAll(pageRequest);</span>
     }
 
     public PriceTarget savePriceTarget(PriceTargetRequest priceTargetRequest) {
-<span class="fc" id="L50">        log.info(&quot;Saving price target {}&quot;, priceTargetRequest);</span>
+<span class="fc" id="L51">        log.info(&quot;Saving price target {}&quot;, priceTargetRequest);</span>
 
-<span class="fc" id="L52">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());</span>
-<span class="fc" id="L53">        validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());</span>
-<span class="fc" id="L54">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
-<span class="fc" id="L55">        var priceTargetEntity = priceTargetRequest.toEntity(crypto);</span>
+<span class="fc" id="L53">        var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());</span>
+<span class="fc" id="L54">        validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());</span>
+<span class="fc" id="L55">        var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());</span>
+<span class="fc" id="L56">        var priceTargetEntity = priceTargetRequest.toEntity(crypto);</span>
 
-<span class="fc" id="L57">        var priceTarget = priceTargetRepository.save(priceTargetEntity);</span>
-<span class="fc" id="L58">        cacheService.invalidatePriceTargetCaches();</span>
+<span class="fc" id="L58">        var priceTarget = priceTargetRepository.save(priceTargetEntity);</span>
+<span class="fc" id="L59">        cacheService.invalidate(PRICE_TARGETS_CACHES);</span>
 
-<span class="fc" id="L60">        return priceTarget;</span>
+<span class="fc" id="L61">        return priceTarget;</span>
     }
 
     public PriceTarget updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
-<span class="fc" id="L64">        log.info(&quot;Updating price target for id {}. New value: {}&quot;, priceTargetId, priceTargetRequest);</span>
+<span class="fc" id="L65">        log.info(&quot;Updating price target for id {}. New value: {}&quot;, priceTargetId, priceTargetRequest);</span>
 
-<span class="fc" id="L66">        var priceTarget = self.retrievePriceTargetById(priceTargetId);</span>
-<span class="fc" id="L67">        priceTarget.setTarget(priceTargetRequest.priceTarget());</span>
+<span class="fc" id="L67">        var priceTarget = self.retrievePriceTargetById(priceTargetId);</span>
+<span class="fc" id="L68">        priceTarget.setTarget(priceTargetRequest.priceTarget());</span>
 
-<span class="fc" id="L69">        var coingeckoCryptoId = priceTarget.getCrypto().getId();</span>
-<span class="fc" id="L70">        validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());</span>
+<span class="fc" id="L70">        var coingeckoCryptoId = priceTarget.getCrypto().getId();</span>
+<span class="fc" id="L71">        validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());</span>
 
-<span class="fc" id="L72">        var updatedPriceTarget = priceTargetRepository.save(priceTarget);</span>
-<span class="fc" id="L73">        cacheService.invalidatePriceTargetCaches();</span>
+<span class="fc" id="L73">        var updatedPriceTarget = priceTargetRepository.save(priceTarget);</span>
+<span class="fc" id="L74">        cacheService.invalidate(PRICE_TARGETS_CACHES);</span>
 
-<span class="fc" id="L75">        return updatedPriceTarget;</span>
+<span class="fc" id="L76">        return updatedPriceTarget;</span>
     }
 
     public void deletePriceTarget(String priceTargetId) {
-<span class="fc" id="L79">        log.info(&quot;Deleting price target for id {}&quot;, priceTargetId);</span>
-<span class="fc" id="L80">        var priceTarget = self.retrievePriceTargetById(priceTargetId);</span>
+<span class="fc" id="L80">        log.info(&quot;Deleting price target for id {}&quot;, priceTargetId);</span>
+<span class="fc" id="L81">        var priceTarget = self.retrievePriceTargetById(priceTargetId);</span>
 
-<span class="fc" id="L82">        priceTargetRepository.delete(priceTarget);</span>
-<span class="fc" id="L83">        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());</span>
-<span class="fc" id="L84">        cacheService.invalidatePriceTargetCaches();</span>
-<span class="fc" id="L85">    }</span>
+<span class="fc" id="L83">        priceTargetRepository.delete(priceTarget);</span>
+<span class="fc" id="L84">        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());</span>
+<span class="fc" id="L85">        cacheService.invalidate(PRICE_TARGETS_CACHES);</span>
+<span class="fc" id="L86">    }</span>
 
     private void validatePriceTargetIsNotDuplicated(String coingeckoCryptoId, BigDecimal target) {
-<span class="fc" id="L88">        var message = String.format(&quot;You already have a price target for %s at that price&quot;, coingeckoCryptoId);</span>
-<span class="fc" id="L89">        var optionalPriceTarget = priceTargetRepository.findByCoingeckoCryptoIdAndTarget(coingeckoCryptoId, target);</span>
+<span class="fc" id="L89">        var message = String.format(&quot;You already have a price target for %s at that price&quot;, coingeckoCryptoId);</span>
+<span class="fc" id="L90">        var optionalPriceTarget = priceTargetRepository.findByCoingeckoCryptoIdAndTarget(coingeckoCryptoId, target);</span>
 
-<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (optionalPriceTarget.isPresent()) {</span>
-<span class="fc" id="L92">            throw new DuplicatedPriceTargetException(message);</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        if (optionalPriceTarget.isPresent()) {</span>
+<span class="fc" id="L93">            throw new DuplicatedPriceTargetException(message);</span>
         }
-<span class="fc" id="L94">    }</span>
-
+<span class="fc" id="L95">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
