@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -272,6 +273,30 @@ class CryptoServiceTest {
 
         verify(cryptoRepositoryMock, times(1)).deleteById("bitcoin");
         verify(cacheServiceMock, times(1)).invalidate(CRYPTOS_CACHES);
+    }
+
+    @Test
+    void shouldDeleteNotUsedCryptos() {
+        var nonUsedCryptosView = new NonUsedCryptosView("ethereum", "Ethereum", "eth");
+
+        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoIds(List.of("bitcoin", "ethereum")))
+            .thenReturn(List.of(nonUsedCryptosView));
+
+        cryptoService.deleteCryptosIfNotUsed(List.of("bitcoin", "ethereum"));
+
+        verify(cryptoRepositoryMock, times(1)).deleteAllById(List.of("ethereum"));
+        verify(cacheServiceMock, times(1)).invalidate(CRYPTOS_CACHES);
+    }
+
+    @Test
+    void shouldNotDeleteIfNotUsedCryptosItsEmpty() {
+        when(nonUsedCryptosViewRepositoryMock.findNonUsedCryptosByCoingeckoCryptoIds(List.of("bitcoin", "ethereum")))
+            .thenReturn(Collections.emptyList());
+
+        cryptoService.deleteCryptosIfNotUsed(List.of("bitcoin", "ethereum"));
+
+        verify(cryptoRepositoryMock, never()).deleteAllById(any());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test

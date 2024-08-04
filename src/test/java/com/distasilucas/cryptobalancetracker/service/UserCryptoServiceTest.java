@@ -348,6 +348,30 @@ class UserCryptoServiceTest {
     }
 
     @Test
+    void shouldDeleteUserCryptos() {
+        var userCrypto = getUserCrypto();
+
+        doNothing().when(userCryptoRepositoryMock).deleteAll(List.of(userCrypto));
+        doNothing().when(cryptoServiceMock).deleteCryptosIfNotUsed(List.of("bitcoin"));
+        doNothing().when(cacheServiceMock).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
+
+        userCryptoService.deleteUserCryptos(List.of(userCrypto));
+
+        verify(userCryptoRepositoryMock, times(1)).deleteAll(List.of(userCrypto));
+        verify(cryptoServiceMock, times(1)).deleteCryptosIfNotUsed(List.of("bitcoin"));
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
+    }
+
+    @Test
+    void shouldNotDeleteUserCryptosIfListItsEmpty() {
+        userCryptoService.deleteUserCryptos(Collections.emptyList());
+
+        verify(userCryptoRepositoryMock, never()).deleteAll(any());
+        verify(cryptoServiceMock, never()).deleteCryptosIfNotUsed(any());
+        verify(cacheServiceMock, never()).invalidate(any());
+    }
+
+    @Test
     void shouldFindAllByCoingeckoCryptoId() {
         var userCrypto = getUserCrypto();
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");

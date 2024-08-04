@@ -75,6 +75,18 @@ public class CryptoService {
         });
     }
 
+    public void deleteCryptosIfNotUsed(List<String> coingeckoCryptoIds) {
+        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoIds(coingeckoCryptoIds);
+
+        if (!nonUsedCryptos.isEmpty()) {
+            var nonUsedCryptosIds = nonUsedCryptos.stream().map(NonUsedCryptosView::getId).toList();
+            cryptoRepository.deleteAllById(nonUsedCryptosIds);
+            cacheService.invalidate(CRYPTOS_CACHES);
+
+            log.info("Deleted cryptos {} because they were not used", nonUsedCryptosIds);
+        }
+    }
+
     public List<Crypto> findOldestNCryptosByLastPriceUpdate(LocalDateTime localDateTime, int limit) {
         log.info("Retrieving {} cryptos with date filter {}", limit, localDateTime);
 

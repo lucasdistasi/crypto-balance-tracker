@@ -19,8 +19,8 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -109,6 +109,17 @@ public class UserCryptoService {
         cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
 
         log.info("Deleted user crypto {} from platform {}", userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());
+    }
+
+    public void deleteUserCryptos(List<UserCrypto> userCryptos) {
+        if (!userCryptos.isEmpty()) {
+            var coingeckoCryptoIds = userCryptos.stream().map(userCrypto -> userCrypto.getCrypto().getId()).toList();
+            userCryptoRepository.deleteAll(userCryptos);
+            cryptoService.deleteCryptosIfNotUsed(coingeckoCryptoIds);
+            cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
+
+            log.info("Deleted user cryptos {}", coingeckoCryptoIds);
+        }
     }
 
     @Cacheable(cacheNames = USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, key = "#coingeckoCryptoId")

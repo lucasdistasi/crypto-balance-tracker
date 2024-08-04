@@ -1,20 +1,23 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
 import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
@@ -34,7 +37,7 @@ class PlatformServiceTest {
     private PlatformRepository platformRepositoryMock;
 
     @Mock
-    private UserCryptoRepository userCryptoRepositoryMock;
+    private UserCryptoService userCryptoServiceMock;
 
     @Mock
     private CacheService cacheServiceMock;
@@ -47,7 +50,7 @@ class PlatformServiceTest {
     @BeforeEach
     void setUp() {
         openMocks(this);
-        platformService = new PlatformService(platformRepositoryMock, userCryptoRepositoryMock, cacheServiceMock, platformServiceMock);
+        platformService = new PlatformService(platformRepositoryMock, userCryptoServiceMock, cacheServiceMock, platformServiceMock);
     }
 
     @Test
@@ -183,11 +186,20 @@ class PlatformServiceTest {
     @Test
     void shouldDeletePlatformSuccessfully() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
         when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
+        when(userCryptoServiceMock.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenReturn(List.of(userCrypto));
 
         platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
+        verify(userCryptoServiceMock, times(1)).deleteUserCryptos(List.of(userCrypto));
         verify(platformRepositoryMock, times(1)).delete(platformEntity);
         verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES);
     }
