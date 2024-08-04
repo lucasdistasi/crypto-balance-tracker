@@ -19,8 +19,8 @@ import java.util.Optional;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE;
-import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTOS_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.USER_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_CRYPTO_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.USER_CRYPTO_ID_NOT_FOUND;
@@ -111,38 +111,49 @@ public class UserCryptoService {
 <span class="fc" id="L111">        log.info(&quot;Deleted user crypto {} from platform {}&quot;, userCrypto.getCrypto().getCryptoInfo().getName(), userCrypto.getPlatform().getName());</span>
 <span class="fc" id="L112">    }</span>
 
+    public void deleteUserCryptos(List&lt;UserCrypto&gt; userCryptos) {
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (!userCryptos.isEmpty()) {</span>
+<span class="fc" id="L116">            var coingeckoCryptoIds = userCryptos.stream().map(userCrypto -&gt; userCrypto.getCrypto().getId()).toList();</span>
+<span class="fc" id="L117">            userCryptoRepository.deleteAll(userCryptos);</span>
+<span class="fc" id="L118">            cryptoService.deleteCryptosIfNotUsed(coingeckoCryptoIds);</span>
+<span class="fc" id="L119">            cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);</span>
+
+<span class="fc" id="L121">            log.info(&quot;Deleted user cryptos {}&quot;, coingeckoCryptoIds);</span>
+        }
+<span class="fc" id="L123">    }</span>
+
     @Cacheable(cacheNames = USER_CRYPTOS_COINGECKO_CRYPTO_ID_CACHE, key = &quot;#coingeckoCryptoId&quot;)
     public List&lt;UserCrypto&gt; findAllByCoingeckoCryptoId(String coingeckoCryptoId) {
-<span class="fc" id="L116">        log.info(&quot;Retrieving all user cryptos matching coingecko crypto id {}&quot;, coingeckoCryptoId);</span>
+<span class="fc" id="L127">        log.info(&quot;Retrieving all user cryptos matching coingecko crypto id {}&quot;, coingeckoCryptoId);</span>
 
-<span class="fc" id="L118">        return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);</span>
+<span class="fc" id="L129">        return userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);</span>
     }
 
     public Optional&lt;UserCrypto&gt; findByCoingeckoCryptoIdAndPlatformId(String cryptoId, String platformId) {
-<span class="fc" id="L122">        return userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(cryptoId, platformId);</span>
+<span class="fc" id="L133">        return userCryptoRepository.findByCoingeckoCryptoIdAndPlatformId(cryptoId, platformId);</span>
     }
 
     public void saveOrUpdateAll(List&lt;UserCrypto&gt; userCryptos) {
-<span class="fc" id="L126">        userCryptoRepository.saveAll(userCryptos);</span>
-<span class="fc" id="L127">        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);</span>
-<span class="fc" id="L128">    }</span>
+<span class="fc" id="L137">        userCryptoRepository.saveAll(userCryptos);</span>
+<span class="fc" id="L138">        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);</span>
+<span class="fc" id="L139">    }</span>
 
     @Cacheable(cacheNames = USER_CRYPTOS_CACHE)
     public List&lt;UserCrypto&gt; findAll() {
-<span class="fc" id="L132">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
+<span class="fc" id="L143">        log.info(&quot;Retrieving all user cryptos&quot;);</span>
 
-<span class="fc" id="L134">        return userCryptoRepository.findAll();</span>
+<span class="fc" id="L145">        return userCryptoRepository.findAll();</span>
     }
 
     @Cacheable(cacheNames = USER_CRYPTOS_PLATFORM_ID_CACHE, key = &quot;#platformId&quot;)
     public List&lt;UserCrypto&gt; findAllByPlatformId(String platformId) {
-<span class="fc" id="L139">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
+<span class="fc" id="L150">        log.info(&quot;Retrieving all user cryptos for platformId {}&quot;, platformId);</span>
 
-<span class="fc" id="L141">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
+<span class="fc" id="L152">        return userCryptoRepository.findAllByPlatformId(platformId);</span>
     }
 
     private boolean didChangePlatform(String newPlatform, String originalPlatform) {
-<span class="fc bfc" id="L145" title="All 2 branches covered.">        return !newPlatform.equalsIgnoreCase(originalPlatform);</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">        return !newPlatform.equalsIgnoreCase(originalPlatform);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
