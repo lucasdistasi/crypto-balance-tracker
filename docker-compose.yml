@@ -12,7 +12,9 @@ services:
       - postgres-crypto-db-volume:/var/lib/postgresql/data
 
   crypto-balance-tracker-java:
-    image: 'crypto-balance-tracker-java:latest'
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: 'crypto-balance-tracker-java'
     depends_on:
       - postgresql-crypto-db
@@ -26,7 +28,9 @@ services:
       - '8080:8080'
 
   crypto-balance-tracker-ui:
-    image: 'crypto-balance-tracker-ui:latest'
+    build:
+      context: ../crypto-balance-tracker-ui
+      dockerfile: Dockerfile
     container_name: 'crypto-balance-tracker-ui'
     depends_on:
       - crypto-balance-tracker-java

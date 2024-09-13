@@ -97,7 +97,7 @@ public class UserCryptoService {
         var updatedUserCrypto = userCrypto.toUpdatedUserCrypto(userCryptoRequest.quantity(), platform);
         log.info("Updating user crypto. Before: {} | After: {}", userCrypto.toUpdatedUserCryptoString(), updatedUserCrypto.toUpdatedUserCryptoString());
         userCryptoRepository.save(updatedUserCrypto);
-        cacheService.invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
+        cacheService.invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
 
         return updatedUserCrypto;
     }
