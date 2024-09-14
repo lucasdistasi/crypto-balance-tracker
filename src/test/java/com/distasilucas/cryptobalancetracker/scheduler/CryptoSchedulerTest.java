@@ -11,6 +11,7 @@ import com.distasilucas.cryptobalancetracker.service.CoingeckoService;
 import com.distasilucas.cryptobalancetracker.service.CryptoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientResponseException;
@@ -30,6 +31,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -61,59 +63,48 @@ class CryptoSchedulerTest {
 
     @Test
     void shouldUpdateTop9CryptosInformationFromTheLast5Minutes() {
+        Class<List<Crypto>> listClass = (Class<List<Crypto>>)(Class)List.class;
+        ArgumentCaptor<List<Crypto>> captor = ArgumentCaptor.forClass(listClass);
+        var bitcoinCryptoEntity = getBitcoinCryptoEntity();
+
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
             "bitcoin",
-            "Bitcoin",
-            "btc",
-            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            new BigDecimal("21000000"),
-            1,
-            new BigDecimal("813208997089"),
-            new BigDecimal("10.00"),
-            new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            bitcoinCryptoEntity.getCryptoInfo(),
+            bitcoinCryptoEntity.getLastKnownPrices(),
+            bitcoinCryptoEntity.getChangePercentages(),
             localDateTime
         );
         var coingeckoCryptoInfo = getCoingeckoCryptoInfo();
+        var updatedCryptos = List.of(cryptoEntity);
 
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoServiceMock.findOldestNCryptosByLastPriceUpdate(localDateTime.minusMinutes(MINUTES), LIMIT))
-            .thenReturn(List.of(cryptoEntity));
+            .thenReturn(updatedCryptos);
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
-        doNothing().when(cryptoServiceMock).updateCryptos(List.of(cryptoEntity));
+        doAnswer(answer -> captor.getValue()).when(cryptoServiceMock).updateCryptos(captor.capture());
 
         cryptoScheduler.updateCryptosInformation();
 
         verify(coingeckoServiceMock, times(1)).retrieveCryptoInfo("bitcoin");
-        verify(cryptoServiceMock, times(1)).updateCryptos(List.of(cryptoEntity));
+        verify(cryptoServiceMock, times(1)).updateCryptos(captor.getValue());
     }
 
     @Test
     void shouldUpdateTop9CryptosInformationFromTheLast5MinutesWithZeroAsMaxSupply() {
+        Class<List<Crypto>> listClass = (Class<List<Crypto>>)(Class)List.class;
+        ArgumentCaptor<List<Crypto>> captor = ArgumentCaptor.forClass(listClass);
+        var bitcoinCryptoEntity = getBitcoinCryptoEntity();
+
         var localDateTime = LocalDateTime.of(2023, 5, 3, 18, 55, 0);
         var zonedDateTime = ZonedDateTime.of(2023, 5, 3, 19, 0, 0, 0, ZoneId.of("UTC"));
         var cryptoEntity = new Crypto(
             "bitcoin",
-            "Bitcoin",
-            "btc",
-            "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            BigDecimal.ZERO,
-            1,
-            new BigDecimal("813208997089"),
-            new BigDecimal("10.00"),
-            new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            bitcoinCryptoEntity.getCryptoInfo(),
+            bitcoinCryptoEntity.getLastKnownPrices(),
+            bitcoinCryptoEntity.getChangePercentages(),
             localDateTime
         );
         var image = new Image("https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579");
@@ -128,18 +119,19 @@ class CryptoSchedulerTest {
             new BigDecimal("0.00")
         );
         var coingeckoCryptoInfo = new CoingeckoCryptoInfo("bitcoin", "btc", "Bitcoin", image, 1, marketData);
+        var updatedCryptos = List.of(cryptoEntity);
 
         when(clockMock.instant()).thenReturn(localDateTime.toInstant(ZoneOffset.UTC));
         when(clockMock.getZone()).thenReturn(zonedDateTime.getZone());
         when(cryptoServiceMock.findOldestNCryptosByLastPriceUpdate(localDateTime.minusMinutes(MINUTES), LIMIT))
-            .thenReturn(List.of(cryptoEntity));
+            .thenReturn(updatedCryptos);
         when(coingeckoServiceMock.retrieveCryptoInfo("bitcoin")).thenReturn(coingeckoCryptoInfo);
-        doNothing().when(cryptoServiceMock).updateCryptos(List.of(cryptoEntity));
+        doAnswer(answer -> captor.getValue()).when(cryptoServiceMock).updateCryptos(captor.capture());
 
         cryptoScheduler.updateCryptosInformation();
 
         verify(coingeckoServiceMock, times(1)).retrieveCryptoInfo("bitcoin");
-        verify(cryptoServiceMock, times(1)).updateCryptos(List.of(cryptoEntity));
+        verify(cryptoServiceMock, times(1)).updateCryptos(captor.getValue());
     }
 
     @Test

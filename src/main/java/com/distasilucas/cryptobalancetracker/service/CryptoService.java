@@ -1,25 +1,31 @@
 package com.distasilucas.cryptobalancetracker.service;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
+import com.distasilucas.cryptobalancetracker.entity.view.NonUsedCryptosView;
 import com.distasilucas.cryptobalancetracker.exception.CoingeckoCryptoNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
 import com.distasilucas.cryptobalancetracker.repository.CryptoRepository;
-import com.distasilucas.cryptobalancetracker.repository.GoalRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
+import com.distasilucas.cryptobalancetracker.repository.view.NonUsedCryptosViewRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTOS_CRYPTOS_IDS_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.CRYPTO_COINGECKO_CRYPTO_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.COINGECKO_CRYPTO_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.CRYPTOS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 
 @Slf4j
 @Service
@@ -28,8 +34,7 @@ public class CryptoService {
 
     private final CoingeckoService coingeckoService;
     private final CryptoRepository cryptoRepository;
-    private final UserCryptoRepository userCryptoRepository;
-    private final GoalRepository goalRepository;
+    private final NonUsedCryptosViewRepository nonUsedCryptosViewRepository;
     private final CacheService cacheService;
     private final Clock clock;
 
@@ -37,17 +42,16 @@ public class CryptoService {
     public Crypto retrieveCryptoInfoById(String coingeckoCryptoId) {
         log.info("Retrieving crypto info for id {}", coingeckoCryptoId);
 
-        var cryptoOptional = cryptoRepository.findById(coingeckoCryptoId);
+        return cryptoRepository.findById(coingeckoCryptoId)
+            .orElseGet(() -> {
+                var crypto = getCrypto(coingeckoCryptoId);
+                cryptoRepository.save(crypto);
+                cacheService.invalidate(CRYPTOS_CACHES);
 
-        if (cryptoOptional.isPresent()) {
-            return cryptoOptional.get();
-        }
+                log.info("Saved crypto {}", crypto);
 
-        var cryptoToSave = getCrypto(coingeckoCryptoId);
-
-        log.info("Saved crypto {} because it didn't exist", cryptoToSave);
-
-        return cryptoRepository.save(cryptoToSave);
+                return crypto;
+            });
     }
 
     public CoingeckoCrypto retrieveCoingeckoCryptoInfoByNameOrId(String cryptoNameOrId) {
@@ -61,29 +65,25 @@ public class CryptoService {
             .orElseThrow(() -> new CoingeckoCryptoNotFoundException(COINGECKO_CRYPTO_NOT_FOUND.formatted(cryptoNameOrId)));
     }
 
-    public void saveCryptoIfNotExists(String coingeckoCryptoId) {
-        var cryptoOptional = cryptoRepository.findById(coingeckoCryptoId);
+    public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {
+        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoId(coingeckoCryptoId);
 
-        if (cryptoOptional.isEmpty()) {
-            var crypto = getCrypto(coingeckoCryptoId);
-            cryptoRepository.save(crypto);
-            cacheService.invalidateCryptosCache();
-
-            log.info("Saved crypto {}", crypto);
-        }
+        nonUsedCryptos.ifPresent(nonUsedCrypto -> {
+            cryptoRepository.deleteById(nonUsedCrypto.getId());
+            cacheService.invalidate(CRYPTOS_CACHES);
+            log.info("Deleted crypto [{}] - ({}) {} because it was not used", nonUsedCrypto.getId(), nonUsedCrypto.getTicker(), nonUsedCrypto.getName());
+        });
     }
 
-    public void deleteCryptoIfNotUsed(String coingeckoCryptoId) {
-        var userCryptos = userCryptoRepository.findAllByCoingeckoCryptoId(coingeckoCryptoId);
+    public void deleteCryptosIfNotUsed(List<String> coingeckoCryptoIds) {
+        var nonUsedCryptos = nonUsedCryptosViewRepository.findNonUsedCryptosByCoingeckoCryptoIds(coingeckoCryptoIds);
 
-        if (userCryptos.isEmpty()) {
-            var goal = goalRepository.findByCoingeckoCryptoId(coingeckoCryptoId);
+        if (!nonUsedCryptos.isEmpty()) {
+            var nonUsedCryptosIds = nonUsedCryptos.stream().map(NonUsedCryptosView::getId).toList();
+            cryptoRepository.deleteAllById(nonUsedCryptosIds);
+            cacheService.invalidate(CRYPTOS_CACHES);
 
-            if (goal.isEmpty()) {
-                cryptoRepository.deleteById(coingeckoCryptoId);
-                cacheService.invalidateCryptosCache();
-                log.info("Deleted crypto {} because it was not used", coingeckoCryptoId);
-            }
+            log.info("Deleted cryptos {} because they were not used", nonUsedCryptosIds);
         }
     }
 
@@ -96,7 +96,7 @@ public class CryptoService {
     public void updateCryptos(List<Crypto> cryptosToUpdate) {
         cryptoRepository.saveAll(cryptosToUpdate);
         var cryptosNames = cryptosToUpdate.stream()
-            .map(Crypto::name)
+            .map(crypto -> crypto.getCryptoInfo().getName())
             .toList();
 
         log.info("Updated cryptos: {}", cryptosNames);
@@ -112,26 +112,10 @@ public class CryptoService {
     private Crypto getCrypto(String coingeckoCryptoId) {
         var coingeckoCryptoInfo = coingeckoService.retrieveCryptoInfo(coingeckoCryptoId);
         var marketData = coingeckoCryptoInfo.marketData();
-        var maxSupply = marketData.maxSupply() != null ?
-            marketData.maxSupply() :
-            BigDecimal.ZERO;
+        var cryptoInfo = new CryptoInfo(coingeckoCryptoInfo);
+        var lastKnownPrices = new LastKnownPrices(marketData);
+        var changePercentages = new ChangePercentages(marketData);
 
-        return new Crypto(
-            coingeckoCryptoId,
-            coingeckoCryptoInfo.name(),
-            coingeckoCryptoInfo.symbol(),
-            coingeckoCryptoInfo.image().large(),
-            marketData.currentPrice().usd(),
-            marketData.currentPrice().eur(),
-            marketData.currentPrice().btc(),
-            marketData.circulatingSupply(),
-            maxSupply,
-            coingeckoCryptoInfo.marketCapRank(),
-            marketData.marketCap().usd(),
-            marketData.changePercentageIn24h(),
-            marketData.changePercentageIn7d(),
-            marketData.changePercentageIn30d(),
-            LocalDateTime.now(clock)
-        );
+        return new Crypto(coingeckoCryptoId, cryptoInfo, lastKnownPrices, changePercentages, LocalDateTime.now(clock));
     }
 }

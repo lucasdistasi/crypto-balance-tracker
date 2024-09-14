@@ -1,13 +1,12 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.FromPlatform;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.ToPlatform;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.TransferCryptoResponse;
-import com.distasilucas.cryptobalancetracker.model.response.usercrypto.UserCryptoResponse;
 import com.distasilucas.cryptobalancetracker.service.TransferCryptoService;
 import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -25,6 +26,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.deleteUserCrypto;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getFileContent;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getUserCrypto;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveUserCryptoById;
@@ -77,10 +80,9 @@ class UserCryptoControllerMvcTest {
     @Test
     void shouldRetrieveUserCryptoByIdWithStatus200() throws Exception {
         var userCrypto = getUserCrypto();
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");
 
-        when(userCryptoServiceMock.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
-            .thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
+            .thenReturn(userCrypto);
 
         mockMvc.perform(retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
             .andExpect(status().isOk())
@@ -92,17 +94,17 @@ class UserCryptoControllerMvcTest {
 
     @Test
     void shouldRetrieveUserCryptoWithMaxValueWithStatus200() throws Exception {
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var bitcoin = getBitcoinCryptoEntity();
         var userCrypto = new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("9999999999999999.999999999999"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity,
+            bitcoin
         );
 
-        var userCryptoResponse = userCrypto.toUserCryptoResponse("Bitcoin", "BINANCE");
-
-        when(userCryptoServiceMock.retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
-            .thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.findUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
+            .thenReturn(userCrypto);
 
         mockMvc.perform(retrieveUserCryptoById("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
             .andExpect(status().isOk())
@@ -129,16 +131,15 @@ class UserCryptoControllerMvcTest {
 
     @Test
     void shouldRetrieveUserCryptosForPageWithStatus200() throws Exception {
-        var userCryptoResponse = new UserCryptoResponse(
-            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "Bitcoin",
-            "0.5",
-            "Binance"
+        var userCrypto = new UserCrypto(
+            "123e4567-e89b-12d3-a456-426614174222",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
         );
+        var page = new PageImpl<>(List.of(userCrypto), PageRequest.of(0, 10), 1);
 
-        var pageUserCryptoResponse = new PageUserCryptoResponse(1, 1, false, List.of(userCryptoResponse));
-
-        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(pageUserCryptoResponse);
+        when(userCryptoServiceMock.retrieveUserCryptosByPage(0)).thenReturn(page);
 
         mockMvc.perform(retrieveUserCryptosForPage(0))
             .andExpect(status().isOk())
@@ -147,17 +148,17 @@ class UserCryptoControllerMvcTest {
             .andExpect(jsonPath("$.hasNextPage", is(false)))
             .andExpect(jsonPath("$.cryptos").isArray())
             .andExpect(jsonPath("$.cryptos", hasSize(1)))
-            .andExpect(jsonPath("$.cryptos.[0].id", is("af827ac7-d642-4461-a73c-b31ca6f6d13d")))
+            .andExpect(jsonPath("$.cryptos.[0].id", is("123e4567-e89b-12d3-a456-426614174222")))
             .andExpect(jsonPath("$.cryptos.[0].cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.cryptos.[0].platform", is("Binance")))
-            .andExpect(jsonPath("$.cryptos.[0].quantity", is("0.5")));
+            .andExpect(jsonPath("$.cryptos.[0].platform", is("BINANCE")))
+            .andExpect(jsonPath("$.cryptos.[0].quantity", is("1")));
     }
 
     @Test
     void shouldReturnEmptyUserCryptosForPageWithStatus204() throws Exception {
-        var pageUserCryptoResponse = new PageUserCryptoResponse(5, 5, emptyList());
+        var page = new PageImpl<UserCrypto>(emptyList(), PageRequest.of(5, 10), 5);
 
-        when(userCryptoServiceMock.retrieveUserCryptosByPage(5)).thenReturn(pageUserCryptoResponse);
+        when(userCryptoServiceMock.retrieveUserCryptosByPage(5)).thenReturn(page);
 
         mockMvc.perform(retrieveUserCryptosForPage(5))
             .andExpect(status().isNoContent());
@@ -178,43 +179,44 @@ class UserCryptoControllerMvcTest {
     void shouldSaveUserCryptoWithStatus200() throws Exception {
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted("bitcoin", new BigDecimal("1"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
+        var userCrypto = new UserCrypto(
+            "123e4567-e89b-12d3-a456-426614174222",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
+        var userCryptoRequest = new UserCryptoRequest("bitcoin", new BigDecimal(1), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        var userCryptoResponse = new UserCryptoResponse("af827ac7-d642-4461-a73c-b31ca6f6d13d", "Bitcoin", "1", "Binance");
-
-        when(userCryptoServiceMock.saveUserCrypto(
-            new UserCryptoRequest("bitcoin", new BigDecimal(1), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
-        )).thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCrypto);
 
         mockMvc.perform(saveUserCrypto(content))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", is("af827ac7-d642-4461-a73c-b31ca6f6d13d")))
+            .andExpect(jsonPath("$.id", is("123e4567-e89b-12d3-a456-426614174222")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
             .andExpect(jsonPath("$.quantity", is("1")))
-            .andExpect(jsonPath("$.platform", is("Binance")));
+            .andExpect(jsonPath("$.platform", is("BINANCE")));
     }
 
     @Test
     void shouldSaveUserCryptoWithStatus200WithMaxQuantity() throws Exception {
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted("bitcoin", new BigDecimal("9999999999999999.999999999999"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
-
-        var userCryptoResponse = new UserCryptoResponse(
-            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "Bitcoin",
-            "9999999999999999.999999999999",
-            "Binance"
+        var userCrypto = new UserCrypto(
+            "123e4567-e89b-12d3-a456-426614174222",
+            new BigDecimal("9999999999999999.999999999999"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
         );
+        var userCryptoRequest = new UserCryptoRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        when(userCryptoServiceMock.saveUserCrypto(
-            new UserCryptoRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"), "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")
-        )).thenReturn(userCryptoResponse);
+        when(userCryptoServiceMock.saveUserCrypto(userCryptoRequest)).thenReturn(userCrypto);
 
         mockMvc.perform(saveUserCrypto(content))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.id", is("af827ac7-d642-4461-a73c-b31ca6f6d13d")))
+            .andExpect(jsonPath("$.id", is("123e4567-e89b-12d3-a456-426614174222")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
             .andExpect(jsonPath("$.quantity", is("9999999999999999.999999999999")))
-            .andExpect(jsonPath("$.platform", is("Binance")));
+            .andExpect(jsonPath("$.platform", is("BINANCE")));
     }
 
     @Test
@@ -406,28 +408,27 @@ class UserCryptoControllerMvcTest {
     @Test
     void shouldUpdateUserCryptoWithStatus200() throws Exception {
         var cryptoName = "bitcoin";
-        var quantity = new BigDecimal("9999999999999999.999999999999");
+        var quantity = new BigDecimal("5");
         var platformId = "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6";
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted(cryptoName, quantity, platformId);
         var userCryptoRequest = new UserCryptoRequest(cryptoName, quantity, platformId);
-
-        var userCryptoResponse = new UserCryptoResponse(
+        var userCrypto = new UserCrypto(
             "123e4567-e89b-12d3-a456-426614174222",
-            "Bitcoin",
-            "9999999999999999.999999999999",
-            "Binance"
+            new BigDecimal("5"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
         );
 
         when(userCryptoServiceMock.updateUserCrypto("123e4567-e89b-12d3-a456-426614174222", userCryptoRequest))
-            .thenReturn(userCryptoResponse);
+            .thenReturn(userCrypto);
 
         mockMvc.perform(updateUserCrypto("123e4567-e89b-12d3-a456-426614174222", content))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id", is("123e4567-e89b-12d3-a456-426614174222")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.quantity", is("9999999999999999.999999999999")))
-            .andExpect(jsonPath("$.platform", is("Binance")));
+            .andExpect(jsonPath("$.quantity", is("5")))
+            .andExpect(jsonPath("$.platform", is("BINANCE")));
     }
 
     @Test
@@ -438,19 +439,22 @@ class UserCryptoControllerMvcTest {
         var content = getFileContent("request/platform/save_update_user_crypto.json")
             .formatted(cryptoName, quantity, platformId);
         var userCryptoRequest = new UserCryptoRequest(cryptoName, quantity, platformId);
-        var userCryptoResponse = new UserCryptoResponse(
-            "123e4567-e89b-12d3-a456-426614174222", "Bitcoin", "9999999999999999.999999999999", "Binance"
+        var userCrypto = new UserCrypto(
+            "123e4567-e89b-12d3-a456-426614174222",
+            new BigDecimal("9999999999999999.999999999999"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
         );
 
         when(userCryptoServiceMock.updateUserCrypto("123e4567-e89b-12d3-a456-426614174222", userCryptoRequest))
-            .thenReturn(userCryptoResponse);
+            .thenReturn(userCrypto);
 
         mockMvc.perform(updateUserCrypto("123e4567-e89b-12d3-a456-426614174222", content))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.id", is("123e4567-e89b-12d3-a456-426614174222")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
             .andExpect(jsonPath("$.quantity", is("9999999999999999.999999999999")))
-            .andExpect(jsonPath("$.platform", is("Binance")));
+            .andExpect(jsonPath("$.platform", is("BINANCE")));
     }
 
     @Test
@@ -654,11 +658,11 @@ class UserCryptoControllerMvcTest {
     }
 
     @Test
-    void shouldDeleteUserCryptoWithStatus200() throws Exception {
+    void shouldDeleteUserCryptoWithStatus204() throws Exception {
         doNothing().when(userCryptoServiceMock).deleteUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d");
 
         mockMvc.perform(deleteUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d"))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 
     @ParameterizedTest

@@ -1,6 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.UserCryptoControllerAPI;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.TransferCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.request.usercrypto.UserCryptoRequest;
 import com.distasilucas.cryptobalancetracker.model.response.usercrypto.PageUserCryptoResponse;
@@ -46,9 +47,9 @@ public class UserCryptoController implements UserCryptoControllerAPI {
         @PathVariable
         String userCryptoId
     ) {
-        var userCrypto = userCryptoService.retrieveUserCryptoById(userCryptoId);
+        var userCrypto = userCryptoService.findUserCryptoById(userCryptoId);
 
-        return ResponseEntity.ok(userCrypto);
+        return ResponseEntity.ok(userCrypto.toUserCryptoResponse());
     }
 
     @Override
@@ -60,9 +61,17 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     ) {
         var userCryptos = userCryptoService.retrieveUserCryptosByPage(page);
 
-        return userCryptos.cryptos().isEmpty() ?
-            ResponseEntity.noContent().build() :
-            ResponseEntity.ok(userCryptos);
+        if (userCryptos.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            var userCryptosResponse = userCryptos.getContent()
+                .stream()
+                .map(UserCrypto::toUserCryptoResponse)
+                .toList();
+            var pageUserCryptos = new PageUserCryptoResponse(page, userCryptos.getTotalPages(), userCryptosResponse);
+
+            return ResponseEntity.ok(pageUserCryptos);
+        }
     }
 
     @Override
@@ -70,7 +79,7 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     public ResponseEntity<UserCryptoResponse> saveUserCrypto(@Valid @RequestBody UserCryptoRequest userCryptoRequest) {
         var userCrypto = userCryptoService.saveUserCrypto(userCryptoRequest);
 
-        return ResponseEntity.ok(userCrypto);
+        return ResponseEntity.ok(userCrypto.toUserCryptoResponse());
     }
 
     @Override
@@ -85,19 +94,19 @@ public class UserCryptoController implements UserCryptoControllerAPI {
     ) {
         var userCrypto = userCryptoService.updateUserCrypto(userCryptoId, userCryptoRequest);
 
-        return ResponseEntity.ok(userCrypto);
+        return ResponseEntity.ok(userCrypto.toUserCryptoResponse());
     }
 
     @Override
     @DeleteMapping("/{userCryptoId}")
-    public ResponseEntity<UserCryptoResponse> deleteUserCrypto(
+    public ResponseEntity<Void> deleteUserCrypto(
         @UUID(message = USER_CRYPTO_ID_UUID)
         @PathVariable
         String userCryptoId
     ) {
         userCryptoService.deleteUserCrypto(userCryptoId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @Override

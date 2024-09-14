@@ -1,7 +1,6 @@
 package com.distasilucas.cryptobalancetracker.scheduler;
 
 import com.distasilucas.cryptobalancetracker.entity.DateBalance;
-import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
 import com.distasilucas.cryptobalancetracker.repository.DateBalanceRepository;
 import com.distasilucas.cryptobalancetracker.service.InsightsService;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.LocalDate;
 
 @Slf4j
 @Component
@@ -26,20 +24,17 @@ public class DateBalanceScheduler {
     public void saveDateBalance() {
         log.info("Running cron to save daily balance");
 
-        var now = LocalDateTime.now(clock).toLocalDate().atTime(LocalTime.of(23, 59, 59, 0));
-        var totalUSDBalance = insightsService.retrieveTotalBalancesInsights()
-            .map(BalancesResponse::totalUSDBalance);
+        var now = LocalDate.now(clock);
+        var totalBalances = insightsService.retrieveTotalBalancesInsights();
         var optionalDateBalance = dateBalancesRepository.findDateBalanceByDate(now);
 
-        totalUSDBalance.ifPresent(balance -> optionalDateBalance.ifPresentOrElse(
-            dateBalance -> {
-                log.info("Updating balance for date {}. Old Balance: {}. New balance {}", now, dateBalance.balance(), balance);
-                dateBalancesRepository.save(new DateBalance(dateBalance.id(), now, balance));
-            },
-            () -> {
-                log.info("Saving balance {} for date {}", balance, now);
-                dateBalancesRepository.save(new DateBalance(now, balance));
-            }
-        ));
+        optionalDateBalance.ifPresentOrElse(dateBalance -> {
+            var updatedDateBalances = new DateBalance(dateBalance.getId(), now, totalBalances);
+            log.info("Updating balances for date {}. Old Balance: {}. New balances {}", now, dateBalance, updatedDateBalances);
+            dateBalancesRepository.save(updatedDateBalances);
+        }, () -> {
+            log.info("Saving balances {} for date {}", totalBalances, now);
+            dateBalancesRepository.save(new DateBalance(now, totalBalances));
+        });
     }
 }

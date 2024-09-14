@@ -5,10 +5,11 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformExcepti
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -19,15 +20,29 @@ import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM
 import static com.distasilucas.cryptobalancetracker.constants.Constants.PLATFORM_PLATFORM_ID_CACHE;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class PlatformService {
 
     private final PlatformRepository platformRepository;
-    private final UserCryptoRepository userCryptoRepository;
+    private final UserCryptoService userCryptoService;
     private final CacheService cacheService;
+    private final PlatformService self;
+
+    public PlatformService(PlatformRepository platformRepository,
+                           @Lazy UserCryptoService userCryptoService,
+                           CacheService cacheService,
+                           PlatformService self) {
+        this.platformRepository = platformRepository;
+        this.userCryptoService = userCryptoService;
+        this.cacheService = cacheService;
+        this.self = self;
+    }
 
     @Cacheable(cacheNames = ALL_PLATFORMS_CACHE)
     public List<Platform> retrieveAllPlatforms() {
@@ -52,7 +67,7 @@ public class PlatformService {
         validatePlatformDoesNotExist(platformRequest.name());
         var platformEntity = platformRequest.toEntity();
         platformRepository.save(platformEntity);
-        cacheService.invalidatePlatformsCaches();
+        cacheService.invalidate(PLATFORMS_CACHES);
         log.info("Saved platform {}", platformEntity);
 
         return platformEntity;
@@ -60,23 +75,24 @@ public class PlatformService {
 
     public Platform updatePlatform(String platformId, PlatformRequest platformRequest) {
         validatePlatformDoesNotExist(platformRequest.name());
-        var platform = retrievePlatformById(platformId);
-        var updatedPlatform = new Platform(platform.id(), platformRequest.name().toUpperCase());
-        platformRepository.save(updatedPlatform);
-        cacheService.invalidatePlatformsCaches();
+        var platform = self.retrievePlatformById(platformId);
+        var updatedPlatform = new Platform(platform.getId(), platformRequest.name().toUpperCase());
 
-        log.info("Updated platform. Before: {}. After: {}", platform, updatedPlatform);
+        log.info("Updating platform. Before: {}. After: {}", platform, updatedPlatform);
+        platformRepository.save(updatedPlatform);
+        cacheService.invalidate(PLATFORMS_CACHES, USER_CRYPTOS_CACHES, INSIGHTS_CACHES);
 
         return updatedPlatform;
     }
 
     public void deletePlatform(String platformId) {
-        var platform = retrievePlatformById(platformId);
-        var userCryptosToDelete = userCryptoRepository.findAllByPlatformId(platformId);
-        userCryptoRepository.deleteAll(userCryptosToDelete);
+        var platform = self.retrievePlatformById(platformId);
+        var userCryptosToDelete = userCryptoService.findAllByPlatformId(platformId);
+
+        userCryptoService.deleteUserCryptos(userCryptosToDelete);
         platformRepository.delete(platform);
-        cacheService.invalidatePlatformsCaches();
-        cacheService.invalidateUserCryptosCaches();
+        cacheService.invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES);
+
         log.info("Deleted platform {} and cryptos {}", platform, userCryptosToDelete);
     }
 

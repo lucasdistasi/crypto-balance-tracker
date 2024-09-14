@@ -1,22 +1,28 @@
 package com.distasilucas.cryptobalancetracker.service;
 
 import com.distasilucas.cryptobalancetracker.entity.Platform;
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPlatformException;
 import com.distasilucas.cryptobalancetracker.exception.PlatformNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.platform.PlatformRequest;
 import com.distasilucas.cryptobalancetracker.repository.PlatformRepository;
-import com.distasilucas.cryptobalancetracker.repository.UserCryptoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.DUPLICATED_PLATFORM;
 import static com.distasilucas.cryptobalancetracker.constants.ExceptionConstants.PLATFORM_ID_NOT_FOUND;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.INSIGHTS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PLATFORMS_CACHES;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.USER_CRYPTOS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,17 +37,20 @@ class PlatformServiceTest {
     private PlatformRepository platformRepositoryMock;
 
     @Mock
-    private UserCryptoRepository userCryptoRepositoryMock;
+    private UserCryptoService userCryptoServiceMock;
 
     @Mock
     private CacheService cacheServiceMock;
+
+    @Mock
+    private PlatformService platformServiceMock;
 
     private PlatformService platformService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        platformService = new PlatformService(platformRepositoryMock, userCryptoRepositoryMock, cacheServiceMock);
+        platformService = new PlatformService(platformRepositoryMock, userCryptoServiceMock, cacheServiceMock, platformServiceMock);
     }
 
     @Test
@@ -106,10 +115,10 @@ class PlatformServiceTest {
         var platform = platformService.savePlatform(platformRequest);
 
         verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES);
         assertThat(platform)
             .usingRecursiveComparison()
-            .isEqualTo(new Platform(platformArgumentCaptor.getValue().id(), "BINANCE"));
+            .isEqualTo(new Platform(platformArgumentCaptor.getValue().getId(), "BINANCE"));
     }
 
     @Test
@@ -126,17 +135,18 @@ class PlatformServiceTest {
 
     @Test
     void shouldUpdatePlatformSuccessfully() {
+        var platformArgumentCaptor = ArgumentCaptor.forClass(Platform.class);
         var platformRequest = new PlatformRequest("bybit");
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BYBIT");
         var existingPlatform = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.of(existingPlatform));
-        when(platformRepositoryMock.save(platformEntity)).thenReturn(platformEntity);
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(existingPlatform);
+        when(platformRepositoryMock.save(platformArgumentCaptor.capture())).thenAnswer(answer -> platformArgumentCaptor.getValue());
 
         var platform = platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest);
 
-        verify(platformRepositoryMock, times(1)).save(platformEntity);
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
+        verify(platformRepositoryMock, times(1)).save(platformArgumentCaptor.getValue());
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES, USER_CRYPTOS_CACHES, INSIGHTS_CACHES);
         assertThat(platform)
             .usingRecursiveComparison()
             .isEqualTo(platformEntity);
@@ -162,7 +172,9 @@ class PlatformServiceTest {
         var platformRequest = new PlatformRequest("bybit");
         var expectedMessage = PLATFORM_ID_NOT_FOUND.formatted("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenThrow(new PlatformNotFoundException(expectedMessage));
+
         var exception = assertThrows(
             PlatformNotFoundException.class,
             () -> platformService.updatePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", platformRequest)
@@ -174,21 +186,31 @@ class PlatformServiceTest {
     @Test
     void shouldDeletePlatformSuccessfully() {
         var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.of(platformEntity));
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(platformEntity);
+        when(userCryptoServiceMock.findAllByPlatformId("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenReturn(List.of(userCrypto));
 
         platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
+        verify(userCryptoServiceMock, times(1)).deleteUserCryptos(List.of(userCrypto));
         verify(platformRepositoryMock, times(1)).delete(platformEntity);
-        verify(cacheServiceMock, times(1)).invalidatePlatformsCaches();
-        verify(cacheServiceMock, times(1)).invalidateUserCryptosCaches();
+        verify(cacheServiceMock, times(1)).invalidate(PLATFORMS_CACHES, INSIGHTS_CACHES);
     }
 
     @Test
     void shouldThrowPlatformNotFoundExceptionWhenDeletingPlatform() {
         var expectedMessage = PLATFORM_ID_NOT_FOUND.formatted("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6");
 
-        when(platformRepositoryMock.findById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")).thenReturn(Optional.empty());
+        when(platformServiceMock.retrievePlatformById("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"))
+            .thenThrow(new PlatformNotFoundException(expectedMessage));
+
         var exception = assertThrows(
             PlatformNotFoundException.class,
             () -> platformService.deletePlatform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6")

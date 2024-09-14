@@ -4,88 +4,85 @@ import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.exception.DuplicatedPriceTargetException;
 import com.distasilucas.cryptobalancetracker.exception.PriceTargetNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.repository.PriceTargetRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_ID_CACHE;
+import static com.distasilucas.cryptobalancetracker.constants.Constants.PRICE_TARGET_PAGE_CACHE;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Scope(proxyMode = ScopedProxyMode.TARGET_CLASS)
 public class PriceTargetService {
 
     private final PriceTargetRepository priceTargetRepository;
     private final CryptoService cryptoService;
+    private final CacheService cacheService;
+    private final PriceTargetService self;
 
-    public PriceTargetResponse retrievePriceTarget(String priceTargetId) {
+    @Cacheable(cacheNames = PRICE_TARGET_ID_CACHE, key = "#priceTargetId")
+    public PriceTarget retrievePriceTargetById(String priceTargetId) {
         log.info("Retrieving price target for id {}", priceTargetId);
 
-        var priceTarget = findById(priceTargetId);
-        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());
-
-        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);
+        return priceTargetRepository.findById(priceTargetId)
+            .orElseThrow(() -> new PriceTargetNotFoundException(String.format("Price target with id %s not found", priceTargetId)));
     }
 
-    public PagePriceTargetResponse retrievePriceTargetsByPage(int page) {
+    @Cacheable(cacheNames = PRICE_TARGET_PAGE_CACHE, key = "#page")
+    public Page<PriceTarget> retrievePriceTargetsByPage(int page) {
         log.info("Retrieving price targets for page {}", page);
-
         var pageRequest = PageRequest.of(page, 10);
-        var priceTargets = priceTargetRepository.findAll(pageRequest);
-        var priceTargetsResponse = priceTargets.getContent()
-            .stream()
-            .map(priceTarget -> {
-                var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-                return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));
-            })
-            .toList();
 
-        return new PagePriceTargetResponse(page, priceTargets.getTotalPages(), priceTargetsResponse);
+        return priceTargetRepository.findAll(pageRequest);
     }
 
-    public PriceTargetResponse savePriceTarget(PriceTargetRequest priceTargetRequest) {
+    public PriceTarget savePriceTarget(PriceTargetRequest priceTargetRequest) {
         log.info("Saving price target {}", priceTargetRequest);
 
         var coingeckoCrypto = cryptoService.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId());
         validatePriceTargetIsNotDuplicated(coingeckoCrypto.id(), priceTargetRequest.priceTarget());
         var crypto = cryptoService.retrieveCryptoInfoById(coingeckoCrypto.id());
-        var priceTarget = priceTargetRepository.save(priceTargetRequest.toEntity(crypto.id()));
+        var priceTargetEntity = priceTargetRequest.toEntity(crypto);
 
-        return priceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), priceTarget.calculateChangeNeeded(crypto.lastKnownPrice()));
+        var priceTarget = priceTargetRepository.save(priceTargetEntity);
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
+
+        return priceTarget;
     }
 
-    public PriceTargetResponse updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
+    public PriceTarget updatePriceTarget(String priceTargetId, PriceTargetRequest priceTargetRequest) {
         log.info("Updating price target for id {}. New value: {}", priceTargetId, priceTargetRequest);
 
-        var priceTarget = findById(priceTargetId)
-            .withTarget(priceTargetRequest.priceTarget());
+        var priceTarget = self.retrievePriceTargetById(priceTargetId);
+        priceTarget.setTarget(priceTargetRequest.priceTarget());
 
-        validatePriceTargetIsNotDuplicated(priceTarget.coingeckoCryptoId(), priceTargetRequest.priceTarget());
-        var crypto = cryptoService.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId());
-        var changeNeeded = priceTarget.calculateChangeNeeded(crypto.lastKnownPrice());
-        var newPriceTarget = priceTargetRepository.save(priceTarget);
+        var coingeckoCryptoId = priceTarget.getCrypto().getId();
+        validatePriceTargetIsNotDuplicated(coingeckoCryptoId, priceTargetRequest.priceTarget());
 
-        return newPriceTarget.toPriceTargetResponse(crypto.name(), crypto.lastKnownPrice(), changeNeeded);
+        var updatedPriceTarget = priceTargetRepository.save(priceTarget);
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
+
+        return updatedPriceTarget;
     }
 
     public void deletePriceTarget(String priceTargetId) {
         log.info("Deleting price target for id {}", priceTargetId);
-        var priceTarget = findById(priceTargetId);
+        var priceTarget = self.retrievePriceTargetById(priceTargetId);
 
         priceTargetRepository.delete(priceTarget);
-        cryptoService.deleteCryptoIfNotUsed(priceTarget.coingeckoCryptoId());
-    }
-
-    private PriceTarget findById(String priceTargetId) {
-        var message = String.format("Price target with id %s not found", priceTargetId);
-
-        return priceTargetRepository.findById(priceTargetId)
-            .orElseThrow(() -> new PriceTargetNotFoundException(message));
+        cryptoService.deleteCryptoIfNotUsed(priceTarget.getCrypto().getId());
+        cacheService.invalidate(PRICE_TARGETS_CACHES);
     }
 
     private void validatePriceTargetIsNotDuplicated(String coingeckoCryptoId, BigDecimal target) {
@@ -96,5 +93,4 @@ public class PriceTargetService {
             throw new DuplicatedPriceTargetException(message);
         }
     }
-
 }

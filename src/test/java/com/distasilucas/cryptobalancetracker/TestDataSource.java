@@ -1,7 +1,10 @@
 package com.distasilucas.cryptobalancetracker;
 
+import com.distasilucas.cryptobalancetracker.entity.ChangePercentages;
 import com.distasilucas.cryptobalancetracker.entity.Crypto;
+import com.distasilucas.cryptobalancetracker.entity.CryptoInfo;
 import com.distasilucas.cryptobalancetracker.entity.Goal;
+import com.distasilucas.cryptobalancetracker.entity.LastKnownPrices;
 import com.distasilucas.cryptobalancetracker.entity.Platform;
 import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.DateRange;
@@ -14,10 +17,11 @@ import com.distasilucas.cryptobalancetracker.model.response.coingecko.Image;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketCap;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.MarketData;
 import com.distasilucas.cryptobalancetracker.model.response.goal.GoalResponse;
-import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.model.response.insights.BalancesResponse;
-import org.mockito.Mock;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -28,6 +32,7 @@ import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.distasilucas.cryptobalancetracker.constants.Constants.GOALS_ENDPOINT;
 import static com.distasilucas.cryptobalancetracker.constants.Constants.INSIGHTS_ENDPOINT;
@@ -245,21 +250,31 @@ public class TestDataSource {
     }
 
     public static Crypto getBitcoinCryptoEntity() {
-        return new Crypto(
-            "bitcoin",
+        var cryptoInfo = new CryptoInfo(
             "Bitcoin",
             "btc",
             "https://assets.coingecko.com/coins/images/1/large/bitcoin.png?1547033579",
-            new BigDecimal("30000"),
-            new BigDecimal("27000"),
-            new BigDecimal("1"),
-            new BigDecimal("19000000"),
-            new BigDecimal("21000000"),
             1,
             new BigDecimal("813208997089"),
+            new BigDecimal("19000000"),
+            new BigDecimal("21000000")
+        );
+        var lastKnownPrices = new LastKnownPrices(
+            new BigDecimal("30000"),
+            new BigDecimal("27000"),
+            new BigDecimal("1")
+        );
+        var changePercentages = new ChangePercentages(
             new BigDecimal("10.00"),
             new BigDecimal("-5.00"),
-            new BigDecimal("0.00"),
+            new BigDecimal("0.00")
+        );
+
+        return new Crypto(
+            "bitcoin",
+            cryptoInfo,
+            lastKnownPrices,
+            changePercentages,
             LocalDateTime.of(2023, 1, 1, 0, 0, 0)
         );
     }
@@ -285,11 +300,14 @@ public class TestDataSource {
     }
 
     public static UserCrypto getUserCrypto() {
+        var platformEntity = new Platform("4f663841-7c82-4d0f-a756-cf7d4e2d3bc6", "BINANCE");
+        var crypto = getBitcoinCryptoEntity();
+
         return new UserCrypto(
             "af827ac7-d642-4461-a73c-b31ca6f6d13d",
-            "bitcoin",
             new BigDecimal("0.25"),
-            "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6"
+            platformEntity,
+            crypto
         );
     }
 
@@ -305,8 +323,12 @@ public class TestDataSource {
         return new GoalResponse("10e3c7c1-0732-4294-9410-9708a21128e3", "Bitcoin", "1", 100f, "0", "1", "0");
     }
 
-    public static PageGoalResponse getPageGoalResponse() {
-        return new PageGoalResponse(1, 1, false, List.of(getGoalResponse()));
+    public static Goal getGoal() {
+        return new Goal("10e3c7c1-0732-4294-9410-9708a21128e3", new BigDecimal("1"), getBitcoinCryptoEntity());
+    }
+
+    public static Page<Goal> getPageGoal() {
+        return new PageImpl<>(List.of(getGoal()), PageRequest.of(0, 10), 1);
     }
 
     public static GoalRequest getGoalRequest() {
@@ -314,14 +336,14 @@ public class TestDataSource {
     }
 
     public static Goal getGoalEntity() {
-        return new Goal("bitcoin", new BigDecimal("1"));
+        return new Goal(UUID.randomUUID().toString(), new BigDecimal("1"), getBitcoinCryptoEntity());
     }
 
     public static BalancesResponse getBalances() {
         return new BalancesResponse("100", "70", "0.1");
     }
 
-    public static Platform getPlatformEntity() {
+    public static Platform getBinancePlatformEntity() {
         return new Platform(
             "4f663841-7c82-4d0f-a756-cf7d4e2d3bc6",
             "BINANCE"

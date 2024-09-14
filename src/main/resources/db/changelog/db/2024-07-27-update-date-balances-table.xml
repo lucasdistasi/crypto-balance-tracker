@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.4.xsd">
+
+    <changeSet  id="rename-balances-column" author="distasilucas">
+        <renameColumn  newColumnName="usd_balance"
+                       oldColumnName="balance"
+                       tableName="date_balances"/>
+    </changeSet>
+
+    <changeSet id="add-dates-balance-columns" author="distasilucas">
+        <addColumn tableName="date_balances">
+            <column name="eur_balance"
+                    type="VARCHAR2(255)"/>
+            <column name="btc_balance"
+                    type="VARCHAR2(255)"/>
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

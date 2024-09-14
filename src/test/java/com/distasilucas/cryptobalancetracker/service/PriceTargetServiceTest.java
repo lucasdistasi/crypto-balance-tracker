@@ -5,12 +5,11 @@ import com.distasilucas.cryptobalancetracker.exception.DuplicatedPriceTargetExce
 import com.distasilucas.cryptobalancetracker.exception.PriceTargetNotFoundException;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
 import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCrypto;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.repository.PriceTargetRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.springframework.data.domain.PageImpl;
@@ -22,6 +21,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
+import static com.distasilucas.cryptobalancetracker.model.CacheType.PRICE_TARGETS_CACHES;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -45,12 +45,18 @@ class PriceTargetServiceTest {
     @Mock
     private CryptoService cryptoServiceMock;
 
+    @Mock
+    private CacheService cacheServiceMock;
+
+    @Mock
+    private PriceTargetService priceTargetServiceMock;
+
     private PriceTargetService priceTargetService;
 
     @BeforeEach
     void setUp() {
         openMocks(this);
-        priceTargetService = new PriceTargetService(priceTargetRepositoryMock, cryptoServiceMock);
+        priceTargetService = new PriceTargetService(priceTargetRepositoryMock, cryptoServiceMock, cacheServiceMock, priceTargetServiceMock);
     }
 
     @AfterEach
@@ -60,81 +66,66 @@ class PriceTargetServiceTest {
 
     @Test
     void shouldRetrievePriceTargetById() {
-        var priceTarget = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTarget.id())).thenReturn(Optional.of(priceTarget));
-        when(cryptoServiceMock.retrieveCryptoInfoById(priceTarget.coingeckoCryptoId())).thenReturn(getBitcoinCryptoEntity());
+        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.of(priceTargetEntity));
 
-        var priceTargetResponse = priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
+        var priceTarget = priceTargetService.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
-        assertThat(priceTargetResponse)
+        assertThat(priceTarget)
             .usingRecursiveComparison()
-            .isEqualTo(
-                new PriceTargetResponse(
-                    "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
-                    "Bitcoin",
-                    "30000",
-                    "120000",
-                    300F
-                )
-            );
+            .isEqualTo(priceTargetEntity);
     }
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenRetrievingPriceTargetById() {
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
+
+        when(priceTargetServiceMock.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
-            () -> priceTargetService.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")
+            () -> priceTargetService.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
     }
 
     @Test
     void shouldRetrievePriceTargetsByPage() {
         var pageRequest = PageRequest.of(0, 10);
         var priceTargets = List.of(
-            new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000")),
-            new PriceTarget("ff738ff7-6f9a-400a-8b06-36b7e1fef81e", "bitcoin", new BigDecimal("100000"))
+            new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity()),
+            new PriceTarget("ff738ff7-6f9a-400a-8b06-36b7e1fef81e", new BigDecimal("100000"), getBitcoinCryptoEntity())
         );
-        var pagePriceTargetResponse = new PagePriceTargetResponse(
-            0,
-            1,
-            List.of(
-                new PriceTargetResponse(
-                    "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
-                    "Bitcoin",
-                    "30000",
-                    "120000",
-                    300F
-                ),
-                new PriceTargetResponse(
-                    "ff738ff7-6f9a-400a-8b06-36b7e1fef81e",
-                    "Bitcoin",
-                    "30000",
-                    "100000",
-                    233.30F
-                )
+        var expectedPage = new PageImpl<>(List.of(
+            new PriceTarget(
+                "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+                new BigDecimal("120000"),
+                getBitcoinCryptoEntity()
+            ),
+            new PriceTarget(
+                "ff738ff7-6f9a-400a-8b06-36b7e1fef81e",
+                new BigDecimal("100000"),
+                getBitcoinCryptoEntity()
             )
-        );
+        ), PageRequest.of(0, 10), 1);
 
-        when(priceTargetRepositoryMock.findAll(pageRequest)).thenReturn(new PageImpl<>(priceTargets));
-        when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(getBitcoinCryptoEntity());
+        when(priceTargetRepositoryMock.findAll(pageRequest)).thenReturn(new PageImpl<>(priceTargets, PageRequest.of(0, 10), 1));
 
-        var priceTargetResponse = priceTargetService.retrievePriceTargetsByPage(0);
+        var priceTargetPage = priceTargetService.retrievePriceTargetsByPage(0);
 
-        assertThat(priceTargetResponse)
+        assertThat(priceTargetPage)
             .usingRecursiveComparison()
-            .isEqualTo(pagePriceTargetResponse);
+            .isEqualTo(expectedPage);
     }
 
     @Test
     void shouldSavePriceTarget() {
+        var captor = ArgumentCaptor.forClass(PriceTarget.class);
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("120000"));
         var coingeckoCrypto = new CoingeckoCrypto("bitcoin", "btc", "Bitcoin");
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId()))
             .thenReturn(coingeckoCrypto);
@@ -142,29 +133,28 @@ class PriceTargetServiceTest {
             .thenReturn(Optional.empty());
         when(cryptoServiceMock.retrieveCryptoInfoById("bitcoin")).thenReturn(getBitcoinCryptoEntity());
         UUID_MOCK.when(UUID::randomUUID).thenReturn(RANDOM_UUID);
-        when(priceTargetRepositoryMock.save(priceTargetEntity)).thenReturn(priceTargetEntity);
+        when(priceTargetRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        var priceTargetResponse = priceTargetService.savePriceTarget(priceTargetRequest);
+        var priceTarget = priceTargetService.savePriceTarget(priceTargetRequest);
 
-        assertThat(priceTargetResponse)
+        assertThat(priceTarget)
             .usingRecursiveComparison()
             .isEqualTo(
-                new PriceTargetResponse(
+                new PriceTarget(
                     "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
-                    "Bitcoin",
-                    "30000",
-                    "120000",
-                    300F
+                    new BigDecimal("120000"),
+                    getBitcoinCryptoEntity()
                 )
             );
-        verify(priceTargetRepositoryMock, times(1)).save(priceTargetEntity);
+        verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
     void shouldThrowDuplicatedPriceTargetExceptionWhenAddingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("120000"));
         var coingeckoCrypto = new CoingeckoCrypto("bitcoin", "btc", "Bitcoin");
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
 
         when(cryptoServiceMock.retrieveCoingeckoCryptoInfoByNameOrId(priceTargetRequest.cryptoNameOrId())).thenReturn(coingeckoCrypto);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
@@ -176,43 +166,42 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
     void shouldUpdatePriceTarget() {
+        var captor = ArgumentCaptor.forClass(PriceTarget.class);
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.retrievePriceTargetById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.empty());
-        when(cryptoServiceMock.retrieveCryptoInfoById(priceTargetRequest.cryptoNameOrId()))
-            .thenReturn(getBitcoinCryptoEntity());
-        when(priceTargetRepositoryMock.save(priceTargetEntity)).thenReturn(priceTargetEntity);
+        when(priceTargetRepositoryMock.save(captor.capture())).thenAnswer(answer -> captor.getValue());
 
-        var priceTargetResponse = priceTargetService.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest);
+        var priceTarget = priceTargetService.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest);
 
-        assertThat(priceTargetResponse)
+        assertThat(priceTarget)
             .usingRecursiveComparison()
             .isEqualTo(
-                new PriceTargetResponse(
+                new PriceTarget(
                     "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
-                    "Bitcoin",
-                    "30000",
-                    "100000",
-                    233.30F
+                    new BigDecimal("100000"),
+                    getBitcoinCryptoEntity()
                 )
             );
-        verify(priceTargetRepositoryMock, times(1)).save(priceTargetEntity);
+        verify(priceTargetRepositoryMock, times(1)).save(captor.getValue());
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
     void shouldThrowDuplicatedPriceTargetExceptionWhenUpdatingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", priceTargetRequest.priceTarget());
-        var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", "bitcoin", priceTargetRequest.priceTarget());
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
+        var anotherSamePriceTargetEntity = new PriceTarget("6fda6f49-9070-4ffa-b9ea-ac52316110d7", priceTargetRequest.priceTarget(), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.retrievePriceTargetById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
         when(priceTargetRepositoryMock.findByCoingeckoCryptoIdAndTarget("bitcoin", priceTargetRequest.priceTarget()))
             .thenReturn(Optional.of(anotherSamePriceTargetEntity));
 
@@ -222,47 +211,56 @@ class PriceTargetServiceTest {
         );
 
         assertEquals("You already have a price target for bitcoin at that price", exception.getMessage());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenUpdatingPriceTarget() {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
 
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        when(priceTargetServiceMock.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
             () -> priceTargetService.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest)
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).save(any());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
     @Test
     void shouldDeletePriceTarget() {
-        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "bitcoin", new BigDecimal("120000"));
+        var priceTargetEntity = new PriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", new BigDecimal("120000"), getBitcoinCryptoEntity());
 
-        when(priceTargetRepositoryMock.findById(priceTargetEntity.id())).thenReturn(Optional.of(priceTargetEntity));
+        when(priceTargetServiceMock.retrievePriceTargetById(priceTargetEntity.getId())).thenReturn(priceTargetEntity);
 
         priceTargetService.deletePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
         verify(priceTargetRepositoryMock, times(1)).delete(priceTargetEntity);
         verify(cryptoServiceMock, times(1)).deleteCryptoIfNotUsed("bitcoin");
+        verify(cacheServiceMock, times(1)).invalidate(PRICE_TARGETS_CACHES);
     }
 
     @Test
     void shouldThrowPriceTargetNotFoundExceptionWhenDeletingPriceTarget() {
-        when(priceTargetRepositoryMock.findById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")).thenReturn(Optional.empty());
+        var exceptionMessage = "Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found";
+
+        when(priceTargetServiceMock.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenThrow(new PriceTargetNotFoundException(exceptionMessage));
 
         var exception = assertThrows(
             PriceTargetNotFoundException.class,
             () -> priceTargetService.deletePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08")
         );
 
-        assertEquals("Price target with id f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08 not found", exception.getMessage());
+        assertEquals(exceptionMessage, exception.getMessage());
         verify(priceTargetRepositoryMock, never()).delete(any());
         verify(cryptoServiceMock, never()).deleteCryptoIfNotUsed(any());
+        verify(cacheServiceMock, never()).invalidate(any());
     }
 
 }

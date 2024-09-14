@@ -1,6 +1,9 @@
 spring:
   application:
     name: crypto-balance-tracker
+  liquibase:
+    change-log: classpath:db/changelog/master.yaml
+    enabled: true
   profiles:
     active: ${ENV_PROFILE:local}
     group:
@@ -17,14 +20,6 @@ coingecko:
 springdoc:
   swagger-ui:
     defaultModelsExpandDepth: -1
-
-logging:
-  charset:
-    console: UTF-8
-  level:
-    root: INFO
-  pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %highlight(%-5level) %cyan([ %thread ]) %green(%logger) - %boldCyan(%msg%n)"
 
 max-limit-crypto: 10
 update-crypto-info-cron: "0 */5 * ? * *"

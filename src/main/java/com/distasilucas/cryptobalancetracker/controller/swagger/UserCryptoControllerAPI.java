@@ -187,7 +187,7 @@ public interface UserCryptoControllerAPI {
     @Operation(summary = "Delete user crypto")
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "204",
             description = "User crypto deleted",
             content = @Content(
                 mediaType = "application/json",
@@ -225,7 +225,7 @@ public interface UserCryptoControllerAPI {
             )
         )
     })
-    ResponseEntity<UserCryptoResponse> deleteUserCrypto(@UUID(message = USER_CRYPTO_ID_UUID) String userCryptoId);
+    ResponseEntity<Void> deleteUserCrypto(@UUID(message = USER_CRYPTO_ID_UUID) String userCryptoId);
 
     @Operation(summary = "Transfer user crypto")
     @ApiResponses(value = {

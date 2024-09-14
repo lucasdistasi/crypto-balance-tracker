@@ -1,52 +1,80 @@
 package com.distasilucas.cryptobalancetracker.entity;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
+import com.distasilucas.cryptobalancetracker.model.response.coingecko.CoingeckoCryptoInfo;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
-@Document("Cryptos")
-public record Crypto(
+@Getter
+@Entity
+@Table(name = "Cryptos")
+@ToString
+@NoArgsConstructor
+public class Crypto implements Serializable {
+
     @Id
-    String id,
-    String name,
-    String ticker,
-    String image,
+    private String id;
 
-    @Field("last_known_price")
-    BigDecimal lastKnownPrice,
+    @Embedded
+    private CryptoInfo cryptoInfo;
 
-    @Field("last_known_price_in_eur")
-    BigDecimal lastKnownPriceInEUR,
+    @Embedded
+    private LastKnownPrices lastKnownPrices;
 
-    @Field("last_known_price_in_btc")
-    BigDecimal lastKnownPriceInBTC,
+    @Embedded
+    private ChangePercentages changePercentages;
 
-    @Field("circulating_supply")
-    BigDecimal circulatingSupply,
+    @Column(name = "last_updated_at")
+    private LocalDateTime lastUpdatedAt;
 
-    @Field("max_supply")
-    BigDecimal maxSupply,
+    @Getter(AccessLevel.NONE)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "crypto")
+    private List<UserCrypto> userCryptos;
 
-    @Field("market_cap_rank")
-    int marketCapRank,
+    @Getter(AccessLevel.NONE)
+    @ToString.Exclude
+    @OneToOne(mappedBy = "crypto")
+    private Goal goal;
 
-    @Field("market_cap")
-    BigDecimal marketCap,
+    @Getter(AccessLevel.NONE)
+    @ToString.Exclude
+    @OneToMany(mappedBy = "crypto")
+    private List<PriceTarget> priceTargets;
 
-    @Field("change_percentage_in_24h")
-    BigDecimal changePercentageIn24h,
+    public Crypto(String id, CryptoInfo cryptoInfo, LastKnownPrices lastKnownPrices,
+                  ChangePercentages changePercentages, LocalDateTime lastUpdatedAt) {
+        this.id = id;
+        this.cryptoInfo = cryptoInfo;
+        this.lastKnownPrices = lastKnownPrices;
+        this.changePercentages = changePercentages;
+        this.lastUpdatedAt = lastUpdatedAt;
+        this.userCryptos = Collections.emptyList();
+        this.goal = null;
+        this.priceTargets = Collections.emptyList();
+    }
 
-    @Field("change_percentage_in_7d")
-    BigDecimal changePercentageIn7d,
-
-    @Field("change_percentage_in_30d")
-    BigDecimal changePercentageIn30d,
-
-    @Field("last_updated_at")
-    LocalDateTime lastUpdatedAt
-) implements Serializable {
+    public Crypto(CoingeckoCryptoInfo coingeckoCryptoInfo, LocalDateTime lastUpdatedAt) {
+        this.id = coingeckoCryptoInfo.id();
+        this.cryptoInfo = new CryptoInfo(coingeckoCryptoInfo);
+        this.lastKnownPrices = new LastKnownPrices(coingeckoCryptoInfo.marketData());
+        this.changePercentages = new ChangePercentages(coingeckoCryptoInfo.marketData());
+        this.lastUpdatedAt = lastUpdatedAt;
+        this.userCryptos = Collections.emptyList();
+        this.goal = null;
+        this.priceTargets = Collections.emptyList();
+    }
 }

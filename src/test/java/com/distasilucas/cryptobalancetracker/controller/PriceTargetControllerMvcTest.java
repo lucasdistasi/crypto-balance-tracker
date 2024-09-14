@@ -1,8 +1,7 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
-import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.service.PriceTargetService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.deletePriceTarget;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrievePriceTargetById;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrievePriceTargetsForPage;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.savePriceTarget;
@@ -48,18 +49,22 @@ class PriceTargetControllerMvcTest {
 
     @Test
     void shouldRetrievePriceTargetWithStatus200() throws Exception {
-        var priceTargetResponse = getPriceTargetResponse();
+        var priceTarget = new PriceTarget(
+            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
 
-        when(priceTargetServiceMock.retrievePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))
-            .thenReturn(priceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetById("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))
+            .thenReturn(priceTarget);
 
         mockMvc.perform(retrievePriceTargetById("2ca0a475-bf4b-4733-9f13-6be497ad6fe5"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.currentPrice", is("60000")))
+            .andExpect(jsonPath("$.currentPrice", is("30000")))
             .andExpect(jsonPath("$.priceTarget", is("100000")))
-            .andExpect(jsonPath("$.change", is(35.30)));
+            .andExpect(jsonPath("$.change", is(233.3)));
     }
 
     @ParameterizedTest
@@ -79,9 +84,13 @@ class PriceTargetControllerMvcTest {
 
     @Test
     void shouldRetrievePriceTargetsForPageWithStatus200() throws Exception {
-        var pagePriceTargetResponse = new PagePriceTargetResponse(1, 1, false, List.of(getPriceTargetResponse()));
+        var priceTarget = new PriceTarget(
+            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
 
-        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(pagePriceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(new PageImpl<>(List.of(priceTarget)));
 
         mockMvc.perform(retrievePriceTargetsForPage(0))
             .andExpect(status().isOk())
@@ -91,9 +100,9 @@ class PriceTargetControllerMvcTest {
             .andExpect(jsonPath("$.targets", hasSize(1)))
             .andExpect(jsonPath("$.targets[0].priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.targets[0].cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.targets[0].currentPrice", is("60000")))
+            .andExpect(jsonPath("$.targets[0].currentPrice", is("30000")))
             .andExpect(jsonPath("$.targets[0].priceTarget", is("100000")))
-            .andExpect(jsonPath("$.targets[0].change", is(35.30)));
+            .andExpect(jsonPath("$.targets[0].change", is(233.3)));
     }
 
     @Test
@@ -110,34 +119,36 @@ class PriceTargetControllerMvcTest {
     @Test
     void shouldSavePriceTargetWithStatus200() throws Exception {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetResponse = getPriceTargetResponse();
         var payload = """
               {
                 "cryptoNameOrId": "bitcoin",
                 "priceTarget": 100000
               }
             """;
+        var priceTarget = new PriceTarget(
+            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
 
-        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTargetResponse);
+        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTarget);
 
         mockMvc.perform(savePriceTarget(payload))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.currentPrice", is("60000")))
+            .andExpect(jsonPath("$.currentPrice", is("30000")))
             .andExpect(jsonPath("$.priceTarget", is("100000")))
-            .andExpect(jsonPath("$.change", is(35.30)));
+            .andExpect(jsonPath("$.change", is(233.3)));
     }
 
     @Test
     void shouldSavePriceTargetWithMaxTargetWithStatus200() throws Exception {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"));
-        var priceTargetResponse = new PriceTargetResponse(
+        var priceTarget = new PriceTarget(
             "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
-            "Bitcoin",
-            "60000",
-            "9999999999999999.999999999999",
-            35.30F
+            new BigDecimal("9999999999999999.999999999999"),
+            getBitcoinCryptoEntity()
         );
         var payload = """
               {
@@ -146,15 +157,15 @@ class PriceTargetControllerMvcTest {
               }
             """;
 
-        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTargetResponse);
+        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTarget);
 
         mockMvc.perform(savePriceTarget(payload))
             .andExpect(status().isCreated())
             .andExpect(jsonPath("$.priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.currentPrice", is("60000")))
+            .andExpect(jsonPath("$.currentPrice", is("30000")))
             .andExpect(jsonPath("$.priceTarget", is("9999999999999999.999999999999")))
-            .andExpect(jsonPath("$.change", is(35.30)));
+            .andExpect(jsonPath("$.change", is(9999999.0)));
     }
 
     @Test
@@ -339,7 +350,11 @@ class PriceTargetControllerMvcTest {
     @Test
     void shouldUpdatePriceTargetWithStatus200() throws Exception {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("100000"));
-        var priceTargetResponse = getPriceTargetResponse();
+        var priceTarget = new PriceTarget(
+            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
         var payload = """
               {
                 "cryptoNameOrId": "bitcoin",
@@ -348,44 +363,42 @@ class PriceTargetControllerMvcTest {
             """;
 
         when(priceTargetServiceMock.updatePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5", priceTargetRequest))
-            .thenReturn(priceTargetResponse);
+            .thenReturn(priceTarget);
 
         mockMvc.perform(updatePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5", payload))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.currentPrice", is("60000")))
+            .andExpect(jsonPath("$.currentPrice", is("30000")))
             .andExpect(jsonPath("$.priceTarget", is("100000")))
-            .andExpect(jsonPath("$.change", is(35.30)));
+            .andExpect(jsonPath("$.change", is(233.3)));
     }
 
     @Test
     void shouldUpdatePriceTargetWithMaxPriceTargetWithStatus200() throws Exception {
         var priceTargetRequest = new PriceTargetRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"));
-        var priceTargetResponse = new PriceTargetResponse(
-            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
-            "Bitcoin",
-            "60000",
-            "9999999999999999.999999999999",
-            35.30F
-        );
         var payload = """
               {
                 "cryptoNameOrId": "bitcoin",
                 "priceTarget": 9999999999999999.999999999999
               }
             """;
+        var priceTarget = new PriceTarget(
+            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
+            new BigDecimal("9999999999999999.999999999999"),
+            getBitcoinCryptoEntity()
+        );
 
         when(priceTargetServiceMock.updatePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5", priceTargetRequest))
-            .thenReturn(priceTargetResponse);
+            .thenReturn(priceTarget);
 
         mockMvc.perform(updatePriceTarget("2ca0a475-bf4b-4733-9f13-6be497ad6fe5", payload))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.priceTargetId", is("2ca0a475-bf4b-4733-9f13-6be497ad6fe5")))
             .andExpect(jsonPath("$.cryptoName", is("Bitcoin")))
-            .andExpect(jsonPath("$.currentPrice", is("60000")))
+            .andExpect(jsonPath("$.currentPrice", is("30000")))
             .andExpect(jsonPath("$.priceTarget", is("9999999999999999.999999999999")))
-            .andExpect(jsonPath("$.change", is(35.30)));
+            .andExpect(jsonPath("$.change", is(9999999.0)));
     }
 
     @Test
@@ -607,15 +620,5 @@ class PriceTargetControllerMvcTest {
             .andExpect(jsonPath("$[0].title", is("Bad Request")))
             .andExpect(jsonPath("$[0].status", is(400)))
             .andExpect(jsonPath("$[0].detail", is(INVALID_PRICE_TARGET_UUID)));
-    }
-
-    private PriceTargetResponse getPriceTargetResponse() {
-        return new PriceTargetResponse(
-            "2ca0a475-bf4b-4733-9f13-6be497ad6fe5",
-            "Bitcoin",
-            "60000",
-            "100000",
-            35.30F
-        );
     }
 }

@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.List;
@@ -47,23 +48,26 @@ public class CoingeckoService {
     @Cacheable(cacheNames = COINGECKO_CRYPTOS_CACHE)
     @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public List<CoingeckoCrypto> retrieveAllCryptos() {
-        log.info("Hitting Coingecko API... Retrieving all cryptos...");
+        var coingeckoCryptosURI = getCryptosURI();
+        var uriAsString = coingeckoCryptosURI.apply(UriComponentsBuilder.newInstance());
+        log.info("Hitting Coingecko API for URI [{}] Retrieving all cryptos.", uriAsString);
 
         return coingeckoRestClient.get()
-            .uri(getCryptosURI())
+            .uri(coingeckoCryptosURI)
             .retrieve()
-            .body(new ParameterizedTypeReference<>() {
-            });
+            .body(new ParameterizedTypeReference<>() {});
     }
 
     @Cacheable(cacheNames = CRYPTO_INFO_CACHE, key = "#coingeckoCryptoId")
     @Retryable(retryFor = RestClientException.class, backoff = @Backoff(delay = 1500))
     public CoingeckoCryptoInfo retrieveCryptoInfo(String coingeckoCryptoId) {
-        log.info("Hitting Coingecko API... Retrieving information for {}...", coingeckoCryptoId);
         var coinURI = COIN_URI.concat(coingeckoCryptoId);
+        var coingeckoCryptoInfoURI = getCoingeckoCryptoInfoURI(coinURI);
+        var uriAsString = coingeckoCryptoInfoURI.apply(UriComponentsBuilder.newInstance());
+        log.info("Hitting Coingecko API for URI [{}] Retrieving information for {}.", uriAsString, coingeckoCryptoId);
 
         return coingeckoRestClient.get()
-            .uri(getCoingeckoCryptoInfoURI(coinURI))
+            .uri(coingeckoCryptoInfoURI)
             .retrieve()
             .body(CoingeckoCryptoInfo.class);
     }
@@ -85,6 +89,7 @@ public class CoingeckoService {
         commonParams.add("tickers", "false");
         commonParams.add("community_data", "false");
         commonParams.add("developer_data", "false");
+        commonParams.add("localization", "false");
 
         Function<UriBuilder, URI> proCoingeckoURI = uriBuilder -> uriBuilder.path(url)
             .queryParam(PRO_API_KEY_QUERY_PARAM, proCoingeckoApiKey)

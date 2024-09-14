@@ -1,13 +1,14 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
 import com.distasilucas.cryptobalancetracker.controller.swagger.PriceTargetControllerAPI;
+import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.service.PriceTargetService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -29,21 +30,21 @@ import static com.distasilucas.cryptobalancetracker.constants.ValidationConstant
 
 @Validated
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 @RequestMapping(PRICE_TARGET_ENDPOINT)
 @CrossOrigin(origins = "${allowed-origins}")
 public class PriceTargetController implements PriceTargetControllerAPI {
 
-    private PriceTargetService priceTargetService;
+    private final PriceTargetService priceTargetService;
 
     @Override
     @GetMapping("/{priceTargetId}")
     public ResponseEntity<PriceTargetResponse> retrievePriceTarget(
         @PathVariable @UUID(message = INVALID_PRICE_TARGET_UUID) String priceTargetId
     ) {
-        var priceTarget = priceTargetService.retrievePriceTarget(priceTargetId);
+        var priceTarget = priceTargetService.retrievePriceTargetById(priceTargetId);
 
-        return ResponseEntity.ok(priceTarget);
+        return ResponseEntity.ok(priceTarget.toPriceTargetResponse());
     }
 
     @Override
@@ -53,9 +54,17 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     ) {
         var priceTargets = priceTargetService.retrievePriceTargetsByPage(page);
 
-        return priceTargets.targets().isEmpty() ?
-            ResponseEntity.noContent().build() :
-            ResponseEntity.ok(priceTargets);
+        if (priceTargets.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        } else {
+            var priceTargetResponses = priceTargets.getContent()
+                .stream()
+                .map(PriceTarget::toPriceTargetResponse)
+                .toList();
+            var pagePriceTargetResponse = new PagePriceTargetResponse(page, priceTargets.getTotalPages(), priceTargetResponses);
+
+            return ResponseEntity.ok(pagePriceTargetResponse);
+        }
     }
 
     @Override
@@ -65,7 +74,7 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     ) {
         var priceTarget = priceTargetService.savePriceTarget(priceTargetRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(priceTarget);
+        return ResponseEntity.status(HttpStatus.CREATED).body(priceTarget.toPriceTargetResponse());
     }
 
     @Override
@@ -76,7 +85,7 @@ public class PriceTargetController implements PriceTargetControllerAPI {
     ) {
         var priceTarget = priceTargetService.updatePriceTarget(priceTargetId, priceTargetRequest);
 
-        return ResponseEntity.ok(priceTarget);
+        return ResponseEntity.ok(priceTarget.toPriceTargetResponse());
     }
 
     @Override

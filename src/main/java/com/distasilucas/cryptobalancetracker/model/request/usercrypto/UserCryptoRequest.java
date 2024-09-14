@@ -1,6 +1,5 @@
 package com.distasilucas.cryptobalancetracker.model.request.usercrypto;
 
-import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.validation.ValidCryptoName;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.Digits;
@@ -37,12 +36,4 @@ public record UserCryptoRequest(
     @UUID(message = PLATFORM_ID_UUID)
     String platformId
 ) {
-
-    public UserCrypto toEntity(String coingeckoCryptoId) {
-        return new UserCrypto(coingeckoCryptoId, quantity, platformId);
-    }
-
-    public UserCrypto toEntity(String userCryptoId, String coingeckoCryptoId) {
-        return new UserCrypto(userCryptoId, coingeckoCryptoId, quantity, platformId);
-    }
 }

@@ -235,7 +235,7 @@ public interface PriceTargetControllerAPI {
     @Operation(summary = "Delete price target")
     @ApiResponses(value = {
         @ApiResponse(
-            responseCode = "200",
+            responseCode = "204",
             description = "Price target deleted",
             content = @Content(mediaType = "application/json")
         ),

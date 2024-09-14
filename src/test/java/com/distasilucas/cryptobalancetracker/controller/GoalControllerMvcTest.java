@@ -1,8 +1,9 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.UserCrypto;
 import com.distasilucas.cryptobalancetracker.model.request.goal.GoalRequest;
-import com.distasilucas.cryptobalancetracker.model.response.goal.PageGoalResponse;
 import com.distasilucas.cryptobalancetracker.service.GoalService;
+import com.distasilucas.cryptobalancetracker.service.UserCryptoService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,9 +19,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.distasilucas.cryptobalancetracker.TestDataSource.deleteGoal;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBinancePlatformEntity;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getFileContent;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoal;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalRequest;
-import static com.distasilucas.cryptobalancetracker.TestDataSource.getGoalResponse;
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getPageGoal;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveGoalById;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.retrieveGoalsForPage;
 import static com.distasilucas.cryptobalancetracker.TestDataSource.saveGoal;
@@ -33,7 +37,6 @@ import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,11 +53,20 @@ class GoalControllerMvcTest {
     @MockBean
     private GoalService goalServiceMock;
 
+    @MockBean
+    private UserCryptoService userCryptoServiceMock;
+
     @Test
     void shouldRetrieveGoalWithStatus200() throws Exception {
-        var goalResponse = getGoalResponse();
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(goalServiceMock.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(goalResponse);
+        when(goalServiceMock.retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3")).thenReturn(getGoal());
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(retrieveGoalById("10e3c7c1-0732-4294-9410-9708a21128e3"))
             .andExpect(status().isOk())
@@ -64,7 +76,7 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.progress", is(100.0)))
             .andExpect(jsonPath("$.remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goalQuantity", is("1")))
-            .andExpect(jsonPath("$.moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.moneyNeeded", is("0.00")));
     }
 
     @ParameterizedTest
@@ -72,7 +84,7 @@ class GoalControllerMvcTest {
         "10e3c7c1-0732-4294-9410-9708a21128e", "103c7c1-0732-4294-9410-9708a21128e3",
         "10e3c7c1-07324294-9410-9708a21128e3", "10e3c7c1-0732-4294-94109708a21128e3"
     })
-    void shouldFailWithStatus400WithOneMessageWhenRetrievingGoalWwithInvalidId(String goalId) throws Exception {
+    void shouldFailWithStatus400WithOneMessageWhenRetrievingGoalWithInvalidId(String goalId) throws Exception {
         mockMvc.perform(retrieveGoalById(goalId))
             .andExpect(status().isBadRequest())
             .andExpect(jsonPath("$").isArray())
@@ -84,9 +96,16 @@ class GoalControllerMvcTest {
 
     @Test
     void shouldRetrieveGoalsForPageWithStatus200() throws Exception {
-        var pageGoalResponse = new PageGoalResponse(1, 1, false, List.of(getGoalResponse()));
+        var pageGoalResponse = getPageGoal();
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
         when(goalServiceMock.retrieveGoalsForPage(0)).thenReturn(pageGoalResponse);
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(retrieveGoalsForPage(0))
             .andExpect(status().isOk())
@@ -100,7 +119,7 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.goals[0].progress", is(100.0)))
             .andExpect(jsonPath("$.goals[0].remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goals[0].goalQuantity", is("1")))
-            .andExpect(jsonPath("$.goals[0].moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.goals[0].moneyNeeded", is("0.00")));
     }
 
     @Test
@@ -117,11 +136,18 @@ class GoalControllerMvcTest {
     @Test
     void shouldSaveGoalWithStatus200() throws Exception {
         var goalRequest = getGoalRequest();
-        var goalResponse = getGoalResponse();
+        var goal = getGoal();
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted("bitcoin", new BigDecimal("1"));
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(goalServiceMock.saveGoal(goalRequest)).thenReturn(goalResponse);
+        when(goalServiceMock.saveGoal(goalRequest)).thenReturn(goal);
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(saveGoal(content))
             .andExpect(status().isOk())
@@ -131,17 +157,24 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.progress", is(100.0)))
             .andExpect(jsonPath("$.remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goalQuantity", is("1")))
-            .andExpect(jsonPath("$.moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.moneyNeeded", is("0.00")));
     }
 
     @Test
     void shouldSaveGoalWithMaxQuantityWithStatus200() throws Exception {
-        var goalResponse = getGoalResponse();
+        var goal = getGoal();
         var goalRequest = new GoalRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"));
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted("bitcoin", new BigDecimal("9999999999999999.999999999999"));
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(goalServiceMock.saveGoal(goalRequest)).thenReturn(goalResponse);
+        when(goalServiceMock.saveGoal(goalRequest)).thenReturn(goal);
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(saveGoal(content))
             .andExpect(status().isOk())
@@ -151,7 +184,7 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.progress", is(100.0)))
             .andExpect(jsonPath("$.remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goalQuantity", is("1")))
-            .andExpect(jsonPath("$.moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.moneyNeeded", is("0.00")));
     }
 
     @Test
@@ -315,10 +348,17 @@ class GoalControllerMvcTest {
     void shouldUpdateGoalWithStatus200() throws Exception {
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted("bitcoin", new BigDecimal("1"));
-        var goalResponse = getGoalResponse();
         var goalRequest = new GoalRequest("bitcoin", new BigDecimal("1"));
+        var goal = getGoal();
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(goalServiceMock.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)).thenReturn(goalResponse);
+        when(goalServiceMock.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)).thenReturn(goal);
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", content))
             .andExpect(status().isOk())
@@ -328,7 +368,7 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.progress", is(100.0)))
             .andExpect(jsonPath("$.remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goalQuantity", is("1")))
-            .andExpect(jsonPath("$.moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.moneyNeeded", is("0.00")));
     }
 
     @Test
@@ -336,9 +376,16 @@ class GoalControllerMvcTest {
         var content = getFileContent("request/platform/save_update_goal.json")
             .formatted("bitcoin", new BigDecimal("9999999999999999.999999999999"));
         var goalRequest = new GoalRequest("bitcoin", new BigDecimal("9999999999999999.999999999999"));
-        var goalResponse = getGoalResponse();
+        var goal = getGoal();
+        var userCrypto = new UserCrypto(
+            "af827ac7-d642-4461-a73c-b31ca6f6d13d",
+            new BigDecimal("1"),
+            getBinancePlatformEntity(),
+            getBitcoinCryptoEntity()
+        );
 
-        when(goalServiceMock.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)).thenReturn(goalResponse);
+        when(goalServiceMock.updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", goalRequest)).thenReturn(goal);
+        when(userCryptoServiceMock.findAllByCoingeckoCryptoId("bitcoin")).thenReturn(List.of(userCrypto));
 
         mockMvc.perform(updateGoal("10e3c7c1-0732-4294-9410-9708a21128e3", content))
             .andExpect(status().isOk())
@@ -348,7 +395,7 @@ class GoalControllerMvcTest {
             .andExpect(jsonPath("$.progress", is(100.0)))
             .andExpect(jsonPath("$.remainingQuantity", is("0")))
             .andExpect(jsonPath("$.goalQuantity", is("1")))
-            .andExpect(jsonPath("$.moneyNeeded", is("0")));
+            .andExpect(jsonPath("$.moneyNeeded", is("0.00")));
     }
 
     @Test
@@ -521,7 +568,7 @@ class GoalControllerMvcTest {
         doNothing().when(goalServiceMock).deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3");
 
         mockMvc.perform(deleteGoal("10e3c7c1-0732-4294-9410-9708a21128e3"))
-            .andExpect(status().isOk());
+            .andExpect(status().isNoContent());
     }
 
     @ParameterizedTest

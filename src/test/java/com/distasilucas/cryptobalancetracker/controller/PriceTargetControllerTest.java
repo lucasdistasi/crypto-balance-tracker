@@ -1,5 +1,6 @@
 package com.distasilucas.cryptobalancetracker.controller;
 
+import com.distasilucas.cryptobalancetracker.entity.PriceTarget;
 import com.distasilucas.cryptobalancetracker.model.request.pricetarget.PriceTargetRequest;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PagePriceTargetResponse;
 import com.distasilucas.cryptobalancetracker.model.response.pricetarget.PriceTargetResponse;
@@ -7,12 +8,15 @@ import com.distasilucas.cryptobalancetracker.service.PriceTargetService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.math.BigDecimal;
 import java.util.List;
 
+import static com.distasilucas.cryptobalancetracker.TestDataSource.getBitcoinCryptoEntity;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -36,13 +40,18 @@ class PriceTargetControllerTest {
         var priceTargetResponse = new PriceTargetResponse(
             "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
             "Bitcoin",
-            "60000",
+            "30000",
             "100000",
-            35.30F
+            233.3F
+        );
+        var priceTarget = new PriceTarget(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
         );
 
-        when(priceTargetServiceMock.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
-            .thenReturn(priceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetById("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08"))
+            .thenReturn(priceTarget);
 
         var responseEntity = priceTargetController.retrievePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08");
 
@@ -60,14 +69,20 @@ class PriceTargetControllerTest {
                 new PriceTargetResponse(
                     "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
                     "Bitcoin",
-                    "60000",
+                    "30000",
                     "100000",
-                    35.30F
+                    233.3F
                 )
             )
         );
+        var priceTarget = new PriceTarget(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
+        var page = new PageImpl<>(List.of(priceTarget), PageRequest.of(0, 2), 1);
 
-        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(pagePriceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(page);
 
         var responseEntity = priceTargetController.retrievePriceTargetsByPage(0);
 
@@ -85,14 +100,20 @@ class PriceTargetControllerTest {
                 new PriceTargetResponse(
                     "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
                     "Bitcoin",
-                    "60000",
+                    "30000",
                     "100000",
-                    35.30F
+                    233.3F
                 )
             )
         );
+        var priceTarget = new PriceTarget(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            new BigDecimal("100000"),
+            getBitcoinCryptoEntity()
+        );
+        var page = new PageImpl<>(List.of(priceTarget), PageRequest.of(0, 1), 2);
 
-        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(pagePriceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(page);
 
         var responseEntity = priceTargetController.retrievePriceTargetsByPage(0);
 
@@ -103,9 +124,9 @@ class PriceTargetControllerTest {
 
     @Test
     void shouldRetrieveEmptyPriceTargetsForPageWithStatus204() {
-        var pagePriceTargetResponse = new PagePriceTargetResponse(0, 1, emptyList());
+        var page = new PageImpl<PriceTarget>(emptyList(), PageRequest.of(0, 2), 2);
 
-        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(pagePriceTargetResponse);
+        when(priceTargetServiceMock.retrievePriceTargetsByPage(0)).thenReturn(page);
 
         var responseEntity = priceTargetController.retrievePriceTargetsByPage(0);
 
@@ -117,9 +138,20 @@ class PriceTargetControllerTest {
     @Test
     void shouldSavePriceTargetWithStatus201() {
         var priceTargetRequest = new PriceTargetRequest("Bitcoin", new BigDecimal("120000"));
-        var priceTargetResponse = new PriceTargetResponse("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "Bitcoin", "60000", "120000", 35F);
+        var priceTarget = new PriceTarget(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            new BigDecimal("120000"),
+            getBitcoinCryptoEntity()
+        );
+        var priceTargetResponse = new PriceTargetResponse(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            "Bitcoin",
+            "30000",
+            "120000",
+            300F
+        );
 
-        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTargetResponse);
+        when(priceTargetServiceMock.savePriceTarget(priceTargetRequest)).thenReturn(priceTarget);
 
         var responseEntity = priceTargetController.savePriceTarget(priceTargetRequest);
 
@@ -131,10 +163,21 @@ class PriceTargetControllerTest {
     @Test
     void shouldUpdatePriceTargetWithStatus200() {
         var priceTargetRequest = new PriceTargetRequest("Bitcoin", new BigDecimal("150000"));
-        var priceTargetResponse = new PriceTargetResponse("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", "Bitcoin", "60000", "150000", 40F);
+        var priceTarget = new PriceTarget(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            new BigDecimal("150000"),
+            getBitcoinCryptoEntity()
+        );
+        var priceTargetResponse = new PriceTargetResponse(
+            "f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08",
+            "Bitcoin",
+            "30000",
+            "150000",
+            400F
+        );
 
         when(priceTargetServiceMock.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest))
-            .thenReturn(priceTargetResponse);
+            .thenReturn(priceTarget);
 
         var responseEntity = priceTargetController.updatePriceTarget("f9c8cb17-73a4-4b7e-96f6-7943e3ddcd08", priceTargetRequest);
 

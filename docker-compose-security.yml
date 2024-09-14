@@ -1,40 +1,40 @@
-version: '3.9'
-
 services:
-  mongo-crypto-db:
-    image: 'mongo:latest'
-    container_name: 'mongo-crypto-db'
+  postgresql-crypto-db:
+    image: 'postgres:latest'
+    container_name: 'postgresql-crypto-db'
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
-      - '27017:27017'
+      - '5432:5432'
     volumes:
-      - crypto-db-volume:/data/db
-
-  cbt-mongo-seed:
-    image: 'cbt-mongo-seed'
-    container_name: 'cbt-mongo-seed'
-    depends_on:
-      - mongo-crypto-db
+      - postgres-crypto-db-volume:/data/postgres/crypto-db
 
   crypto-balance-tracker-login:
-    image: 'crypto-balance-tracker-login:latest'
+    build:
+      context: ../crypto-balance-tracker-login
+      dockerfile: Dockerfile
     container_name: 'crypto-balance-tracker-login'
     depends_on:
-      - mongo-crypto-db
+      - postgresql-crypto-db
     environment:
-      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - POSTGRESQL_DATABASE=postgres
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
       - ENV_PROFILE=docker
     ports:
       - '8081:8081'
 
-  crypto-balance-tracker:
-    image: 'crypto-balance-tracker:latest'
-    container_name: 'crypto-balance-tracker'
+  crypto-balance-tracker-java:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'crypto-balance-tracker-java'
     depends_on:
-      - mongo-crypto-db
+      - postgresql-crypto-db
       - crypto-balance-tracker-login
     environment:
-      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - POSTGRESQL_DATABASE=postgres
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
       - DEMO_COINGECKO_API_KEY=${DEMO_COINGECKO_API_KEY}
       - PRO_COINGECKO_API_KEY=${PRO_COINGECKO_API_KEY}
@@ -43,10 +43,12 @@ services:
       - '8080:8080'
 
   crypto-balance-tracker-ui:
-    image: 'crypto-balance-tracker-ui:latest'
+    build:
+      context: ../crypto-balance-tracker-ui
+      dockerfile: Dockerfile
     container_name: 'crypto-balance-tracker-ui'
     depends_on:
-      - crypto-balance-tracker
+      - crypto-balance-tracker-java
     ports:
       - '5173:5173'
 

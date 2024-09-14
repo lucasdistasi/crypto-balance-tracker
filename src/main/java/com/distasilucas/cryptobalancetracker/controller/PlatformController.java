@@ -83,6 +83,6 @@ public class PlatformController implements PlatformControllerAPI {
     public ResponseEntity<Void> deletePlatform(@UUID(message = PLATFORM_ID_UUID) @PathVariable String platformId) {
         platformService.deletePlatform(platformId);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

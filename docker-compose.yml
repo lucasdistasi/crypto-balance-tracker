@@ -1,21 +1,25 @@
-version: '3.9'
-
 services:
-  mongo-crypto-db:
-    image: 'mongo:latest'
-    container_name: 'mongo-crypto-db'
-    ports:
-      - '27017:27017'
-    volumes:
-      - crypto-db-volume:/data/db
-
-  crypto-balance-tracker:
-    image: 'crypto-balance-tracker:latest'
-    container_name: 'crypto-balance-tracker'
-    depends_on:
-      - mongo-crypto-db
+  postgresql-crypto-db:
+    image: 'postgres:16.3-alpine'
+    container_name: 'postgresql-crypto-db'
     environment:
-      - MONGODB_DATABASE=${MONGODB_DATABASE}
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-crypto-db-volume:/var/lib/postgresql/data
+
+  crypto-balance-tracker-java:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: 'crypto-balance-tracker-java'
+    depends_on:
+      - postgresql-crypto-db
+    environment:
+      - POSTGRESQL_DATABASE=postgres
       - JWT_SIGNING_KEY=${JWT_SIGNING_KEY}
       - DEMO_COINGECKO_API_KEY=${DEMO_COINGECKO_API_KEY}
       - PRO_COINGECKO_API_KEY=${PRO_COINGECKO_API_KEY}
@@ -24,12 +28,14 @@ services:
       - '8080:8080'
 
   crypto-balance-tracker-ui:
-    image: 'crypto-balance-tracker-ui:latest'
+    build:
+      context: ../crypto-balance-tracker-ui
+      dockerfile: Dockerfile
     container_name: 'crypto-balance-tracker-ui'
     depends_on:
-      - crypto-balance-tracker
+      - crypto-balance-tracker-java
     ports:
       - '5173:5173'
 
 volumes:
-  crypto-db-volume:
+  postgres-crypto-db-volume:
