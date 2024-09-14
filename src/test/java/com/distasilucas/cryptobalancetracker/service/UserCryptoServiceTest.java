@@ -215,7 +215,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -248,7 +248,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
             .isEqualTo(expected);
@@ -276,7 +276,7 @@ class UserCryptoServiceTest {
             userCryptoService.updateUserCrypto("af827ac7-d642-4461-a73c-b31ca6f6d13d", userCryptoRequest);
 
         verify(userCryptoRepositoryMock, times(1)).save(captor.getValue());
-        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, INSIGHTS_CACHES, GOALS_CACHES);
+        verify(cacheServiceMock, times(1)).invalidate(USER_CRYPTOS_CACHES, GOALS_CACHES, INSIGHTS_CACHES);
 
         assertThat(userCryptoResponse)
             .usingRecursiveComparison()
