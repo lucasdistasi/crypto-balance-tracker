@@ -1,7 +1,7 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.3.1'
-	id 'io.spring.dependency-management' version '1.1.4'
+	id 'org.springframework.boot' version '3.4.4'
+	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco'
 }
 
@@ -18,14 +18,14 @@ ext {
 	jacocoVersion = "0.8.12"
 	jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
 	javaxCacheVersion = "1.1.1"
-	aspectjweaverVersion = "1.9.22.1"
+	aspectjweaverVersion = "1.9.23"
 	jsonWebTokenVersion = "0.12.6"
-	liquibaseVersion = "4.28.0"
-	lombokVersion = "1.18.34"
+	liquibaseVersion = "4.31.1"
+	lombokVersion = "1.18.36"
 	okHttp3Version = "4.12.0"
-	postgresqlVersion = "42.7.3"
-	springDocVersion = "2.6.0"
-	springRetryVersion = "2.0.6"
+	postgresqlVersion = "42.7.5"
+	springDocVersion = "2.8.6"
+	springRetryVersion = "2.0.11"
 }
 
 java {
