@@ -21,7 +21,7 @@ ext {
 	aspectjweaverVersion = "1.9.23"
 	jsonWebTokenVersion = "0.12.6"
 	liquibaseVersion = "4.31.1"
-	lombokVersion = "1.18.36"
+	lombokVersion = "1.18.38"
 	okHttp3Version = "4.12.0"
 	postgresqlVersion = "42.7.5"
 	springDocVersion = "2.8.6"
