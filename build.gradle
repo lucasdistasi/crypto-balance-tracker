@@ -19,7 +19,7 @@ ext {
 	jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
 	javaxCacheVersion = "1.1.1"
 	aspectjweaverVersion = "1.9.24"
-	jsonWebTokenVersion = "0.12.6"
+	jsonWebTokenVersion = "0.12.7"
 	liquibaseVersion = "4.33.0"
 	lombokVersion = "1.18.38"
 	okHttp3Version = "5.1.0"
