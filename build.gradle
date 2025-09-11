@@ -14,17 +14,17 @@ bootJar {
 }
 
 ext {
-	ehcacheVersion = "3.11.0"
+	ehcacheVersion = "3.11.1"
 	jacocoVersion = "0.8.12"
 	jacocoExecPath = "${project.rootDir}/../target/jacoco.exec"
 	javaxCacheVersion = "1.1.1"
 	aspectjweaverVersion = "1.9.24"
 	jsonWebTokenVersion = "0.13.0"
 	liquibaseVersion = "4.33.0"
-	lombokVersion = "1.18.38"
+	lombokVersion = "1.18.40"
 	okHttp3Version = "5.1.0"
 	postgresqlVersion = "42.7.7"
-	springDocVersion = "2.8.11"
+	springDocVersion = "2.8.13"
 	springRetryVersion = "2.0.12"
 }
 
