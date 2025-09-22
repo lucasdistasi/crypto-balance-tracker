@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.5.5'
+	id 'org.springframework.boot' version '3.5.6'
 	id 'io.spring.dependency-management' version '1.1.7'
 	id 'jacoco'
 }
@@ -21,9 +21,9 @@ ext {
 	aspectjweaverVersion = "1.9.24"
 	jsonWebTokenVersion = "0.13.0"
 	liquibaseVersion = "4.33.0"
-	lombokVersion = "1.18.40"
+	lombokVersion = "1.18.42"
 	okHttp3Version = "5.1.0"
-	postgresqlVersion = "42.7.7"
+	postgresqlVersion = "42.7.8"
 	springDocVersion = "2.8.13"
 	springRetryVersion = "2.0.12"
 }
