@@ -20,7 +20,7 @@ ext {
 	javaxCacheVersion = "1.1.1"
 	aspectjweaverVersion = "1.9.24"
 	jsonWebTokenVersion = "0.13.0"
-	liquibaseVersion = "4.33.0"
+	liquibaseVersion = "5.0.1"
 	lombokVersion = "1.18.42"
 	okHttp3Version = "5.1.0"
 	postgresqlVersion = "42.7.8"
