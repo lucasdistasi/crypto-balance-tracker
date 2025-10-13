@@ -22,7 +22,7 @@ ext {
 	jsonWebTokenVersion = "0.13.0"
 	liquibaseVersion = "5.0.1"
 	lombokVersion = "1.18.42"
-	okHttp3Version = "5.1.0"
+	okHttp3Version = "5.2.1"
 	postgresqlVersion = "42.7.8"
 	springDocVersion = "2.8.13"
 	springRetryVersion = "2.0.12"
